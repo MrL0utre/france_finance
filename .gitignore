@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.tsbuildinfo
+*.local
+.DS_Store
+
+# Fichiers sources téléchargés par le pipeline : 155 Mo, reconstructibles par
+# `npm run data:build`. Le CSV des comptes communaux pèse à lui seul 157 Mo.
+data/cache/
+
+# En revanche, public/data/ EST versionné, à dessein :
+#   — l'application ne fonctionne pas sans, un déploiement produirait une page vide ;
+#   — la reconstruire exige de retélécharger 155 Mo et d'appeler OpenFisca ;
+#   — le millésime des données devient explicite et relisible dans l'historique.

@@ -1,0 +1,8 @@
+# Fins de ligne normalisées en LF dans le dépôt : le développement se fait sous
+# Windows, la vérification continue et le déploiement sous Linux.
+* text=auto eol=lf
+
+# Les données construites sont volumineuses et illisibles en revue : les traiter
+# comme du binaire évite des diffs de plusieurs milliers de lignes.
+public/data/**/*.json -diff
+package-lock.json -diff
