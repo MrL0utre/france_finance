@@ -1,0 +1,49 @@
+{
+  "_lisezmoi": [
+    "Repères de coût pour de grands investissements publics, chacun sourcé.",
+    "Ces entrées ne prétendent pas que ces projets restent à financer : plusieurs",
+    "sont engagés ou achevés. Elles servent de calibre — « combien coûterait un",
+    "chantier de cette ampleur » — et s'ajoutent au scénario comme dépense nouvelle.",
+    "Les coûts sont hors frais de financement, qui apparaissent séparément via la",
+    "charge de la dette."
+  ],
+
+  "chantiers": [
+    {
+      "id": "epr2",
+      "label": "Un programme nucléaire de 6 EPR2",
+      "cout": 72800000000,
+      "dureeAnnees": 15,
+      "instrument": "investissement",
+      "note": "Devis EDF de décembre 2025, en valeurs 2020 et hors coûts de financement, présenté comme un montant maximum incluant les provisions pour aléas. La Cour des comptes retient 79,9 Md € aux conditions de 2023. Le précédent de Flamanville 3 invite à la prudence : devisé 3,3 Md €, son coût est établi à 23,7 Md € par la Cour des comptes.",
+      "source": {
+        "label": "EDF (déc. 2025) et Cour des comptes (janv. 2025)",
+        "url": "https://www.ccomptes.fr/fr/publications/la-filiere-epr"
+      }
+    },
+    {
+      "id": "metro",
+      "label": "Un métro de l'ampleur du Grand Paris Express",
+      "cout": 38500000000,
+      "dureeAnnees": 12,
+      "instrument": "investissement",
+      "note": "Coût à terminaison évalué par la Cour des comptes, contre 25,5 Md € à l'objectif initial de 2013. Le projet est largement engagé : ce montant sert ici de calibre pour un chantier comparable, non de reste à financer.",
+      "source": {
+        "label": "Cour des comptes — coût et financement du Grand Paris Express",
+        "url": "https://www.senat.fr/rap/r20-044/r20-044-syn.pdf"
+      }
+    },
+    {
+      "id": "france2030",
+      "label": "Un plan d'investissement de l'ampleur de France 2030",
+      "cout": 54000000000,
+      "dureeAnnees": 5,
+      "instrument": "investissement",
+      "note": "Enveloppe annoncée pour France 2030, qui regroupe des subventions, des avances remboursables et des prises de participation. Toutes ne pèsent pas identiquement sur le solde : le traiter comme une dépense pleine en majore l'effet budgétaire.",
+      "source": {
+        "label": "Gouvernement — France 2030",
+        "url": "https://www.info.gouv.fr/france-2030"
+      }
+    }
+  ]
+}
