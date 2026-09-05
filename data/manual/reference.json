@@ -1,0 +1,115 @@
+{
+  "_lisezmoi": [
+    "Données saisies à la main, faute de publication en données ouvertes structurées.",
+    "Chaque montant porte sa source et la page du document d'origine.",
+    "À revoir une fois par an, à la parution des Chiffres clés de la Sécurité sociale",
+    "et du compte des administrations publiques de l'Insee."
+  ],
+
+  "dette": {
+    "encours": 2881914332661,
+    "dateEncours": "31 juillet 2026",
+    "dureeVieMoyenneAnnees": 8.45,
+    "programmeFinancementAnnuel": 300000000000,
+    "source": {
+      "label": "Agence France Trésor — encours de la dette négociable et programme de financement",
+      "url": "https://www.aft.gouv.fr/fr"
+    },
+    "note": "Ses titres déjà émis portent un taux fixé à l'émission et sont remboursés à l'échéance : il n'existe pas d'équivalent souverain au rachat de crédit. Une variation de taux ne touche donc que la dette réémise dans l'année — environ le montant du programme de financement — et ne se propage à tout l'encours qu'au rythme de son renouvellement.",
+    "noteCharge": "La charge de la dette figure au budget général, dans la mission « Engagements financiers de l'État ». Elle est reprise ici pour être pilotable directement."
+  },
+
+  "macroeconomie": {
+    "pib": 2920000000000,
+    "exercice": 2024,
+    "libelle": "Produit intérieur brut en valeur (Insee, comptes nationaux)",
+    "note": "Sert de dénominateur aux modèles de bouclage : un effet sur l'activité s'exprime en points de PIB avant d'être converti en recettes.",
+    "url": "https://www.insee.fr/fr/statistiques/2830547",
+
+    "pibParEmploi": 97000,
+    "noteEmploi": "PIB rapporté à l'emploi total (environ 30 millions de personnes en emploi). Convertir un effet d'activité en emplois par cette seule division suppose une productivité constante : le chiffre n'est qu'un ordre de grandeur, destiné à rendre l'effet tangible."
+  },
+
+  "totalConsolideNational": {
+    "montant": 1670000000000,
+    "exercice": 2024,
+    "libelle": "Dépenses des administrations publiques (Insee, comptes nationaux)",
+    "note": "57,2 % du PIB. Données provisoires, révision prévue à l'automne 2026. Ce total est consolidé des flux entre administrations : il est donc inférieur à la somme des trois périmètres explorés dans cet outil.",
+    "url": "https://www.insee.fr/fr/statistiques/8574492"
+  },
+
+  "secu": {
+    "source": {
+      "label": "Chiffres clés de la Sécurité sociale 2024 (édition 2025), Direction de la sécurité sociale",
+      "dataset": "chiffres-cles-dss-2024",
+      "exercice": 2024,
+      "url": "https://www.securite-sociale.fr/files/live/sites/SSFR/files/medias/DSS/2025/Chiffres-cles-DSS-2024-ed25.pdf"
+    },
+    "note": "Prestations nettes versées en 2024 par l'ensemble des régimes de base. Les branches se versent des transferts entre elles (notamment vers l'Autonomie) : leur somme est brute, non consolidée.",
+
+    "recettes": {
+      "montant": 628000000000,
+      "note": "Produits consolidés des régimes de base en 2024 (p. 7). Contrairement aux dépenses affichées ici, qui sont la somme brute des prestations par branche, ce total est consolidé : les deux ne sont donc pas directement comparables, et c'est pourquoi le solde ci-dessous est celui publié plutôt qu'une soustraction.",
+      "structure": [
+        { "label": "Cotisations sociales", "part": 0.564 },
+        { "label": "CSG", "part": 0.204 },
+        { "label": "Autres contributions, impôts et taxes", "part": 0.177 },
+        {
+          "label": "Transferts, cotisations prises en charge par l'État et autres produits",
+          "part": 0.055
+        }
+      ],
+      "noteStructure": "Structure des recettes des régimes de base en 2024 (p. 8). Les trois postes les plus importants sont identifiables sans ambiguïté ; les trois plus petits (2,8 %, 1,6 % et 1,1 %) ne le sont pas dans le graphique source et sont donc regroupés plutôt qu'attribués au hasard."
+    },
+
+    "solde": {
+      "montant": -15300000000,
+      "note": "Déficit des régimes de base et du fonds de solidarité vieillesse en 2024 (p. 26). C'est le chiffre publié : il ne s'obtient pas en soustrayant les deux totaux affichés ici, qui ne couvrent pas le même périmètre."
+    },
+
+    "branches": [
+      {
+        "id": "vieillesse",
+        "label": "Vieillesse",
+        "montant": 288500000000,
+        "note": "Prestations nettes versées par l'ensemble des régimes de base (p. 18).",
+        "enfants": []
+      },
+      {
+        "id": "maladie",
+        "label": "Maladie",
+        "montant": 234600000000,
+        "note": "Prestations nettes des régimes de base (p. 12). La ventilation ci-dessous applique la structure de l'Ondam 2024 (p. 14) : c'est une répartition indicative, l'Ondam n'ayant pas exactement le même périmètre que les prestations nettes.",
+        "derive": true,
+        "enfants": [
+          { "label": "Soins de ville", "part": 0.429 },
+          { "label": "Établissements de santé", "part": 0.411 },
+          { "label": "Médico-social", "part": 0.122 },
+          { "label": "Fonds d'intervention régional (FIR)", "part": 0.026 },
+          { "label": "Autres", "part": 0.012 }
+        ]
+      },
+      {
+        "id": "famille",
+        "label": "Famille",
+        "montant": 40900000000,
+        "note": "Prestations familiales, d'action sociale et en faveur du logement versées par la Cnaf (p. 22).",
+        "enfants": []
+      },
+      {
+        "id": "autonomie",
+        "label": "Autonomie",
+        "montant": 39900000000,
+        "note": "Dépenses de la branche Autonomie (p. 24). Inclut des financements provenant des branches Maladie et AT-MP.",
+        "enfants": []
+      },
+      {
+        "id": "atmp",
+        "label": "Accidents du travail – maladies professionnelles",
+        "montant": 13000000000,
+        "note": "Prestations nettes versées en 2024 (p. 15).",
+        "enfants": []
+      }
+    ]
+  }
+}
