@@ -1,0 +1,1 @@
+{"nodes":[{"id":"etat:rec:r3/0","label":"Prélèvement sur les recettes de l'État au profit du budget de l'Union européenne","dep":0,"rec":-23320855052,"level":"poste","sphere":"etat","parentId":"etat:rec:r3","nDep":0,"nRec":0,"nSol":0,"consolide":true,"src":"plf-etat-recettes"}]}
