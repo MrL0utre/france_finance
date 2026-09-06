@@ -62,8 +62,8 @@ npm run data:build
 ```
 
 Le pipeline interroge l'OFGL, data.economie.gouv.fr et OpenFisca, puis met les fichiers
-sources en cache dans `data/cache/` — **environ 155 Mo**, dont 157 Mo pour le seul CSV des
-comptes communaux, non versionnés. Les exécutions suivantes réutilisent ce cache ;
+sources en cache dans `data/cache/` — **156 Mo**, dont 150 Mo pour le seul CSV des comptes
+communaux, non versionnés. Les exécutions suivantes réutilisent ce cache ;
 `npm run data:build:force` force le retéléchargement. Comptez quelques minutes au premier
 lancement, une dizaine de secondes ensuite.
 
