@@ -6,8 +6,75 @@ intercommunalités — un niveau de détail que les simulateurs citoyens existan
 n'atteignent pas.
 
 Un sélecteur global bascule entre **Dépenses**, **Recettes** et **Solde** sans faire
-perdre sa position dans le graphe. Un **simulateur comptable** permet d'ajuster n'importe
-quel poste et d'en lire l'effet sur le solde.
+perdre sa position dans le graphe. Un **simulateur** permet d'ajuster n'importe quel poste,
+de choisir un modèle de bouclage macroéconomique, de projeter sur dix ans et de partager
+le scénario par URL.
+
+Application **entièrement statique** : les données sont pré-calculées, l'application ne
+fait que les servir. Aucun backend, aucune clé d'API, aucune donnée envoyée nulle part.
+
+## Démarrer
+
+Prérequis : **Node.js 20 ou plus** (`node --version`). Rien d'autre.
+
+```bash
+git clone <url-du-depot> && cd finance_france
+```
+
+```bash
+npm install
+```
+
+```bash
+npm run dev
+```
+
+L'application est alors sur **http://localhost:5173**.
+
+**Les données construites sont incluses dans le dépôt** : il n'y a rien à télécharger et
+aucun réseau n'est nécessaire. Reconstruire les données est utile seulement pour changer de
+millésime ou modifier le pipeline — voir *Reconstruire les données* plus bas.
+
+### Commandes
+
+| Commande | Effet |
+|---|---|
+| `npm run dev` | serveur de développement sur le port 5173 |
+| `npm test` | 6 suites de tests de comportement (simulation, partage, modèles, dette, barème, projection) |
+| `npm run build` | vérification des types puis construction dans `dist/` |
+| `npm run preview` | sert le résultat de `npm run build` |
+| `npm run data:build` | reconstruit `public/data/` depuis les portails ouverts |
+| `npm run data:build:force` | idem, en ignorant le cache local |
+
+### Déployer
+
+`npm run build` produit un `dist/` statique, publiable tel quel sur GitHub Pages, Netlify,
+Vercel ou n'importe quel serveur de fichiers. `vite.config.ts` fixe `base: './'`, ce qui
+fonctionne aussi bien à la racine d'un domaine que dans un sous-chemin.
+
+La vérification continue (`.github/workflows/ci.yml`) rejoue tests et construction à chaque
+poussée, **hors ligne** — précisément parce que les données sont versionnées.
+
+### Reconstruire les données
+
+```bash
+npm run data:build
+```
+
+Le pipeline interroge l'OFGL, data.economie.gouv.fr et OpenFisca, puis met les fichiers
+sources en cache dans `data/cache/` — **environ 155 Mo**, dont 157 Mo pour le seul CSV des
+comptes communaux, non versionnés. Les exécutions suivantes réutilisent ce cache ;
+`npm run data:build:force` force le retéléchargement. Comptez quelques minutes au premier
+lancement, une dizaine de secondes ensuite.
+
+La construction se termine par 54 assertions bloquantes : en cas d'échec, elle renvoie un
+code de sortie non nul et n'écrit pas de données incohérentes.
+
+### Licence
+
+Le code n'est pas encore sous licence (`UNLICENSED` dans `package.json`) : à choisir avant
+toute publication. Les données proviennent de portails en Licence Ouverte / Etalab, dont
+les conditions de réutilisation s'appliquent indépendamment.
 
 ## Simulateur
 
@@ -206,39 +273,25 @@ préservation des paramètres d'URL existants, et le rejet de onze formes d'entr
 malformées : une URL est une entrée non fiable, un lien trafiqué ne doit pas produire un
 scénario à moitié appliqué.
 
-Application statique : les données sont pré-calculées par un pipeline, l'application
-ne fait que les servir. Aucun backend.
-
-## Démarrer
-
-```bash
-npm install
-```
-
-```bash
-npm run data:build
-```
-
-```bash
-npm run dev
-```
-
-Le pipeline télécharge ~60 Mo depuis les portails ouverts et les met en cache dans
-`data/cache/`. Les exécutions suivantes réutilisent ce cache ; `npm run data:build:force`
-force le retéléchargement.
-
 ## Structure
 
 ```
-pipeline/        construction des données (Node + tsx), hors du build de l'app
-  sources/ofgl   comptes des régions, départements, EPCI et communes
-  etat.ts        crédits de l'État par ministère → mission → programme → action
-  secu.ts        branches de sécurité sociale (saisie manuelle, cf. plus bas)
-  checks.ts      contrôles de cohérence, bloquants
-data/manual/     montants saisis à la main, avec leur source et leur page
-public/data/     sortie du pipeline (non versionnée) : shards chargés à la demande
-src/             application React
-  schema.ts      format de nœud partagé pipeline ↔ application
+pipeline/          construction des données (Node + tsx), hors du build de l'app
+  sources/ofgl.ts  comptes des régions, départements, EPCI et communes
+  etat.ts          crédits de l'État par ministère → mission → programme → action
+  secu.ts          branches de sécurité sociale (saisie manuelle, cf. plus bas)
+  openfisca.ts     barème de l'IR et cas types de référence
+  checks.ts        contrôles de cohérence, bloquants
+data/manual/       montants saisis à la main, avec leur source et leur page
+public/data/       sortie du pipeline, versionnée : shards chargés à la demande
+tests/             tests de comportement, exécutés par `npm test`
+src/
+  schema.ts        format de nœud partagé pipeline ↔ application
+  data/            chargement, simulation, partage par URL
+  graph/ panel/    explorateur en graphe et panneau de détail
+  pilotage/        tableau de bord, dette, mesures libres, chantiers
+  modeles/         bouclage macroéconomique, comparaison, projection
+  impot/           barème de l'impôt sur le revenu
 ```
 
 ## Sources
@@ -249,6 +302,9 @@ src/             application React
 | État — dépenses | [data.economie.gouv.fr](https://data.economie.gouv.fr) — PLF, budget général, crédits de paiement | 2025 |
 | État — recettes | `plf25-recettes-du-budget-general` | 2025 |
 | Sécurité sociale | Chiffres clés de la Sécurité sociale (PDF, saisie manuelle) | 2024 |
+| Barème de l'IR | [OpenFisca France](https://openfisca.org/doc/) — art. 197 du CGI | 2025 |
+| Dette | [Agence France Trésor](https://www.aft.gouv.fr/fr) — encours et programme de financement | 2026 |
+| Grands chantiers | Cour des comptes, EDF, France 2030 — voir `data/manual/chantiers.json` | — |
 | Repère consolidé | Insee, compte des administrations publiques | 2024 |
 
 ## Quatre pièges traités, à ne pas réintroduire
