@@ -70,11 +70,39 @@ lancement, une dizaine de secondes ensuite.
 La construction se termine par 54 assertions bloquantes : en cas d'échec, elle renvoie un
 code de sortie non nul et n'écrit pas de données incohérentes.
 
-### Licence
+## Licence
 
-Le code n'est pas encore sous licence (`UNLICENSED` dans `package.json`) : à choisir avant
-toute publication. Les données proviennent de portails en Licence Ouverte / Etalab, dont
-les conditions de réutilisation s'appliquent indépendamment.
+Code sous **GNU Affero General Public License v3 ou ultérieure** ([`LICENSE`](LICENSE)).
+Chacun peut l'utiliser, l'étudier, l'héberger, le modifier et le redistribuer ; toute
+version modifiée mise à disposition — **y compris à travers un réseau** — doit publier son
+code source.
+
+Ce choix n'est pas une formalité pour cet outil en particulier. Ses multiplicateurs
+déterminent ses conclusions : la même coupe de 10 Md€ rapporte entre 3,8 et 10 Md€ selon la
+calibration retenue. Une version hébergée aux coefficients discrètement ajustés serait
+indiscernable de celle-ci pour un visiteur — mêmes graphes, mêmes sources affichées, autres
+chiffres. La GPL ordinaire ne couvrirait pas ce cas, l'hébergement n'étant pas une
+redistribution ; l'AGPL le couvre. C'est le même raisonnement qui a conduit
+[France Budget](https://github.com/cturkieh/france-budget-simulateur) au même choix.
+
+Ce garde-fou protège aussi tout repreneur : un organisme publiant des chiffrages budgétaires
+est structurellement exposé au soupçon d'avoir ajusté ses hypothèses ; sous AGPL, ses
+modifications sont publiques et vérifiables.
+
+**Avant tout déploiement**, renseignez l'adresse du dépôt dans `src/depot.ts` : l'article 13
+de l'AGPL impose que les utilisateurs interagissant avec une version modifiée à travers un
+réseau puissent en obtenir la source. Tant que la valeur reste celle du gabarit,
+l'application n'affiche pas de lien mort.
+
+### Licence des données
+
+Les données relèvent de leurs licences propres, indépendantes de celle du code :
+
+| Source | Licence |
+|---|---|
+| OFGL, Direction du Budget, Insee, AFT | Licence Ouverte / Etalab 2.0 — mention de paternité requise, assurée par `sources.json` et le panneau Méthodologie |
+| OpenFisca France | AGPL-3.0 |
+| Chiffres clés de la Sécurité sociale | publication institutionnelle, saisie manuelle sourcée dans `data/manual/reference.json` |
 
 ## Simulateur
 

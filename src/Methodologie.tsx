@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { SourceRef } from './schema';
 import { Controles } from './Controles';
+import { DEPOT, depotRenseigne } from './depot';
 
 export function Methodologie({
   sources,
@@ -330,6 +331,37 @@ export function Methodologie({
             unique, et le Bas-Rhin et le Haut-Rhin par la Collectivité européenne d'Alsace. Ces
             territoires apparaissent dans le graphe pour rendre leurs communes accessibles, mais
             ne portent aucune dépense départementale propre.
+          </p>
+        </section>
+
+        <section>
+          <h3>Licence</h3>
+          <p>
+            Code sous <strong>GNU Affero General Public License v3</strong> ou ultérieure.
+            Chacun peut l'utiliser, l'étudier, l'héberger et le modifier ; toute version
+            modifiée mise à disposition, y compris à travers un réseau, doit publier son code
+            source.
+          </p>
+          <p>
+            Ce n'est pas une formalité pour cet outil : ses multiplicateurs déterminent ses
+            conclusions, et une version hébergée aux coefficients discrètement ajustés serait
+            indiscernable de celle-ci pour un visiteur. L'AGPL rend ces modifications
+            vérifiables.{' '}
+            {depotRenseigne() ? (
+              <>
+                Le code de cette installation est disponible{' '}
+                <a href={DEPOT} target="_blank" rel="noreferrer">
+                  sur son dépôt
+                </a>
+                .
+              </>
+            ) : null}
+          </p>
+          <p>
+            Les données relèvent de leurs licences propres, indépendantes de celle du code :
+            <strong> Licence Ouverte / Etalab 2.0</strong> pour les jeux de l'OFGL, de la
+            Direction du Budget et de l'Insee, qui impose la mention de leur paternité —
+            assurée par la liste ci-dessous.
           </p>
         </section>
 

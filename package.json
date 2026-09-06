@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Explorateur et simulateur des finances publiques françaises, de l'État à la commune",
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "engines": {
     "node": ">=20"
