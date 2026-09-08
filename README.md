@@ -13,6 +13,41 @@ le scénario par URL.
 Application **entièrement statique** : les données sont pré-calculées, l'application ne
 fait que les servir. Aucun backend, aucune clé d'API, aucune donnée envoyée nulle part.
 
+## Ce qu'est ce projet, et ce qu'il n'est pas
+
+**Projet indépendant, sans lien avec une administration.** Il n'émane d'aucun service
+public, n'est ni validé ni soutenu par les organismes dont il réutilise les données, et ne
+saurait engager leur responsabilité. Ni le nom ni l'identité visuelle de l'État n'y
+figurent : la Licence Ouverte / Etalab 2.0, sous laquelle les données sont réutilisées,
+interdit de laisser croire à un statut officiel ou à un aval du producteur.
+
+**Il n'émet aucune recommandation ni conclusion.** Il affiche des données publiques et
+calcule les scénarios que l'utilisateur construit, sous des hypothèses affichées et
+modifiables. L'onglet « Comparer les modèles » existe précisément pour montrer que la
+réponse dépend d'hypothèses sur lesquelles les économistes ne s'accordent pas : la même
+coupe de 10 Md€ rapporte entre 3,8 et 10 Md€ selon la calibration retenue.
+
+**Les chiffres sont sourcés, les hypothèses affichées — et la distinction entre les deux
+est maintenue.** La législation fiscale vient d'OpenFisca et renvoie à l'article 197 du
+CGI ; les agrégats budgétaires viennent des portails publics, chacun référencé dans
+`sources.json`. Les **multiplicateurs macroéconomiques, eux, ne sont pas des valeurs
+officielles** : ce sont des ordres de grandeur repris de la littérature publique (Mésange,
+OFCE, FMI), visibles dans l'interface et réglables. Aucun résultat n'a valeur de prévision.
+Tout montant dérivé plutôt que publié porte la mention correspondante.
+
+**Développé avec l'assistance de Claude** (Anthropic). Le code, les sources et les
+contrôles de cohérence sont publics et vérifiables — c'est le sens du choix de l'AGPL.
+
+**Aucune donnée personnelle traitée.** Ni compte, ni traceur, ni cookie, ni mesure
+d'audience : vérifiable dans le code, il n'existe aucun appel réseau vers un tiers. Le
+scénario de l'utilisateur reste dans son navigateur (`localStorage`) ; un lien partagé
+n'existe que s'il le copie lui-même. Les données affichées portent sur des personnes
+morales — collectivités, ministères, organismes — jamais sur des personnes physiques ; les
+foyers types du barème sont fictifs.
+
+**Garantie.** Le logiciel est fourni sans garantie, dans les termes des articles 15 et 16
+de l'AGPL-3.0.
+
 ## Démarrer
 
 Prérequis : **Node.js 20 ou plus** (`node --version`). Rien d'autre.

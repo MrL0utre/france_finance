@@ -45,6 +45,39 @@ export function Methodologie({
 
         {onglet === 'methode' && (
           <>
+        <section className="modale__alerte">
+          <h3>Ce qu'est ce projet, et ce qu'il n'est pas</h3>
+          <p>
+            <strong>Projet indépendant, sans lien avec une administration.</strong> Il n'émane
+            d'aucun service public, n'est ni validé ni soutenu par les organismes dont il
+            réutilise les données, et ne saurait engager leur responsabilité.
+          </p>
+          <p>
+            <strong>Il n'émet aucune recommandation ni conclusion.</strong> Il affiche des données
+            publiques et calcule les scénarios que vous construisez, sous des hypothèses affichées
+            et modifiables. Il ne dit pas ce qu'il faudrait faire ; l'onglet « Comparer les
+            modèles » existe précisément pour montrer que la réponse dépend d'hypothèses sur
+            lesquelles les économistes ne s'accordent pas.
+          </p>
+          <p>
+            <strong>Les chiffres sont sourcés, les hypothèses sont affichées.</strong> La
+            législation fiscale provient d'OpenFisca et renvoie au Code général des impôts. Les
+            multiplicateurs, en revanche, ne sont pas des valeurs officielles : ce sont des ordres
+            de grandeur repris de la littérature publique, visibles dans l'interface et réglables.
+            Aucun résultat n'a valeur de prévision.
+          </p>
+          <p>
+            <strong>Développé avec l'assistance de Claude</strong> (Anthropic). L'intégralité du
+            code, des sources et des contrôles de cohérence est publique et vérifiable, sous
+            licence AGPL.
+          </p>
+          <p>
+            <strong>Aucune donnée personnelle.</strong> Ni compte, ni traceur, ni cookie, ni
+            mesure d'audience. Votre scénario reste dans votre navigateur ; un lien partagé
+            n'existe que si vous le copiez vous-même.
+          </p>
+        </section>
+
         <section>
           <h3>Ce que montre cet outil</h3>
           <p>

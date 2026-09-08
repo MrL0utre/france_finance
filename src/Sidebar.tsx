@@ -23,6 +23,9 @@ export function Sidebar({
         </span>
         <div>
           <strong>Finances Publiques</strong>
+          {/* Projet indépendant : ni le nom ni l'identité visuelle de l'État ne
+              doivent figurer ici. La Licence Ouverte sous laquelle les données
+              sont réutilisées interdit de laisser croire à un aval officiel. */}
           <span>Projet indépendant · données ouvertes</span>
         </div>
       </div>
