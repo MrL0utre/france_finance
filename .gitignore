@@ -4,6 +4,11 @@ dist/
 *.local
 .DS_Store
 
+# Configuration d'éditeur : propre à chaque poste, souvent porteuse de chemins
+# absolus, elle n'a pas sa place dans un dépôt partagé.
+.vscode/
+.idea/
+
 # Fichiers sources téléchargés par le pipeline : 155 Mo, reconstructibles par
 # `npm run data:build`. Le CSV des comptes communaux pèse à lui seul 157 Mo.
 data/cache/
