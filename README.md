@@ -113,8 +113,10 @@ La vérification continue (`.github/workflows/ci.yml`) rejoue tests et construct
 poussée, **hors ligne** — précisément parce que les données sont versionnées.
 
 **Publication automatique vers un hébergement OVH.**
-`.github/workflows/deploy.yml` construit le site puis synchronise `dist/` vers `/www/` par
-FTP à chaque poussée sur `main`. Il attend trois secrets de dépôt — `FTP_SERVER`,
+`.github/workflows/deploy.yml` rejoue les tests, construit le site, puis synchronise `dist/`
+vers `/www/` par FTP à chaque poussée sur `main`. **Un test qui échoue interrompt la
+publication** : la vérification continue tourne en parallèle de ce workflow et n'aurait rien
+bloqué de son côté. Il attend trois secrets de dépôt — `FTP_SERVER`,
 `FTP_USERNAME`, `FTP_PASSWORD` — à créer dans *Settings → Secrets and variables → Actions*.
 Sans eux le job échoue à l'envoi, sans rien publier.
 

@@ -27,14 +27,24 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Installation des dépendances
+        run: npm ci
+
+      # Un test qui casse doit empêcher la publication, pas seulement teinter le
+      # dépôt en rouge : la vérification continue tourne en parallèle de ce
+      # workflow et n'aurait rien bloqué. Les contrôles de cohérence des données
+      # comptent ici autant que les tests de comportement — publier un site dont
+      # les recettes ne tombent plus en face des dépenses serait pire que ne rien
+      # publier du tout.
+      - name: Contrôles de cohérence et de comportement
+        run: npm test
+
       # Le dépôt contient les sources, pas le site : sans cette étape, OVH
       # recevrait un index.html qui appelle /src/main.tsx, que le navigateur ne
       # sait pas exécuter. Les données étant versionnées, la construction reste
       # hors ligne — aucun portail public n'est sollicité ici.
-      - name: Installation des dépendances et construction
-        run: |
-          npm ci
-          npm run build
+      - name: Types et construction
+        run: npm run build
 
       - name: Sync FTP vers OVH
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
