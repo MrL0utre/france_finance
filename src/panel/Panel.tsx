@@ -70,6 +70,17 @@ export function Panel({
   const base = valeur(node, mode);
   const solde = soldeSim;
   const avecSolde = soldeInterpretable(node);
+  /**
+   * Le solde affiché est publié, et diffère de la soustraction que le lecteur
+   * fait de tête en voyant les deux totaux juste au-dessus. C'est la question
+   * que pose n'importe qui devant la Sécurité sociale : dépenses 616,9,
+   * recettes 628, et pourtant un déficit. Elle mérite sa réponse à cet endroit,
+   * pas six lignes plus bas au milieu d'un paragraphe.
+   */
+  const ecartSolde =
+    node.solde !== undefined && Math.abs(node.solde - (node.rec - node.dep)) > 1e8
+      ? node.rec - node.dep
+      : null;
   const couleur =
     mode === 'solde'
       ? montant >= 0
@@ -129,6 +140,21 @@ export function Panel({
           <strong>{avecSolde ? eurosSigne(solde) : '—'}</strong>
         </div>
       </div>
+
+      {ecartSolde !== null && !simule && (
+        <details className="bilan__ecart">
+          {/* Formulation valable des deux côtés : le solde de la Sécurité sociale
+              est publié, celui de la racine additionne ceux des trois sphères.
+              Dire « chiffre publié » serait faux dans le second cas. */}
+          <summary>Ce solde n'est pas la différence des deux totaux ci-dessus.</summary>
+          <p>
+            La soustraction donnerait {eurosSigne(ecartSolde)}, soit{' '}
+            {euros(Math.abs(ecartSolde - (node.solde ?? 0)))} d'écart : les deux totaux ne
+            couvrent pas le même périmètre.
+          </p>
+          {node.noteSolde && <p>{node.noteSolde}</p>}
+        </details>
+      )}
 
       <Curseur
         node={node}

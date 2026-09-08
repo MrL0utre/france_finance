@@ -64,7 +64,7 @@
 
     "solde": {
       "montant": -15300000000,
-      "note": "Déficit des régimes de base et du fonds de solidarité vieillesse en 2024 (p. 26). C'est le chiffre publié : il ne s'obtient pas en soustrayant les deux totaux affichés ici, qui ne couvrent pas le même périmètre."
+      "note": "Déficit des régimes de base et du fonds de solidarité vieillesse en 2024 (p. 26). C'est le chiffre publié, et non la différence des deux totaux affichés ici, pour trois raisons qui se cumulent. Les dépenses montrées ne sont que les prestations versées par les branches : ni la gestion administrative, ni l'action sociale, ni les transferts vers d'autres régimes n'y figurent, si bien qu'elles sont très inférieures aux charges réelles. Elles sont de surcroît brutes, quand les recettes sont consolidées. Et le solde englobe le fonds de solidarité vieillesse, absent de la somme des branches."
     },
 
     "branches": [

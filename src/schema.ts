@@ -167,6 +167,14 @@ export type Node = {
    * relèvent de périmètres différents et que leur différence n'aurait pas de sens.
    */
   solde?: number;
+  /**
+   * Pourquoi ce solde n'est pas la différence des deux totaux du nœud.
+   *
+   * Renseignée pour les seuls nœuds dont le solde est publié plutôt que
+   * calculé : sans elle, un lecteur qui fait la soustraction de tête trouve un
+   * autre chiffre et n'a aucun moyen de savoir lequel croire.
+   */
+  noteSolde?: string;
   level: Level;
   sphere: Sphere;
   parentId: string | null;

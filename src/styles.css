@@ -3470,3 +3470,40 @@ button {
     overflow-y: visible;
   }
 }
+
+/* ---------- Écart entre le solde publié et la soustraction ---------- */
+
+/* Placé sous les trois totaux, là où naît la question : « dépenses 616,9,
+   recettes 628, pourquoi un déficit ? ». Le résumé donne la réponse courte, le
+   dépliant l'arithmétique et le périmètre. */
+.bilan__ecart {
+  margin: 8px 18px 0;
+  padding: 8px 10px;
+  border-left: 3px solid #94a3b8;
+  border-radius: 0 7px 7px 0;
+  background: #f8fafc;
+}
+
+.bilan__ecart > summary {
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+
+.bilan__ecart[open] > summary {
+  margin-bottom: 6px;
+  color: var(--texte);
+}
+
+.bilan__ecart p {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--texte-doux);
+}
+
+.bilan__ecart p:last-child {
+  margin-bottom: 0;
+}

@@ -135,7 +135,10 @@ async function main() {
       // enfant ne porte à la fois une dépense et une recette.
       nSol: 0,
       consolide: false,
-      note: `${ref.secu.note} ${ref.secu.recettes.note} ${ref.secu.solde.note}`,
+      note: `${ref.secu.note} ${ref.secu.recettes.note}`,
+      // Sortie de la note générale : elle répond à une question précise, posée
+      // au moment où l'on regarde le solde, et se perdait dans un paragraphe.
+      noteSolde: ref.secu.solde.note,
       src: 'secu',
     },
   ];
@@ -158,6 +161,11 @@ async function main() {
     nSol: 3,
     consolide: false,
     note: `Somme des trois périmètres explorés ici, chacun issu d'une source distincte. À titre de repère, l'Insee évalue les dépenses des administrations publiques 2024 à ${(ref.totalConsolideNational.montant / 1e9).toFixed(0)} Md € après consolidation des flux entre administrations — un total nécessairement inférieur à cette somme brute.`,
+    // Le solde de la racine additionne ceux des trois sphères. L'écart de la
+    // Sécurité sociale, dont le solde est publié et non calculé, remonte donc
+    // jusqu'ici : mieux vaut le dire que laisser croire à une erreur de somme.
+    noteSolde:
+      "Somme des soldes des trois périmètres, et non la différence des deux totaux affichés ici. Celui de la Sécurité sociale est un chiffre publié, qui ne s'obtient pas en soustrayant ses propres totaux ; l'écart se reporte à ce niveau.",
     src: 'insee',
   };
 
