@@ -1,0 +1,48 @@
+name: Déploiement automatique vers OVH
+
+on:
+  push:
+    branches:
+      - main
+
+# Deux poussées rapprochées déposeraient leurs fichiers en même temps sur le
+# même compte FTP, et l'état de synchronisation que l'action tient à distance
+# ne survivrait pas à l'entrelacement. Une publication à la fois, donc, et sans
+# annuler celle qui est déjà partie : un envoi FTP interrompu laisse le site à
+# moitié à jour.
+concurrency:
+  group: deploiement-ovh
+  cancel-in-progress: false
+
+jobs:
+  web-deploy:
+    name: Déploiement FTP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Le dépôt contient les sources, pas le site : sans cette étape, OVH
+      # recevrait un index.html qui appelle /src/main.tsx, que le navigateur ne
+      # sait pas exécuter. Les données étant versionnées, la construction reste
+      # hors ligne — aucun portail public n'est sollicité ici.
+      - name: Installation des dépendances et construction
+        run: |
+          npm ci
+          npm run build
+
+      - name: Sync FTP vers OVH
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Racine web de l'hébergement mutualisé OVH.
+          server-dir: /www/
+          # La barre finale est exigée par l'action.
+          local-dir: ./dist/

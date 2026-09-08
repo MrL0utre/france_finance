@@ -112,6 +112,22 @@ fonctionne aussi bien à la racine d'un domaine que dans un sous-chemin.
 La vérification continue (`.github/workflows/ci.yml`) rejoue tests et construction à chaque
 poussée, **hors ligne** — précisément parce que les données sont versionnées.
 
+**Publication automatique vers un hébergement OVH.**
+`.github/workflows/deploy.yml` construit le site puis synchronise `dist/` vers `/www/` par
+FTP à chaque poussée sur `main`. Il attend trois secrets de dépôt — `FTP_SERVER`,
+`FTP_USERNAME`, `FTP_PASSWORD` — à créer dans *Settings → Secrets and variables → Actions*.
+Sans eux le job échoue à l'envoi, sans rien publier.
+
+L'action tient à distance un fichier d'état (`.ftp-deploy-sync-state.json`) et n'envoie
+ensuite que les fichiers modifiés : la première publication transfère les 155 fichiers du
+site, environ 20 Mo dont l'essentiel est constitué des données ; les suivantes sont brèves.
+Supprimer ce fichier sur le serveur force un envoi complet.
+
+Le dépôt contient les sources, pas le site : sans l'étape de construction, l'hébergement
+recevrait un `index.html` appelant `/src/main.tsx`, que le navigateur ne sait pas exécuter.
+Le `base: './'` de Vite fait le reste, que le site soit servi à la racine du domaine ou dans
+un sous-chemin.
+
 ### Reconstruire les données
 
 ```bash
