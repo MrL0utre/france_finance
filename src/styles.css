@@ -84,6 +84,20 @@ button {
   padding: 0;
 }
 
+/* Le bouton de menu n'existe que là où les liens sont masqués : sur écran large
+   ils tiennent tous dans la colonne, un bouton pour les révéler n'aurait aucun
+   sens. */
+.barre__menu {
+  display: none;
+}
+
+/* Le voile suit le même sort. Sans cette règle, élargir la fenêtre alors que le
+   menu est ouvert laisserait un enfant vide dans la colonne, et l'espacement de
+   la barre lui ferait place. */
+.barre__voile {
+  display: none;
+}
+
 .barre__liens .actif,
 .barre__liens button {
   display: block;
@@ -3244,14 +3258,61 @@ button {
   }
 
   .barre {
+    position: relative;
     flex-direction: row;
     align-items: center;
     padding: 12px 16px;
   }
 
+  /* Les liens ne tiennent pas dans un bandeau horizontal. Masqués, ils rendaient
+     « Piloter » et « Comparer » inatteignables ; ils reviennent maintenant à la
+     demande, sans rien prendre à la vue le reste du temps. */
   .barre__liens,
   .barre__pied {
     display: none;
+  }
+
+  .barre__menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    border: 0;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 17px;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .barre__menu[aria-expanded='true'] {
+    background: var(--marine-clair);
+  }
+
+  .barre__liens--ouvert {
+    display: block;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 40;
+    padding: 8px;
+    background: var(--marine);
+    box-shadow: 0 14px 34px rgba(11, 30, 61, 0.38);
+  }
+
+  .barre__liens--ouvert button {
+    padding: 13px 14px;
+  }
+
+  /* Voile transparent : il ne sert qu'à capter le geste à côté du menu. */
+  .barre__voile {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 39;
   }
 
   .scene {
