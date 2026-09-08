@@ -25,14 +25,15 @@ interdit de laisser croire à un statut officiel ou à un aval du producteur.
 calcule les scénarios que l'utilisateur construit, sous des hypothèses affichées et
 modifiables. L'onglet « Comparer les modèles » existe précisément pour montrer que la
 réponse dépend d'hypothèses sur lesquelles les économistes ne s'accordent pas : la même
-coupe de 10 Md€ rapporte entre 3,8 et 10 Md€ selon la calibration retenue.
+coupe de 10 Md€ rapporte entre 4,3 et 10 Md€ selon la calibration retenue.
 
 **Les chiffres sont sourcés, les hypothèses affichées — et la distinction entre les deux
 est maintenue.** La législation fiscale vient d'OpenFisca et renvoie à l'article 197 du
 CGI ; les agrégats budgétaires viennent des portails publics, chacun référencé dans
 `sources.json`. Les **multiplicateurs macroéconomiques, eux, ne sont pas des valeurs
-officielles** : ce sont des ordres de grandeur repris de la littérature publique (Mésange,
-OFCE, FMI), visibles dans l'interface et réglables. Aucun résultat n'a valeur de prévision.
+officielles, ni extraites d'un modèle institutionnel** : ce sont des ordres de grandeur
+propres à ce projet, visibles dans l'interface, réglables, et affichés à côté d'estimations
+publiées pour que l'écart se voie. Aucun résultat n'a valeur de prévision.
 Tout montant dérivé plutôt que publié porte la mention correspondante.
 
 **Développé avec l'assistance de Claude** (Anthropic). Le code, les sources et les
@@ -134,7 +135,7 @@ version modifiée mise à disposition — **y compris à travers un réseau** �
 code source.
 
 Ce choix n'est pas une formalité pour cet outil en particulier. Ses multiplicateurs
-déterminent ses conclusions : la même coupe de 10 Md€ rapporte entre 3,8 et 10 Md€ selon la
+déterminent ses conclusions : la même coupe de 10 Md€ rapporte entre 4,3 et 10 Md€ selon la
 calibration retenue. Une version hébergée aux coefficients discrètement ajustés serait
 indiscernable de celle-ci pour un visiteur — mêmes graphes, mêmes sources affichées, autres
 chiffres. La GPL ordinaire ne couvrirait pas ce cas, l'hébergement n'étant pas une
@@ -190,20 +191,66 @@ chiffres. L'onglet **Comparer les modèles** passe un même scénario dans les q
 | Modèle | Multiplicateur dépense | 10 Md€ de coupe donnent |
 |---|---|---|
 | Comptable | 0 | +10,0 Md€ de solde |
-| Multiplicateurs faibles | 0,3–0,5 | +8,5 Md€ |
-| Multiplicateurs standards | 0,5–1,0 | +6,1 Md€ |
-| Multiplicateurs élevés | 0,9–1,5 | +3,8 Md€ |
+| Multiplicateurs faibles | 0,3–0,6 | +7,6 Md€ |
+| Multiplicateurs standards | 0,6–1,0 | +5,6 Md€ |
+| Multiplicateurs élevés | 0,9–1,4 | +4,3 Md€ |
 
 **Le modèle « Comptable » n'est pas l'absence de modèle** : c'est l'hypothèse, très forte,
 que l'activité ne réagit pas. En faire un choix explicite plutôt qu'un défaut implicite est
 le principal gain d'honnêteté de cette étape.
 
-**Ce ne sont pas des implémentations de Mésange.** [Le code de Mésange est publié par
-l'Insee](https://github.com/InseeFr/Mesange) sous CeCILL, mais écrit en TROLL — logiciel
-propriétaire — sans données ni instructions d'exécution : « ouvert » n'y signifie pas
-« exécutable ». Ce sont quatre calibrations d'un même moteur simplifié
-(`src/modeles/moteur.ts`), statique et linéaire, dont les ordres de grandeur s'inspirent de
-la littérature (Mésange, OFCE, FMI).
+**Ce ne sont pas des implémentations de Mésange, et les coefficients n'en sont pas issus.**
+[Le code de Mésange est publié par l'Insee](https://github.com/InseeFr/Mesange) sous CeCILL,
+mais écrit en TROLL — logiciel propriétaire — sans données ni instructions d'exécution :
+« ouvert » n'y signifie pas « exécutable ». **Aucune ligne de son code ni aucune de ses
+données ne figure dans ce projet.** Ce sont quatre calibrations d'un même moteur simplifié
+(`src/modeles/moteur.ts`), statique et linéaire.
+
+Les multiplicateurs sont des **valeurs propres à ce projet**, choisies rondes, traduisant
+des régularités largement admises — la dépense pèse plus que l'impôt à euro égal,
+l'investissement plus que le fonctionnement. Mésange publie ses propres variantes chiffrées ;
+elles ne sont pas reprises ici. Le [document de travail
+G2017/04](https://www.insee.fr/fr/statistiques/2848300) est cité pour approfondir, non comme
+provenance des valeurs — les attribuer à l'Insee serait faux et abusif envers ses auteurs.
+
+### Comparaison avec les estimations publiées
+
+Des valeurs choisies rondes restent invérifiables tant qu'on ne les met pas en regard de
+quelque chose. L'application les affiche donc à côté d'estimations publiées, dans le
+dépliant **« Comparer aux estimations publiées »** du panneau *Piloter*
+(`src/modeles/references.ts`) — non pour les justifier, mais pour rendre visible l'écart
+là où il existe.
+
+| Estimation publiée | Valeur | Standards | Faibles | Élevés |
+|---|---|---|---|---|
+| Investissement public — Mésange (2017) | 1,4 à 2 ans · 0,9 à 5 ans | 1,0 | 0,6 | 1,4 |
+| Investissements publics — OCDE (2013), France | 1,0 | 1,0 | 0,6 | 1,4 |
+| Toutes dépenses publiques — Mésange (2017) | 1,1 à 2 ans · 0,9 à 5 ans | 0,9 | 0,5 | 1,1 |
+| Prestations en espèces — OCDE (2013) | 0,6 | 0,6 | 0,3 | 0,9 |
+| Impôt sur le revenu des ménages — OCDE (2013) | 0,6 | 0,6 | 0,3 | 0,8 |
+| Impôts indirects — OCDE (2013) | 0,3 | 0,3 | 0,2 | 0,5 |
+| Baisse de CSG — Mésange (2017) | 0,8 à 2 ans · 0,8 à 5 ans | 0,7 | 0,5 | 0,9 |
+| Baisse de cotisations employeurs — Mésange (2017) | 0,6 à 2 ans · 1,0 à 5 ans | 0,7 | 0,5 | 0,9 |
+
+Ces valeurs sont reprises du [recensement qu'en fait
+FIPECO](https://www.fipeco.fr/fiche/Leffet-multiplicateur-dune-variation-du-deficit-public),
+**non des publications primaires** : le document de travail de Mésange présente ses variantes
+sous forme de graphiques, dont on ne peut lire de valeur au dixième près. Annoncer une
+vérification à la source serait donc inexact, et la chaîne d'attribution est affichée telle
+quelle dans l'application.
+
+Les nomenclatures ne se recouvrent pas exactement — « toutes dépenses publiques » n'est pas
+notre poste *fonctionnement*, « impôts indirects » n'est pas exactement notre *impôt sur la
+consommation*. Le rattachement est approximatif, et signalé comme tel.
+
+Trois instruments n'ont **aucune estimation publiée qui s'y rattache** : impôt sur les
+sociétés, charge de la dette, et le poste résiduel. Leurs valeurs relèvent du seul jugement,
+et l'application le dit plutôt que de laisser croire le contraire.
+
+Cette confrontation a servi à corriger deux coefficients nettement hors fourchette — l'impôt
+sur la consommation (0,5 quand l'OCDE donne 0,3) et les cotisations (0,4 quand Mésange donne
+0,6 à 1,0). Les tests portant sur des propriétés et non sur des valeurs, la recalibration est
+passée sans qu'aucun ait eu à être réécrit.
 
 Le moteur enchaîne trois étages : l'impulsion budgétaire agit sur l'activité via un
 multiplicateur propre à chaque instrument ; l'activité modifiée fait varier les recettes

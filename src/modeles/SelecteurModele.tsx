@@ -1,4 +1,10 @@
-import { MODELES } from './registre';
+import { CALIBRATIONS, MODELES } from './registre';
+import {
+  NOTE_CONJONCTURE,
+  REFERENCES,
+  SANS_REFERENCE,
+  SOURCE_REFERENCES,
+} from './references';
 import type { Effets, Modele } from './types';
 import { LIBELLES } from './instruments';
 import { euros, eurosSigne, nombre } from '../format';
@@ -11,6 +17,7 @@ export function SelecteurModele({
   onChoisir: (id: string) => void;
 }) {
   const modele = MODELES.find((m) => m.id === actif) ?? MODELES[0];
+  const calibration = CALIBRATIONS[modele.id];
 
   return (
     <section className="modeles">
@@ -45,6 +52,50 @@ export function SelecteurModele({
           </a>
         </p>
       )}
+
+      <details className="modeles__references">
+        <summary>Comparer aux estimations publiées</summary>
+        <p className="modeles__avertissement-ref">
+          Nos coefficients ne sont pas extraits de ces travaux : ils sont donnés ici en regard,
+          pour que leur plausibilité se juge. Les nomenclatures ne se recouvrent pas exactement,
+          le rattachement est donc approximatif.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Estimation publiée</th>
+              <th scope="col">Valeur</th>
+              <th scope="col">Ici</th>
+            </tr>
+          </thead>
+          <tbody>
+            {REFERENCES.map((r) => (
+              <tr key={`${r.instrument}-${r.source}-${r.intitule}`}>
+                <th scope="row">
+                  {r.intitule}
+                  <span>{r.source}</span>
+                </th>
+                <td>{r.valeur}</td>
+                <td className="modeles__notre-valeur">
+                  {calibration
+                    ? calibration.multiplicateurs[r.instrument].toFixed(1).replace('.', ',')
+                    : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="modeles__avertissement-ref">
+          Aucune estimation publiée ne se rattache directement à{' '}
+          {SANS_REFERENCE.map((i) => LIBELLES[i].toLowerCase()).join(', ')} : ces valeurs
+          relèvent du seul jugement. {NOTE_CONJONCTURE}
+        </p>
+        <p className="modeles__source">
+          <a href={SOURCE_REFERENCES.url} target="_blank" rel="noreferrer">
+            {SOURCE_REFERENCES.label}
+          </a>
+        </p>
+      </details>
     </section>
   );
 }

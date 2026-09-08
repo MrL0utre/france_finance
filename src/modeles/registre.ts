@@ -31,28 +31,35 @@ import type { Modele } from './types';
  */
 const KEYNESIEN: Calibration = {
   multiplicateurs: {
-    investissement: 1.0,
-    fonctionnement: 0.8,
-    transferts: 0.5,
-    impot_menages: 0.5,
-    impot_consommation: 0.5,
-    impot_entreprises: 0.3,
-    cotisations: 0.4,
-    charge_dette: 0.2,
+    investissement: 1.0, // OCDE 1,0 ; Mésange 0,9 à 5 ans
+    fonctionnement: 0.9, // Mésange, toutes dépenses publiques, 0,9 à 5 ans
+    transferts: 0.6, // OCDE, prestations en espèces, 0,6
+    impot_menages: 0.6, // OCDE, impôt sur le revenu des ménages, 0,6
+    impot_consommation: 0.3, // OCDE, impôts indirects, 0,3
+    impot_entreprises: 0.4, // aucune estimation publiée ne s'y rattache
+    cotisations: 0.7, // Mésange, CSG 0,8 et cotisations employeurs 0,6 à 1,0
+    charge_dette: 0.2, // aucune estimation publiée
     autre: 0.5,
   },
   elasticiteRecettes: 1.0,
   elasticiteDepenses: -0.05,
 };
 
-/** Variante basse : multiplicateurs réduits, économie proche de son potentiel. */
+/**
+ * Variante basse : économie proche de son potentiel. La littérature s'accorde
+ * sur l'affaissement des multiplicateurs dans cette situation, la dépense s'y
+ * traduisant davantage en inflation qu'en activité — d'où des valeurs de l'ordre
+ * de la moitié de la calibration médiane.
+ */
 const OFFRE: Calibration = {
   multiplicateurs: {
-    investissement: 0.5,
-    fonctionnement: 0.3,
-    transferts: 0.2,
+    investissement: 0.6,
+    fonctionnement: 0.5,
+    transferts: 0.3,
     impot_menages: 0.3,
-    impot_consommation: 0.3,
+    impot_consommation: 0.2,
+    // Vue d'offre : le coût du travail et les prélèvements sur les entreprises
+    // pèsent ici davantage que la demande publique.
     impot_entreprises: 0.5,
     cotisations: 0.5,
     charge_dette: 0.1,
@@ -62,16 +69,20 @@ const OFFRE: Calibration = {
   elasticiteDepenses: -0.05,
 };
 
-/** Variante haute : économie en bas de cycle, politique monétaire contrainte. */
+/**
+ * Variante haute : bas de cycle, politique monétaire contrainte. Calée sur le
+ * haut de la fourchette publiée plutôt qu'au-delà — Mésange à deux ans et le
+ * FMI donnent tous deux 1,4 pour l'investissement public.
+ */
 const RELANCE: Calibration = {
   multiplicateurs: {
-    investissement: 1.5,
-    fonctionnement: 1.2,
+    investissement: 1.4, // Mésange 1,4 à 2 ans ; FMI 1,4 après 4 ans
+    fonctionnement: 1.1, // Mésange, toutes dépenses publiques, 1,1 à 2 ans
     transferts: 0.9,
     impot_menages: 0.8,
-    impot_consommation: 0.8,
+    impot_consommation: 0.5,
     impot_entreprises: 0.4,
-    cotisations: 0.6,
+    cotisations: 0.9,
     charge_dette: 0.3,
     autre: 0.8,
   },
