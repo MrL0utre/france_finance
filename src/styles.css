@@ -3265,3 +3265,147 @@ button {
     margin: 12px 0 0;
   }
 }
+
+/* ---------- Téléphone ---------- */
+
+/* Sur un écran de téléphone, la hauteur est la ressource rare, et la règle
+   ci-dessus la distribuait à l'envers : le panneau, en `flex: 0 0 auto` avec une
+   hauteur maximale de 46vh, se servait avant le graphe, à qui il ne restait que
+   deux pixels. Le graphe est pourtant ce qu'on vient voir.
+   La scène cesse donc de se partager une hauteur contrainte : le graphe reçoit
+   une hauteur franche, le panneau se lit en faisant défiler la page sous lui, et
+   tout le décor qui les précède est resserré pour leur laisser la place. */
+@media (max-width: 700px) {
+  .contenu {
+    padding: 12px 14px 0;
+  }
+
+  /* Le défilement n'est ouvert que sur l'explorateur : les vues « Piloter » et
+     « Comparer » gèrent déjà le leur, et deux zones de défilement imbriquées
+     rendraient le geste imprévisible. */
+  .contenu--explorer {
+    overflow-y: auto;
+    padding-bottom: 14px;
+  }
+
+  .entete {
+    gap: 10px;
+  }
+
+  .entete h1 {
+    font-size: 19px;
+  }
+
+  /* La phrase d'introduction coûte une quarantaine de pixels pour redire ce que
+     la page montre. Elle reste lisible sur écran large. */
+  .entete p {
+    display: none;
+  }
+
+  .recherche {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .recherche input {
+    padding: 9px 14px;
+  }
+
+  /* Trois onglets en pleine largeur : des cibles tactiles plutôt que trois mots
+     serrés dans un coin. */
+  .modes {
+    display: flex;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .modes__onglet {
+    flex: 1;
+    padding: 8px 4px;
+  }
+
+  /* `overflow-x: auto` annule la taille minimale automatique d'un enfant de
+     colonne flexible : sans `flex: none`, le bandeau se laisse écraser à deux
+     pixels dès que la page déborde. Même précaution pour ce qui le précède. */
+  .entete,
+  .modes,
+  .sommaire {
+    flex: none;
+  }
+
+  .sommaire {
+    margin: 10px 0;
+  }
+
+  .sommaire__bloc {
+    flex: 0 0 auto;
+    gap: 1px;
+    min-width: 146px;
+    padding: 9px 13px;
+  }
+
+  .sommaire__bloc strong {
+    font-size: 18px;
+  }
+
+  /* La part en pourcentage disparaît : c'est précisément ce que le graphe montre
+     à côté, en surface de cercle. La nature du montant, elle, reste — c'est la
+     mention qui empêche de lire une prévision comme une dépense faite. */
+  .sommaire__note {
+    display: none;
+  }
+
+  .sommaire__nature {
+    margin-top: 2px;
+  }
+
+  .scene {
+    flex: none;
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+
+  /* Hauteur franche plutôt que part d'un reste : le graphe occupe l'essentiel du
+     premier écran, et le haut du panneau dépasse juste assez pour annoncer qu'il
+     y a quelque chose en dessous. */
+  .graph {
+    flex: none;
+    height: 52vh;
+    min-height: 280px;
+  }
+
+  /* Ancrée au bas de la scène, la barre d'aide se retrouvait sous le panneau :
+     la scène ne fait plus la hauteur du graphe seul, mais celle du graphe plus
+     le panneau. Elle reprend donc sa place dans le flux, juste sous le graphe,
+     où elle superpose d'ailleurs moins de choses qu'en flottant dessus. */
+  .scene__aide {
+    position: static;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  /* Le rappel du « + » garde sa raison d'être — c'est la seule chose qui dise
+     comment déplier un niveau — mais rendu au flux il coûte de la hauteur, donc
+     il la prend petite. */
+  .scene__aide p {
+    flex: 1 1 100%;
+    padding: 6px 9px;
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  .panel {
+    flex: none;
+    width: auto;
+    max-height: none;
+    margin: 12px 0 0;
+  }
+
+  /* Le panneau ne défile plus pour lui-même : il s'étend, et c'est la page qui
+     défile. Deux ascenseurs superposés sur un téléphone se disputent le doigt. */
+  .panel__corps {
+    flex: none;
+    overflow-y: visible;
+  }
+}

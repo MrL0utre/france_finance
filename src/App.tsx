@@ -343,7 +343,9 @@ export function App() {
         <Methodologie sources={store.sources} onClose={() => setMethodologie(false)} />
       )}
 
-      <main className="contenu">
+      {/* Le modificateur ne sert qu'au téléphone : lui seul ouvre le
+          défilement de la page, les autres vues gérant déjà le leur. */}
+      <main className={vue === 'explorer' ? 'contenu contenu--explorer' : 'contenu'}>
         <header className="entete">
           <div className="entete__titre">
             <h1>
