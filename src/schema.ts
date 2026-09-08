@@ -260,7 +260,54 @@ export type BaremeIR = {
   }[];
 };
 
+/**
+ * Ce que mesure réellement une donnée. Distinction décisive pour un lecteur :
+ * un montant prévu dans un projet de loi et un montant effectivement dépensé ne
+ * disent pas la même chose, et les confondre laisserait croire à des dépenses
+ * réelles là où il n'y a qu'une intention budgétaire.
+ */
+export type NatureDonnee = 'prevision' | 'execute' | 'constate' | 'repere';
+
+export const NATURES: Record<NatureDonnee, { court: string; long: string }> = {
+  prevision: {
+    court: 'prévision',
+    long: "Montants prévus par un projet de loi de finances, non des dépenses constatées.",
+  },
+  execute: {
+    court: 'comptes exécutés',
+    long: 'Montants effectivement dépensés et encaissés, tels que publiés après clôture.',
+  },
+  constate: {
+    court: 'constaté',
+    long: "Montants constatés a posteriori, publiés par l'organisme responsable.",
+  },
+  repere: { court: 'repère', long: 'Agrégat de référence, donné à titre de comparaison.' },
+};
+
+/**
+ * Libellés d'une nature, en tolérant l'absence.
+ *
+ * Un navigateur peut servir un `sources.json` mis en cache avant l'ajout de ce
+ * champ : indexer directement le dictionnaire produisait alors une page blanche.
+ * Une donnée d'intendance manquante ne doit pas emporter l'application entière.
+ */
+export function libellesNature(nature: NatureDonnee | undefined): {
+  court: string;
+  long: string;
+} {
+  return (
+    (nature && NATURES[nature]) ?? {
+      court: 'nature non précisée',
+      long: "La nature de cette donnée n'est pas renseignée ; rechargez la page pour obtenir la version à jour des sources.",
+    }
+  );
+}
+
 export type SourceRef = {
+  /** Ce que la donnée mesure : prévision, exécution, constat. */
+  nature: NatureDonnee;
+  /** Réserve majeure à afficher au plus près du chiffre, quand elle existe. */
+  reserve?: string;
   label: string;
   dataset: string;
   exercice: number;

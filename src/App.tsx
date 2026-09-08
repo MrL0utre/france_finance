@@ -33,7 +33,7 @@ import { Comparaison } from './modeles/Comparaison';
 import { MODELES, MODELE_DEFAUT, modeleParId } from './modeles/registre';
 import { contexteDe, impulsionsDe } from './modeles/impulsions';
 import { euros, eurosSigne } from './format';
-import { SPHERE_COLORS, type Mode, type SearchEntry } from './schema';
+import { libellesNature, SPHERE_COLORS, type Mode, type SearchEntry } from './schema';
 import './styles.css';
 
 /**
@@ -487,6 +487,25 @@ export function App() {
                         ? 'excédent ou déficit'
                         : '—'}
                   </span>
+                  {/* Nature et exercice affichés au plus près du montant : un
+                      chiffre prévu et un chiffre dépensé ne se lisent pas de la
+                      même façon, et les deux cohabitent ici. */}
+                  {(() => {
+                    const src = store.sources.get(s.src);
+                    if (!src) return null;
+                    return (
+                      <span
+                        className={
+                          src.nature === 'prevision'
+                            ? 'sommaire__nature sommaire__nature--prevision'
+                            : 'sommaire__nature'
+                        }
+                        title={src.reserve ?? libellesNature(src.nature).long}
+                      >
+                        {libellesNature(src.nature).court} {src.exercice}
+                      </span>
+                    );
+                  })()}
                 </button>
               );
             })}

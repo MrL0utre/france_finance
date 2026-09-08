@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   COULEUR_DEFICIT,
   COULEUR_EXCEDENT,
+  libellesNature,
   SPHERE_COLORS,
   soldeInterpretable,
   valeur,
@@ -263,8 +264,24 @@ export function Panel({
             <h3>Source</h3>
             <p>{source.label}</p>
             <p className="panel__source-meta">
-              Exercice {source.exercice} · <code>{source.dataset}</code>
+              <span
+                className={
+                  source.nature === 'prevision'
+                    ? 'sommaire__nature sommaire__nature--prevision'
+                    : 'sommaire__nature'
+                }
+              >
+                {libellesNature(source.nature).court} {source.exercice}
+              </span>{' '}
+              <code>{source.dataset}</code>
             </p>
+            {/* La réserve figure au plus près du chiffre, pas seulement dans la
+                méthodologie : c'est ici qu'on lit le montant. */}
+            {source.reserve ? (
+              <p className="panel__reserve">{source.reserve}</p>
+            ) : (
+              <p className="panel__source-meta">{libellesNature(source.nature).long}</p>
+            )}
             <a href={source.url} target="_blank" rel="noreferrer">
               Consulter le jeu de données
             </a>

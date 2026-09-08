@@ -381,16 +381,40 @@ src/
 
 ## Sources
 
-| Périmètre | Source | Exercice |
-|---|---|---|
-| Collectivités | [OFGL](https://data.ofgl.fr) — comptes individuels, budgets principaux, dépenses et recettes | 2024 |
-| État — dépenses | [data.economie.gouv.fr](https://data.economie.gouv.fr) — PLF, budget général, crédits de paiement | 2025 |
-| État — recettes | `plf25-recettes-du-budget-general` | 2025 |
-| Sécurité sociale | Chiffres clés de la Sécurité sociale (PDF, saisie manuelle) | 2024 |
-| Barème de l'IR | [OpenFisca France](https://openfisca.org/doc/) — art. 197 du CGI | 2025 |
-| Dette | [Agence France Trésor](https://www.aft.gouv.fr/fr) — encours et programme de financement | 2026 |
-| Grands chantiers | Cour des comptes, EDF, France 2030 — voir `data/manual/chantiers.json` | — |
-| Repère consolidé | Insee, compte des administrations publiques | 2024 |
+| Périmètre | Source | Nature | Exercice |
+|---|---|---|---|
+| Collectivités | [OFGL](https://data.ofgl.fr) — comptes individuels, budgets principaux, dépenses et recettes | **comptes exécutés** | 2024 |
+| État — dépenses | [data.economie.gouv.fr](https://data.economie.gouv.fr) — PLF, budget général, crédits de paiement | **prévision** | 2025 |
+| État — recettes | `plf25-recettes-du-budget-general` | **prévision** | 2025 |
+| Sécurité sociale | Chiffres clés de la Sécurité sociale (PDF, saisie manuelle) | **constaté** | 2024 |
+| Barème de l'IR | [OpenFisca France](https://openfisca.org/doc/) — art. 197 du CGI | législation | 2025 |
+| Dette | [Agence France Trésor](https://www.aft.gouv.fr/fr) — encours et programme de financement | constaté | 2026 |
+| Grands chantiers | Cour des comptes, EDF, France 2030 — voir `data/manual/chantiers.json` | repères | — |
+| Repère consolidé | Insee, compte des administrations publiques | repère | 2024 |
+
+### Prévision, exécution : une distinction affichée
+
+**Les chiffres de l'État sont ceux d'un *projet* de loi de finances, pas des dépenses
+constatées.** Ce projet n'a de surcroît pas été adopté en l'état : après la censure du
+4 décembre 2024, une loi spéciale a assuré l'intérim et la loi de finances a été promulguée
+le 14 février 2025 dans une version de compromis moins ambitieuse. Les montants affichés en
+diffèrent. Aucune loi de finances votée n'étant publiée en données ouvertes sur le portail —
+seuls des jeux PLF le sont — ce projet reste la source la plus fine disponible.
+
+Les collectivités, à l'inverse, sont des **comptes exécutés** : de l'argent réellement
+dépensé et encaissé.
+
+Deux conséquences, dites dans l'application et non reléguées ici :
+
+- une prévision et une exécution cohabitent dans le même total ; les additionner mêle une
+  intention et un fait ;
+- les **exercices diffèrent** — 2025 pour l'État, 2024 pour le reste — de sorte que la somme
+  des trois sphères ne décrit aucune année en particulier.
+
+Chaque sphère porte sa nature et son exercice **à côté de son montant** dans le bandeau de
+synthèse, en ambre pour une prévision. Le panneau de détail rappelle la réserve complète au
+contact du chiffre. La nature est portée par `sources.json` : l'ajouter à une source la fait
+apparaître partout, sans code supplémentaire.
 
 ## Quatre pièges traités, à ne pas réintroduire
 

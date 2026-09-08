@@ -320,6 +320,42 @@ export function Methodologie({
         </section>
 
         <section className="modale__alerte">
+          <h3>Ce que mesurent réellement ces chiffres</h3>
+          <p>
+            Les trois sphères ne sont pas de même nature, et la différence est essentielle.
+          </p>
+          <ul>
+            <li>
+              <strong>État — prévision 2025.</strong> Ce sont les crédits d'un{' '}
+              <em>projet</em> de loi de finances, pas des dépenses constatées. Ce projet n'a
+              d'ailleurs pas été adopté en l'état : après la censure du 4 décembre 2024, une loi
+              spéciale a assuré l'intérim et la loi de finances a été promulguée le 14 février
+              2025 dans une version de compromis. Les montants affichés en diffèrent. Aucune loi
+              de finances votée n'étant publiée en données ouvertes, ce projet reste la source la
+              plus fine disponible.
+            </li>
+            <li>
+              <strong>Collectivités — comptes exécutés 2024.</strong> Des montants réellement
+              dépensés et encaissés, publiés après clôture des comptes.
+            </li>
+            <li>
+              <strong>Sécurité sociale — constaté 2024.</strong> Des montants établis a
+              posteriori par la Direction de la sécurité sociale.
+            </li>
+          </ul>
+          <p>
+            Deux conséquences. D'abord, une prévision et une exécution cohabitent dans le même
+            total : les additionner mêle une intention et un fait. Ensuite, les{' '}
+            <strong>exercices diffèrent</strong> — 2025 pour l'État, 2024 pour le reste — de
+            sorte que la somme des trois sphères ne décrit aucune année en particulier.
+          </p>
+          <p>
+            Chaque sphère porte donc sa nature et son exercice à côté de son montant, et le
+            panneau de détail rappelle la réserve au plus près du chiffre.
+          </p>
+        </section>
+
+        <section className="modale__alerte">
           <h3>Pourquoi les totaux ne s'additionnent pas comme on l'attendrait</h3>
           <p>
             Les administrations publiques se versent beaucoup d'argent entre elles : l'État dote

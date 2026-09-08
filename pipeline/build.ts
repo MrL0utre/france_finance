@@ -20,7 +20,21 @@ const ofgl = (nom: string, dataset: string): SourceRef => ({
   dataset,
   exercice: EXERCICE_OFGL,
   url: `https://data.ofgl.fr/explore/dataset/${dataset}/`,
+  // Comptes clos : ces montants ont été effectivement dépensés et encaissés.
+  nature: 'execute',
 });
+
+/**
+ * Le PLF est un *projet* de loi. Celui de 2025 n'a de surcroît jamais été adopté
+ * en l'état : le gouvernement a été censuré le 4 décembre 2024, une loi spéciale
+ * a assuré l'intérim, et la loi de finances a finalement été promulguée le
+ * 14 février 2025 dans une version de compromis moins ambitieuse. Aucune loi de
+ * finances votée n'étant publiée en données ouvertes, ce projet reste la source
+ * la plus fine disponible — mais l'écart doit être dit, faute de quoi un lecteur
+ * y verrait des dépenses réelles.
+ */
+const RESERVE_PLF =
+  "Projet de loi de finances, non des dépenses constatées. Ce projet n'a pas été adopté en l'état : après la censure du 4 décembre 2024, la loi de finances a été promulguée le 14 février 2025 dans une version de compromis. Les montants affichés en diffèrent.";
 
 const SOURCES: Record<string, SourceRef> = {
   'ofgl-regions': ofgl('des régions', 'ofgl-base-regions'),
@@ -32,12 +46,16 @@ const SOURCES: Record<string, SourceRef> = {
     dataset: PLF_DEPENSES,
     exercice: EXERCICE_PLF,
     url: `https://data.economie.gouv.fr/explore/dataset/${PLF_DEPENSES}/`,
+    nature: 'prevision',
+    reserve: RESERVE_PLF,
   },
   'plf-etat-recettes': {
-    label: "Recettes du budget général — PLF 2025",
+    label: 'Recettes du budget général — PLF 2025',
     dataset: PLF_RECETTES,
     exercice: EXERCICE_PLF,
     url: `https://data.economie.gouv.fr/explore/dataset/${PLF_RECETTES}/`,
+    nature: 'prevision',
+    reserve: RESERVE_PLF,
   },
 };
 
@@ -171,12 +189,13 @@ async function main() {
 
   write('sources.json', {
     ...SOURCES,
-    secu: ref.secu.source,
+    secu: { ...ref.secu.source, nature: 'constate' },
     insee: {
       label: ref.totalConsolideNational.libelle,
       dataset: 'comptes-nationaux-apu',
       exercice: ref.totalConsolideNational.exercice,
       url: ref.totalConsolideNational.url,
+      nature: 'repere',
     },
   });
 
