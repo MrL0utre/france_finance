@@ -155,8 +155,16 @@ export function Methodologie({
             <strong>Ce ne sont pas des implémentations de Mésange ni d'aucun modèle
             institutionnel.</strong> Mésange compte environ 1 800 équations et ne s'exécute qu'avec
             un logiciel propriétaire ; il est hors de portée d'une application sans serveur. Ce sont
-            quatre calibrations d'un même moteur simplifié, statique et linéaire, dont les ordres
-            de grandeur s'inspirent de la littérature disponible.
+            quatre calibrations d'un même moteur simplifié, statique et linéaire.
+          </p>
+          <p>
+            <strong>Les coefficients sont les nôtres.</strong> Choisis ronds, ils traduisent des
+            régularités largement admises — la dépense pèse plus que l'impôt à euro égal,
+            l'investissement plus que le fonctionnement — mais ne sont extraits d'aucun modèle
+            institutionnel, et notamment pas des variantes chiffrées que Mésange publie. Le lien
+            vers sa documentation est donné pour approfondir, non comme provenance. Le panneau
+            <strong>Piloter</strong> les affiche en regard d'estimations publiées, recensées par
+            FIPECO, pour que l'écart se voie plutôt que de nous croire sur parole.
           </p>
           <p>
             L'onglet <strong>Comparer les modèles</strong> passe un même scénario dans les quatre.

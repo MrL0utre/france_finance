@@ -13,11 +13,17 @@ import type { Modele } from './types';
  */
 
 /**
- * Ordres de grandeur convergents de la littérature (Mésange, OFCE, FMI) : la
- * dépense pèse plus que l'impôt à euro égal, l'investissement plus que le
- * fonctionnement, et les prélèvements sur les entreprises ont l'effet de court
- * terme le plus faible. Les valeurs exactes restent débattues — c'est
- * précisément pourquoi elles sont affichées.
+ * Valeurs propres à ce projet, choisies rondes.
+ *
+ * Elles ne sont extraites d'aucun modèle institutionnel : elles traduisent
+ * seulement des régularités largement admises — la dépense pèse plus que l'impôt
+ * à euro égal, l'investissement plus que le fonctionnement, et les prélèvements
+ * sur les entreprises ont l'effet de court terme le plus faible. Les valeurs
+ * exactes restent débattues, ce pourquoi elles sont affichées et réglables.
+ *
+ * Les présenter comme issues de Mésange serait à la fois faux et abusif envers
+ * ses auteurs : ce modèle compte environ 1 800 équations et publie ses propres
+ * variantes chiffrées, qui ne sont pas reprises ici.
  *
  * La charge de la dette reçoit le multiplicateur le plus bas : la moitié environ
  * des titres est détenue hors de France, et le reste alimente une épargne dont
@@ -90,8 +96,11 @@ export const MODELES: Modele[] = [
       "La dépense soutient l'activité, l'impôt la freine, et l'activité modifiée fait varier les recettes. Multiplicateurs d'ordre de grandeur médian.",
     limite:
       "Statique et linéaire : les effets sont supposés se produire en un an et indépendamment de la conjoncture. La dette n'y évolue pas d'elle-même — seule une variation de taux explicite modifie sa charge.",
+    // Lecture de référence sur les multiplicateurs, non provenance des valeurs
+    // retenues ici : la nuance évite d'attribuer nos coefficients à l'Insee.
     source: {
-      label: 'Ordres de grandeur : Mésange (Insee/DG Trésor), OFCE, FMI',
+      label:
+        "Pour approfondir : documentation du modèle Mésange (Insee et DG Trésor, doc. de travail G2017/04). Les valeurs retenues ici n'en sont pas issues.",
       url: 'https://www.insee.fr/fr/statistiques/2848300',
     },
     calculer: (i, c) => calculerAvec(KEYNESIEN, i, c),
