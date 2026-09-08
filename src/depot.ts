@@ -7,12 +7,8 @@
  * reste de toute manière utile : c'est ce qui permet à un lecteur de vérifier
  * qu'aucun coefficient n'a été discrètement ajusté.
  *
- * À renseigner avant tout déploiement. Tant que la valeur reste celle du gabarit,
- * l'application n'affiche pas de lien mort : elle indique simplement que le
- * projet est sous AGPL.
+ * Si vous forkez ce projet pour l'héberger, faites pointer cette constante vers
+ * votre propre dépôt : sans quoi vos modifications resteraient introuvables pour
+ * vos visiteurs, et le lien les renverrait à une source qui n'est pas la vôtre.
  */
-const GABARIT = 'https://github.com/<compte>/finance-france';
-
-export const DEPOT = GABARIT;
-
-export const depotRenseigne = (): boolean => DEPOT !== GABARIT;
+export const DEPOT = 'https://github.com/MrL0utre/france_finance';

@@ -66,12 +66,15 @@ libellés — sans information personnelle.
 **Garantie.** Le logiciel est fourni sans garantie, dans les termes des articles 15 et 16
 de l'AGPL-3.0.
 
+**Contact.** [administrateur@monplf.fr](mailto:administrateur@monplf.fr) — pour signaler une
+erreur de données, une incohérence de calcul ou un manquement dans les mentions de sources.
+
 ## Démarrer
 
 Prérequis : **Node.js 20 ou plus** (`node --version`). Rien d'autre.
 
 ```bash
-git clone <url-du-depot> && cd finance_france
+git clone https://github.com/MrL0utre/france_finance.git && cd france_finance
 ```
 
 ```bash
@@ -142,10 +145,11 @@ Ce garde-fou protège aussi tout repreneur : un organisme publiant des chiffrage
 est structurellement exposé au soupçon d'avoir ajusté ses hypothèses ; sous AGPL, ses
 modifications sont publiques et vérifiables.
 
-**Avant tout déploiement**, renseignez l'adresse du dépôt dans `src/depot.ts` : l'article 13
-de l'AGPL impose que les utilisateurs interagissant avec une version modifiée à travers un
-réseau puissent en obtenir la source. Tant que la valeur reste celle du gabarit,
-l'application n'affiche pas de lien mort.
+L'article 13 de l'AGPL impose que les utilisateurs interagissant avec une version modifiée à
+travers un réseau puissent en obtenir la source : l'adresse du dépôt est donc affichée dans
+le panneau Méthodologie, et se règle dans `src/depot.ts`. **Si vous forkez ce projet pour
+l'héberger, faites-y pointer votre propre dépôt** — sans quoi vos modifications resteraient
+introuvables pour vos visiteurs.
 
 ### Licence des données
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { SourceRef } from './schema';
 import { Controles } from './Controles';
-import { DEPOT, depotRenseigne } from './depot';
+import { DEPOT } from './depot';
 
 export function Methodologie({
   sources,
@@ -78,6 +78,11 @@ export function Methodologie({
             requête, et l'application n'appelle que ses propres fichiers. Un lien partagé
             n'existe que si vous le copiez vous-même. Il reste lisible sur votre machine, en
             clair, comme toute donnée de site.
+          </p>
+          <p>
+            <strong>Signaler une erreur.</strong>{' '}
+            <a href="mailto:administrateur@monplf.fr">administrateur@monplf.fr</a> — une donnée
+            fausse, un calcul incohérent ou une source mal créditée méritent d'être corrigés.
           </p>
         </section>
 
@@ -382,16 +387,11 @@ export function Methodologie({
             Ce n'est pas une formalité pour cet outil : ses multiplicateurs déterminent ses
             conclusions, et une version hébergée aux coefficients discrètement ajustés serait
             indiscernable de celle-ci pour un visiteur. L'AGPL rend ces modifications
-            vérifiables.{' '}
-            {depotRenseigne() ? (
-              <>
-                Le code de cette installation est disponible{' '}
-                <a href={DEPOT} target="_blank" rel="noreferrer">
-                  sur son dépôt
-                </a>
-                .
-              </>
-            ) : null}
+            vérifiables. Le code de cette installation est disponible{' '}
+            <a href={DEPOT} target="_blank" rel="noreferrer">
+              sur son dépôt
+            </a>
+            .
           </p>
           <p>
             Les données relèvent de leurs licences propres, indépendantes de celle du code :

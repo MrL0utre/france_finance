@@ -4,6 +4,13 @@
   "version": "1.0.0",
   "description": "Explorateur et simulateur des finances publiques françaises, de l'État à la commune",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrL0utre/france_finance.git"
+  },
+  "bugs": {
+    "email": "administrateur@monplf.fr"
+  },
   "type": "module",
   "engines": {
     "node": ">=20"
