@@ -39,11 +39,29 @@ Tout montant dérivé plutôt que publié porte la mention correspondante.
 contrôles de cohérence sont publics et vérifiables — c'est le sens du choix de l'AGPL.
 
 **Aucune donnée personnelle traitée.** Ni compte, ni traceur, ni cookie, ni mesure
-d'audience : vérifiable dans le code, il n'existe aucun appel réseau vers un tiers. Le
-scénario de l'utilisateur reste dans son navigateur (`localStorage`) ; un lien partagé
-n'existe que s'il le copie lui-même. Les données affichées portent sur des personnes
-morales — collectivités, ministères, organismes — jamais sur des personnes physiques ; les
-foyers types du barème sont fictifs.
+d'audience : vérifiable dans le code, il n'existe aucun appel réseau vers un tiers. Les
+données affichées portent sur des personnes morales — collectivités, ministères,
+organismes — jamais sur des personnes physiques ; les foyers types du barème sont fictifs.
+
+**Où vit le scénario de l'utilisateur.** Dans son navigateur, sous une clé de
+`localStorage`, et dans l'URL. Ni l'un ni l'autre n'est transmis à quiconque : contrairement
+aux cookies, le `localStorage` n'accompagne aucune requête, et l'application n'appelle que
+ses propres fichiers de données. Un lien partagé n'existe que si l'utilisateur le copie
+lui-même. Trois précisions honnêtes, cependant :
+
+- « non transmis » ne veut pas dire « protégé » : le `localStorage` est stocké en clair dans
+  le profil du navigateur, lisible par les outils de développement, par une extension ayant
+  accès à la page, et par toute personne ayant accès à la machine ;
+- il est cloisonné par **origine**, pas par chemin. Publier sur un hébergement partagé —
+  `compte.github.io`, où tous les projets d'un même compte cohabitent — le rend lisible par
+  les autres pages de cette origine. Un domaine dédié, ou un dépôt `compte.github.io/projet`
+  servi depuis sa propre origine, évite ce partage ;
+- l'URL, elle, voyage par nature : historique du navigateur, journaux de l'hébergeur,
+  aperçus générés par les messageries. Les liens externes portent tous `rel="noreferrer"` et
+  une politique `no-referrer` globale évite qu'elle parte vers un site tiers.
+
+Le contenu concerné reste un scénario budgétaire — identifiants de postes, coefficients,
+libellés — sans information personnelle.
 
 **Garantie.** Le logiciel est fourni sans garantie, dans les termes des articles 15 et 16
 de l'AGPL-3.0.

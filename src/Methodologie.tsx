@@ -73,8 +73,11 @@ export function Methodologie({
           </p>
           <p>
             <strong>Aucune donnée personnelle.</strong> Ni compte, ni traceur, ni cookie, ni
-            mesure d'audience. Votre scénario reste dans votre navigateur ; un lien partagé
-            n'existe que si vous le copiez vous-même.
+            mesure d'audience. Votre scénario reste dans votre navigateur et dans l'URL, et
+            n'est transmis à personne : contrairement à un cookie, il n'accompagne aucune
+            requête, et l'application n'appelle que ses propres fichiers. Un lien partagé
+            n'existe que si vous le copiez vous-même. Il reste lisible sur votre machine, en
+            clair, comme toute donnée de site.
           </p>
         </section>
 

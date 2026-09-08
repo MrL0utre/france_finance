@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- L'URL porte le scénario de l'utilisateur : elle ne doit jamais partir
+         dans un en-tête Referer vers un site tiers. Chaque lien externe porte
+         déjà rel="noreferrer" ; cette politique globale couvre en outre tout
+         lien futur où l'attribut serait oublié. -->
+    <meta name="referrer" content="no-referrer" />
     <!-- Aucune mention de « Projet indépendant · données ouvertes » ni d'identité visuelle de
          l'État : ce projet est indépendant, et la Licence Ouverte sous laquelle
          les données sont réutilisées interdit de laisser croire à un statut
