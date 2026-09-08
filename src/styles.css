@@ -185,6 +185,53 @@ button {
   border-radius: 0 8px 8px 0;
 }
 
+/* ---------- Message d'accueil ---------- */
+
+/* Plus étroit que la page de méthodologie : c'est un avertissement qu'on lit en
+   entier, pas une documentation qu'on parcourt. */
+.accueil {
+  width: min(620px, 100%);
+}
+
+.accueil header {
+  margin-bottom: 4px;
+}
+
+.accueil__sources {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.accueil__sources li {
+  margin-bottom: 8px;
+}
+
+.accueil__sources li:last-child {
+  margin-bottom: 0;
+}
+
+.accueil__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--bordure);
+}
+
+.accueil__actions button {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--marine);
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.accueil__actions button:hover {
+  background: var(--marine-clair);
+}
+
 /* ---------- Contrôles de cohérence ---------- */
 
 .modale__onglets {

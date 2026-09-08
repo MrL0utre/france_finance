@@ -6,6 +6,7 @@ import { Panel } from './panel/Panel';
 import { Search } from './search/Search';
 import { Sidebar, type Vue } from './Sidebar';
 import { Methodologie } from './Methodologie';
+import { Accueil, accueilDejaVu, marquerAccueilVu } from './Accueil';
 import { Pilotage } from './pilotage/Pilotage';
 import { PanneauDetail, shardsPourDetail } from './pilotage/PanneauDetail';
 import { BarreScenario } from './simulation/BarreScenario';
@@ -65,6 +66,8 @@ export function App() {
   const [selected, setSelected] = useState<string | null>('racine');
   const [parHabitantActif, setParHabitantActif] = useState(false);
   const [methodologie, setMethodologie] = useState(false);
+  /** Message d'accueil : à la première visite seulement, lu au montage. */
+  const [accueil, setAccueil] = useState(() => !accueilDejaVu());
   const [vue, setVue] = useState<Vue>('explorer');
   const [modeleId, setModeleId] = useState<string>(
     () => modeleDepuisUrl(URL_INITIALE, MODELES.map((m) => m.id)) ?? MODELE_DEFAUT,
@@ -326,6 +329,15 @@ export function App() {
   return (
     <div className="app">
       <Sidebar vue={vue} onVue={setVue} onMethodologie={() => setMethodologie(true)} />
+
+      {accueil && (
+        <Accueil
+          onFermer={() => {
+            marquerAccueilVu();
+            setAccueil(false);
+          }}
+        />
+      )}
 
       {methodologie && (
         <Methodologie sources={store.sources} onClose={() => setMethodologie(false)} />

@@ -36,6 +36,14 @@ propres à ce projet, visibles dans l'interface, réglables, et affichés à cô
 publiées pour que l'écart se voie. Aucun résultat n'a valeur de prévision.
 Tout montant dérivé plutôt que publié porte la mention correspondante.
 
+**Le visiteur est prévenu avant d'avoir vu un chiffre.** Un message d'accueil
+(`src/Accueil.tsx`) énonce l'indépendance du projet, les millésimes et la nature de chaque
+source, la possibilité d'erreurs, et l'adresse à laquelle les signaler. Trois montants côte
+à côte ressemblent à un compte officiel : mieux vaut avoir prévenu du contraire que d'avoir
+à corriger l'impression ensuite. Il ne paraît qu'à la première visite — un avertissement
+qui reparaît à chaque fois se ferme sans être lu — et son contenu reste consultable en
+entier depuis « Méthodologie et sources ».
+
 **Développé avec l'assistance de Claude** (Anthropic). Le code, les sources et les
 contrôles de cohérence sont publics et vérifiables — c'est le sens du choix de l'AGPL.
 
