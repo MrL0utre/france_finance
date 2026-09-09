@@ -102,13 +102,38 @@ for (const m of AVEC_BOUCLAGE) {
   ok(`${m.nom} : le solde reste dégradé`, e.soldeVariation < 0);
 }
 
-console.log('\n5. Linéarité : deux mesures valent la somme de leurs effets séparés');
+console.log('\n5. Linéarité du côté dépense, et non-linéarité assumée du côté recette');
 for (const m of MODELES) {
+  // Une impulsion de dépense ne change pas l'assiette des prélèvements : deux
+  // mesures de dépense valent donc exactement la somme de leurs effets.
   const a = imp(8e9, 'dep', 'investissement');
-  const b = imp(-5e9, 'rec', 'impot_consommation');
+  const b = imp(3e9, 'dep', 'fonctionnement');
   const ensemble = m.calculer([a, b], CTX);
   const separes = m.calculer([a], CTX).soldeVariation + m.calculer([b], CTX).soldeVariation;
-  ok(`${m.nom}`, proche(ensemble.soldeVariation, separes), `${ensemble.soldeVariation} vs ${separes}`);
+  ok(
+    `${m.nom} : deux dépenses s'additionnent`,
+    proche(ensemble.soldeVariation, separes),
+    `${ensemble.soldeVariation} vs ${separes}`,
+  );
+}
+
+// Une hausse d'impôt, elle, grossit l'assiette sur laquelle la rétroaction
+// s'exerce : la même récession lui coûte davantage. Deux hausses successives ne
+// s'additionnent donc pas, et c'est le comportement voulu — l'additivité tenait
+// autrefois parce que la rétroaction était mesurée sur les recettes publiées,
+// quel que soit le niveau décidé.
+for (const m of AVEC_BOUCLAGE) {
+  const hausse = imp(60e9, 'rec', 'impot_consommation');
+  const coupe = imp(-40e9, 'dep', 'fonctionnement');
+  const seule = m.calculer([coupe], CTX);
+  const avecHausse = m.calculer([coupe, hausse], CTX);
+  const perteSeule = seule.recettesInduites;
+  const perteAvec = avecHausse.recettesInduites;
+  ok(
+    `${m.nom} : un impôt relevé perd davantage quand l'activité recule`,
+    Math.abs(perteAvec) > Math.abs(perteSeule),
+    `${(perteAvec / 1e9).toFixed(2)} contre ${(perteSeule / 1e9).toFixed(2)} Md €`,
+  );
 }
 
 console.log('\n6. Symétrie : une mesure et son inverse se compensent');
@@ -268,6 +293,21 @@ console.log('\n12. Les deux valeurs qui ne sont plus choisies');
     "un barème à taux unique la ramène à 1 : c'est bien la progressivité qui est mesurée",
     ePlat !== null && Math.abs(ePlat - 1) < 0.01,
     ePlat?.toFixed(3),
+  );
+}
+
+console.log('\n13. Le modèle signale quand il sort de son domaine');
+{
+  const petit = modeleParId('keynesien').calculer([imp(-10e9, 'dep')], CTX);
+  ok("un choc ordinaire reste dans le domaine", !petit.horsDomaine, `${petit.pibPct.toFixed(2)} % de PIB`);
+
+  // Couper la moitié de la dépense publique : le moteur rend encore un nombre,
+  // mais plus rien ne l'adosse aux coefficients dont il se sert.
+  const enorme = modeleParId('keynesien').calculer([imp(-700e9, 'dep')], CTX);
+  ok('un choc extrême est signalé', enorme.horsDomaine, `${enorme.pibPct.toFixed(1)} % de PIB`);
+  ok(
+    'le modèle comptable ne sort jamais du domaine, faute de rétroaction',
+    !modeleParId('comptable').calculer([imp(-700e9, 'dep')], CTX).horsDomaine,
   );
 }
 

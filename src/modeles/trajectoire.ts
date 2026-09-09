@@ -78,12 +78,18 @@ export function projeter(
     let impulsionDep = 0;
     let impulsionRec = 0;
     let pib = 0;
+    // Mêmes assiettes que dans le calcul annuel : la rétroaction porte sur les
+    // recettes que le scénario laisse, pas sur celles qui étaient publiées.
+    const assiettesRecettes: Record<string, number> = {
+      ...(contexte.recettesParInstrument ?? {}),
+    };
 
     for (const imp of cetteAnnee) {
       const k = calibration.multiplicateurs[imp.instrument];
       if (imp.cote === 'rec') {
         impulsionRec += imp.delta;
         pib -= k * imp.delta;
+        assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + imp.delta;
       } else {
         impulsionDep += imp.delta;
         pib += k * imp.delta;
@@ -94,7 +100,7 @@ export function projeter(
     // Même chaîne qu'à un an : un sentier qui ferait réagir les impôts autrement
     // que le calcul annuel n'aurait pas de sens.
     const recettesInduites = effetSurLesRecettes(
-      contexte.recettesParInstrument,
+      assiettesRecettes,
       contexte.assiettes,
       variationRelative,
       contexte.elasticiteIR,

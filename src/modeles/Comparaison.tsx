@@ -85,6 +85,21 @@ export function Comparaison({
         )}
       </header>
 
+      {/* Une seule mention pour toute la page : si un modèle sort du domaine, la
+          comparaison entre modèles n'a pas plus de sens que chacun pris à part. */}
+      {resultats.some((r) => r.effets.horsDomaine) && (
+        <p className="effets__hors-domaine">
+          <strong>Ce scénario sort du domaine des modèles.</strong> L'écart d'activité qu'ils
+          calculent atteint{' '}
+          {Math.max(...resultats.map((r) => Math.abs(r.effets.pibPct)))
+            .toFixed(1)
+            .replace('.', ',')}{' '}
+          % du PIB, quand leurs multiplicateurs sont estimés sur des variations de quelques
+          dixièmes de point. Les écarts entre colonnes ci-dessous restent lisibles comme un
+          ordre de grandeur relatif ; les montants, non.
+        </p>
+      )}
+
       <div className="comparaison__grille">
         {resultats.map(({ modele, effets }) => (
           <button

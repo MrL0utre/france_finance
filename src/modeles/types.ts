@@ -67,6 +67,8 @@ export type Effets = {
   soldeVariation: number;
   /** Solde final, référence comprise. */
   solde: number;
+  /** L'écart d'activité dépasse ce que le modèle peut prétendre décrire. */
+  horsDomaine: boolean;
   /** Emplois, ordre de grandeur. */
   emploi: number;
   lignes: LigneEffet[];

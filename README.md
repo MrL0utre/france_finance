@@ -372,6 +372,20 @@ multiplicateurs, ordre entre modèles, et surtout qu'un taux de récupération r
 `[0, 1[` — une hausse de dépense qui améliorerait le solde serait une affirmation
 extraordinaire, que le test rend impossible par inadvertance.
 
+### Domaine de validité
+
+Un modèle linéaire à multiplicateurs constants rend un nombre pour n'importe quel choc, y
+compris ceux qu'aucune économie n'a connus. Au-delà de **5 % de PIB** d'écart d'activité,
+l'application le dit désormais : les coefficients employés sont estimés sur des variations
+de quelques dixièmes de point, la linéarité ne tient plus, et le résultat n'illustre qu'un
+mécanisme. Un test vérifie que le signal se déclenche.
+
+La rétroaction porte sur les recettes **que le scénario laisse**, non sur les recettes
+publiées. Doubler la TVA double aussi ce que coûte un recul d'activité : mesurer la perte
+sur l'ancien rendement la sous-estimait exactement dans la proportion de la hausse décidée.
+Conséquence assumée, et testée : les mesures de recette ne sont plus additives entre elles,
+alors que celles de dépense le restent.
+
 Hors périmètre du moteur : l'étalement des effets dans le temps, la dépendance des
 multiplicateurs à la conjoncture, et la dette avec sa charge d'intérêt.
 

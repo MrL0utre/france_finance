@@ -157,6 +157,20 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
         </p>
       )}
 
+      {/* Un modèle linéaire à multiplicateurs constants rend un nombre pour
+          n'importe quel choc, y compris ceux qu'aucune économie n'a connus.
+          Sans cette mention, rien ne distingue à l'écran un chiffrage d'une
+          extrapolation cinquante fois hors de portée. */}
+      {effets.horsDomaine && (
+        <p className="effets__hors-domaine">
+          <strong>Ce résultat sort du domaine du modèle.</strong> L'écart d'activité atteint{' '}
+          {Math.abs(effets.pibPct).toFixed(1).replace('.', ',')} % du PIB, quand les
+          multiplicateurs employés ici sont estimés sur des variations de quelques dixièmes de
+          point. La linéarité ne tient plus à cette échelle : les chiffres ci-dessous
+          illustrent le sens d'un mécanisme, ils ne chiffrent rien.
+        </p>
+      )}
+
       {/* Cadrage incomplet : l'activité bouge mais aucune assiette n'est
           disponible pour y répondre. Le cas se produit quand un navigateur a
           gardé en cache un fichier de cadrage antérieur. Le dire vaut mieux

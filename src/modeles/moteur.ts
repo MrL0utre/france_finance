@@ -43,6 +43,16 @@ export type Calibration = {
   elasticiteDepenses: number;
 };
 
+/**
+ * Écart d'activité au-delà duquel le modèle sort de son domaine.
+ *
+ * Les multiplicateurs publiés sont estimés sur des variations de quelques
+ * dixièmes de point. Cinq points de PIB, c'est déjà l'ordre de grandeur d'une
+ * crise majeure ; au-delà, l'hypothèse de linéarité ne tient plus, et le résultat
+ * ne vaut que comme illustration d'un mécanisme.
+ */
+export const SEUIL_HORS_DOMAINE = 0.05;
+
 export function calculerAvec(
   calibration: Calibration,
   impulsions: Impulsion[],
@@ -51,6 +61,15 @@ export function calculerAvec(
   const lignes: LigneEffet[] = [];
   let soldeDirect = 0;
   let pib = 0;
+  /**
+   * Recettes telles que le scénario les laisse, par nature.
+   *
+   * La rétroaction doit porter là-dessus, pas sur les recettes publiées. Un
+   * scénario qui double la TVA double aussi ce que coûte un recul d'activité :
+   * mesurer sa perte sur l'ancien rendement la sous-estime exactement dans la
+   * proportion de la hausse décidée.
+   */
+  const assiettesRecettes: Record<string, number> = { ...(contexte.recettesParInstrument ?? {}) };
 
   for (const imp of impulsions) {
     const k = calibration.multiplicateurs[imp.instrument];
@@ -62,6 +81,10 @@ export function calculerAvec(
     const effetPib = imp.cote === 'rec' ? -k * imp.delta : k * imp.delta;
     pib += effetPib;
 
+    if (imp.cote === 'rec') {
+      assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + imp.delta;
+    }
+
     lignes.push({
       label: imp.label,
       instrument: imp.instrument,
@@ -72,10 +95,12 @@ export function calculerAvec(
   }
 
   const variationRelative = contexte.pib === 0 ? 0 : pib / contexte.pib;
-  const recettesInduitesParInstrument = ventilerRecettesInduites(
-    calibration,
-    contexte,
+  const recettesInduitesParInstrument = effetSurLesRecettes(
+    assiettesRecettes,
+    contexte.assiettes,
     variationRelative,
+    contexte.elasticiteIR,
+    calibration.elasticiteAutre,
   );
   const recettesInduites = recettesInduitesParInstrument.reduce((s, l) => s + l.montant, 0);
   const depensesInduites = calibration.elasticiteDepenses * contexte.depenses * variationRelative;
@@ -91,29 +116,13 @@ export function calculerAvec(
     depensesInduites,
     soldeVariation,
     solde: contexte.soldeBase + soldeVariation,
+    // Au-delà de quelques points de PIB, un modèle linéaire à multiplicateurs
+    // constants extrapole hors de tout ce sur quoi de tels coefficients sont
+    // estimés. Il rend encore un nombre ; ce nombre n'est plus un résultat.
+    horsDomaine: Math.abs(variationRelative) > SEUIL_HORS_DOMAINE,
     emploi: contexte.pibParEmploi === 0 ? 0 : pib / contexte.pibParEmploi,
     lignes: lignes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)),
   };
-}
-
-/**
- * Fait traverser à chaque prélèvement son assiette.
- *
- * Le résultat est trié par ampleur : c'est la lecture qu'on en fait — quel impôt
- * encaisse le choc, avant de savoir combien il pèse au total.
- */
-function ventilerRecettesInduites(
-  calibration: Calibration,
-  contexte: Contexte,
-  variationRelative: number,
-): Effets['recettesInduitesParInstrument'] {
-  return effetSurLesRecettes(
-    contexte.recettesParInstrument,
-    contexte.assiettes,
-    variationRelative,
-    contexte.elasticiteIR,
-    calibration.elasticiteAutre,
-  );
 }
 
 /** Calibration sans aucune rétroaction : tous les multiplicateurs sont nuls. */
