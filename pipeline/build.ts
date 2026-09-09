@@ -10,6 +10,7 @@ import {
 import { buildCollectivites } from './collectivites.ts';
 import { buildEtat } from './etat.ts';
 import { buildSecu, readChantiers, readReference } from './secu.ts';
+import { buildPib } from './pib.ts';
 import { buildBareme } from './openfisca.ts';
 import { buildSearchIndex } from './search.ts';
 import { check, checkCount, groupe, rapport, report } from './checks.ts';
@@ -227,6 +228,9 @@ async function main() {
   const chantiers = readChantiers();
   write('chantiers.json', chantiers);
 
+  const pib = await buildPib();
+  bytes += write('pib.json', pib);
+
   const charge = localiserChargeDette(etat);
   check('charge de la dette localisée', 1, charge ? 1 : 0, 0, 0);
   const tousNoeuds = [
@@ -260,6 +264,28 @@ async function main() {
   );
 
   console.log('\nContrôles');
+  groupe('Décomposition du PIB');
+  // Deux lectures d'un même total : si l'une ne retombe pas sur l'autre, c'est
+  // qu'un poste manque ou qu'un signe est inversé.
+  check(
+    'PIB par la demande = PIB publié',
+    pib.total,
+    pib.composantes.reduce((s, c) => s + c.montant, 0),
+  );
+  check(
+    'PIB par les branches = PIB publié',
+    pib.total,
+    pib.branches.reduce((s, b) => s + b.montant, 0),
+  );
+  check(
+    'valeur ajoutée = branches hors impôts sur les produits',
+    pib.valeurAjoutee,
+    pib.branches.filter((b) => b.code !== 'D21X31').reduce((s, b) => s + b.montant, 0),
+  );
+  // Le dénominateur des modèles vient d'un autre millésime : on tolère l'écart
+  // mais on le surveille, un décrochage signalerait une source qui a changé.
+  check('PIB du cadrage proche du PIB publié', pib.total, ref.macroeconomie.pib, 0.02);
+
   groupe('Totaux par sphère');
   // Une ventilation qui ne retomberait pas sur le total ferait fuir de la
   // recette : la rétroaction porterait alors sur une assiette incomplète.

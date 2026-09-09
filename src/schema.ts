@@ -225,6 +225,38 @@ export type Macro = {
   dette: Dette;
 };
 
+/**
+ * Un poste de la décomposition du PIB.
+ *
+ * Le code d'origine accompagne le libellé traduit : c'est ce qui permet de
+ * retrouver la ligne chez le producteur sans se fier à notre traduction.
+ */
+export type PostePib = { code: string; label: string; montant: number };
+
+/**
+ * Décomposition du produit intérieur brut, à titre d'échelle.
+ *
+ * Elle n'entre dans aucun calcul : les modèles gardent leur propre
+ * dénominateur. Elle répond à une question que l'outil laissait sans réponse —
+ * 1 490,9 Md € de dépense publique, rapportés à quoi ?
+ */
+export type Pib = {
+  exercice: number;
+  total: number;
+  /** Valeur ajoutée totale, hors impôts nets sur les produits. */
+  valeurAjoutee: number;
+  /** Par la demande. Les importations y portent un montant négatif. */
+  composantes: PostePib[];
+  /** Par les branches : valeur ajoutée, plus les impôts nets sur les produits. */
+  branches: PostePib[];
+  source: SourceRef;
+  note: string;
+  /** Pourquoi la consommation des APU n'est pas la dépense publique. */
+  noteDepensePublique: string;
+  /** Pourquoi ce total diffère du dénominateur des modèles. */
+  noteDenominateur: string;
+};
+
 export type Dette = {
   encours: number;
   dateEncours: string;
