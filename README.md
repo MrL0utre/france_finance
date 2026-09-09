@@ -185,8 +185,14 @@ Les données relèvent de leurs licences propres, indépendantes de celle du cod
 | Source | Licence |
 |---|---|
 | OFGL, Direction du Budget, Insee, AFT | Licence Ouverte / Etalab 2.0 — mention de paternité requise, assurée par `sources.json` et le panneau Méthodologie |
+| Eurostat (comptes nationaux) | © Union européenne — décision 2011/833/UE : réutilisation autorisée, y compris commerciale, moyennant mention de la source, assurée par `pib.json` et l'onglet « L'économie française » |
 | OpenFisca France | AGPL-3.0 |
 | Chiffres clés de la Sécurité sociale | publication institutionnelle, saisie manuelle sourcée dans `data/manual/reference.json` |
+
+Aucune de ces licences n'est à réciprocité : toutes demandent la paternité, aucune n'impose
+sa propre licence à ce qui la réutilise. Le choix de l'AGPL pour le code est donc entier, et
+ne leur doit rien. La mention de source ne vaut pas non plus aval du producteur — c'est une
+obligation de la Licence Ouverte, et c'est aussi ce qu'attend la Commission européenne.
 
 ## Simulateur
 

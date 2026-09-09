@@ -133,6 +133,12 @@ export function Pib({ pib, depensePublique }: { pib: DonneesPib | null; depenseP
             {nature.court} {pib.source.exercice}
           </span>
         </p>
+        {/* Mention de paternité : c'est la seule obligation attachée à ces
+            données, et elle appelle un lecteur, pas un fichier de données. */}
+        <p className="pib__source pib__paternite">
+          Jeux de données {pib.source.dataset}. © Union européenne — réutilisation autorisée
+          moyennant mention de la source, qui ne vaut pas aval du producteur.
+        </p>
       </section>
     </div>
   );

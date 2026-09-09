@@ -3769,3 +3769,11 @@ button {
     padding: 14px;
   }
 }
+
+/* Mention de paternité : présente et vérifiable, sans disputer la lecture. */
+.pib__paternite {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--texte-doux);
+}
