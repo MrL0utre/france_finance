@@ -1,5 +1,5 @@
 import type { Calibration } from './moteur';
-import type { Instrument } from './instruments';
+import { effetSurLesRecettes } from './assiettes';
 import type { Contexte, Impulsion } from './types';
 
 /**
@@ -91,15 +91,15 @@ export function projeter(
     }
 
     const variationRelative = contexte.pib === 0 ? 0 : pib / contexte.pib;
-    // Même ventilation qu'à un an : un sentier qui ferait réagir les impôts
-    // autrement que le calcul annuel n'aurait pas de sens.
-    let recettesInduites = 0;
-    for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument ?? {})) {
-      recettesInduites +=
-        (calibration.elasticitesRecettes[instrument as Instrument] ?? 0) *
-        assiette *
-        variationRelative;
-    }
+    // Même chaîne qu'à un an : un sentier qui ferait réagir les impôts autrement
+    // que le calcul annuel n'aurait pas de sens.
+    const recettesInduites = effetSurLesRecettes(
+      contexte.recettesParInstrument,
+      contexte.assiettes,
+      variationRelative,
+      contexte.elasticiteIR,
+      calibration.elasticiteAutre,
+    ).reduce((s, l) => s + l.montant, 0);
     const depensesInduites = calibration.elasticiteDepenses * contexte.depenses * variationRelative;
 
     // Les intérêts portent sur la dette accumulée les années précédentes : la

@@ -77,6 +77,7 @@ const lire = (chemin: string): JsonStat => JSON.parse(readFileSync(chemin, 'utf8
 export async function buildPib(): Promise<Pib> {
   const agregats = await download(
     `${API}/nama_10_gdp?${COMMUN}&na_item=B1GQ&na_item=B1G&na_item=D21X31&` +
+      `na_item=D1&na_item=B2A3G&na_item=D2X3&` +
       COMPOSANTES.map((c) => `na_item=${c.code}`).join('&'),
     'eurostat-pib.json',
   );
@@ -114,10 +115,30 @@ export async function buildPib(): Promise<Pib> {
     montant: impots,
   });
 
+  const exige = (code: string): number => {
+    const v = a.get(code);
+    if (v === undefined) throw new Error(`agrégat ${code} absent de la réponse Eurostat`);
+    return v;
+  };
+
   return {
     exercice: EXERCICE,
     total,
     valeurAjoutee: a.get('B1G') ?? 0,
+    /**
+     * Assiettes des prélèvements.
+     *
+     * Les trois premières se partagent le PIB par les revenus — c'est ce qui
+     * permet de déduire la sensibilité des profits au lieu de la choisir. La
+     * consommation vient de l'optique demande et se recoupe avec elles, ce qui
+     * est sans conséquence : chaque impôt n'est rattaché qu'à une seule.
+     */
+    assiettes: {
+      masseSalariale: exige('D1'),
+      excedentBrut: exige('B2A3G'),
+      impotsProduction: exige('D2X3'),
+      consommation: exige('P31_S14_S15'),
+    },
     composantes,
     branches,
     source: {

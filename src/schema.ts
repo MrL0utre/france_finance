@@ -234,6 +234,25 @@ export type Macro = {
 export type PostePib = { code: string; label: string; montant: number };
 
 /**
+ * Assiettes économiques des prélèvements.
+ *
+ * Un impôt ne réagit pas au PIB, il réagit à ce sur quoi il est assis : la TVA à
+ * la consommation, les cotisations à la masse salariale, l'impôt sur les
+ * sociétés au profit. Les trois premières se partagent exactement le PIB dans
+ * l'optique des revenus, ce que le pipeline vérifie.
+ */
+export type Assiettes = {
+  /** Rémunération des salariés. */
+  masseSalariale: number;
+  /** Excédent brut d'exploitation et revenu mixte. */
+  excedentBrut: number;
+  /** Impôts sur la production et les importations, nets des subventions. */
+  impotsProduction: number;
+  /** Consommation finale des ménages et des associations. */
+  consommation: number;
+};
+
+/**
  * Décomposition du produit intérieur brut, à titre d'échelle.
  *
  * Elle n'entre dans aucun calcul : les modèles gardent leur propre
@@ -245,6 +264,8 @@ export type Pib = {
   total: number;
   /** Valeur ajoutée totale, hors impôts nets sur les produits. */
   valeurAjoutee: number;
+  /** Assiettes des prélèvements, sur lesquelles la rétroaction s'exerce. */
+  assiettes: Assiettes;
   /** Par la demande. Les importations y portent un montant négatif. */
   composantes: PostePib[];
   /** Par les branches : valeur ajoutée, plus les impôts nets sur les produits. */

@@ -284,31 +284,57 @@ via leur élasticité au PIB ; le solde additionne effet direct et effets induit
 multiplicateur intègre déjà la boucle revenu-dépense** — réinjecter les recettes induites
 dans un second tour compterait deux fois le même mécanisme.
 
-### Chaque prélèvement réagit à sa manière
+### Chaque prélèvement traverse son assiette
 
-Le deuxième étage ne s'applique pas à une masse indistincte. Le pipeline ventile la recette
-totale par nature — contrôle bloquant : la ventilation doit retomber exactement sur les
-1 351,1 Md€ — et chaque nature porte sa propre sensibilité à l'activité.
+Un impôt ne réagit pas au PIB : il réagit à ce sur quoi il est assis. La chaîne est donc
 
-| Prélèvement | Assiette | Élasticité retenue |
-|---|---|---|
-| Cotisations et contributions sociales | 623,7 Md€ | 0,8 |
-| Fiscalité locale et recettes non fiscales | 256,7 Md€ | 0,5 |
-| Impôts sur la consommation | 213,0 Md€ | 1,0 |
-| Impôts sur les ménages | 168,0 Md€ | 1,8 |
-| Impôts sur les entreprises | 89,6 Md€ | 1,5 |
+```
+activité  →  assiette  →  recette
+```
 
-Un barème progressif se contracte plus vite que le revenu qu'il frappe ; un bénéfice, solde
-entre produits et charges, s'effondre plus vite que l'activité ; des cotisations assises sur
-la masse salariale la suivent de moins près, l'emploi réagissant avec retard. La moyenne
-pondérée vaut **0,95**, ce que la littérature admet pour la France — un test le vérifie, car
-des valeurs plausibles une à une peuvent composer un total qui ne l'est pas.
+et chaque maillon porte son propre coefficient, ce qui les rend vérifiables séparément. Une
+élasticité directe au PIB mélangeait les deux et ne pouvait être qu'un nombre posé.
 
-Ces élasticités sont les mêmes dans les trois calibrations : la sensibilité d'un impôt au
-cycle tient à sa nature, pas à la vue macroéconomique retenue. Seuls les multiplicateurs
-distinguent les modèles. Comme eux, ce sont des **valeurs propres à ce projet**, de l'ordre
-de grandeur des élasticités que l'OCDE emploie pour corriger les soldes du cycle, mais qui
-n'en sont pas extraites.
+| Prélèvement | Assiette | Assiette → activité | Impôt → assiette | Total |
+|---|---|---|---|---|
+| Cotisations et contributions sociales | Masse salariale | 0,80 | 1,00 | 0,80 |
+| Impôts sur les ménages | Masse salariale | 0,80 | **1,41** | 1,13 |
+| Impôts sur la consommation | Consommation des ménages | 0,80 | 1,00 | 0,80 |
+| Impôts sur les entreprises | Excédent brut d'exploitation | **1,29** | 1,00 | 1,29 |
+| Fiscalité locale et recettes non fiscales | — | — | — | 0,50 |
+
+**Deux des cinq coefficients ne sont plus choisis.**
+
+La sensibilité du profit (**1,29**) se *déduit*. Dans l'optique des revenus, le PIB est la
+somme exacte de la masse salariale, de l'excédent brut d'exploitation et des impôts sur la
+production — le pipeline le vérifie au centime. Si le PIB varie de 1 % et que deux des trois
+termes varient moins, le troisième doit varier plus, d'un montant que l'arithmétique fixe.
+C'est aussi le mécanisme réel : le profit est un solde, et un solde absorbe le choc.
+
+L'élasticité de l'impôt sur le revenu (**1,41**) se *calcule*, sur le barème publié : en
+chaque foyer, taux marginal divisé par taux moyen, pondéré par l'impôt payé sur les cas types
+validés contre OpenFisca. Un test le contrôle en aplatissant le barème à taux unique —
+l'élasticité retombe alors à 1,000, ce qui prouve que c'est bien la progressivité qui est
+mesurée. Réformer les tranches dans le simulateur change du même coup cette élasticité, sans
+qu'aucun coefficient n'ait à être révisé à la main.
+
+Restent trois valeurs posées : la sensibilité de la masse salariale (0,80 — l'emploi et les
+salaires réagissent avec retard), celle de la consommation (0,80 — les ménages lissent), et
+celle du poste résiduel (0,50 — fiscalité locale cyclique mêlée à des recettes non fiscales
+qui ne le sont pas).
+
+**Ce que cette décomposition a changé, et ce qu'elle omet.** L'élasticité moyenne des
+recettes passe de 0,95 à **0,82**. Une part de cette baisse est une correction — l'ancien
+1,8 sur l'impôt sur le revenu était trop haut, le barème donne 1,41 sur son assiette. Une
+autre part est une **omission assumée** : le calcul déplace tous les revenus à nombre de
+foyers imposables constant, alors qu'une récession fait sortir des foyers de l'impôt. Cette
+marge-là n'est pas modélisée, et elle joue à la hausse. La rétroaction est donc probablement
+sous-estimée, dans une proportion que ce projet ne sait pas chiffrer. Un test garde
+l'ensemble entre 0,6 et 1,3.
+
+Assiettes publiées par le pipeline depuis Eurostat : masse salariale 1 505,5 Md€, excédent
+brut d'exploitation 1 036,6 Md€, impôts sur la production 393,1 Md€, consommation des ménages
+1 595,5 Md€.
 
 L'interface affiche le détail : pour un scénario donné, quel impôt recule, de combien, et
 avec quelle sensibilité. Un total agrégé ne répondait pas à la question qu'on lui pose.

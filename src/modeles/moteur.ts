@@ -1,3 +1,4 @@
+import { effetSurLesRecettes } from './assiettes';
 import type { Instrument } from './instruments';
 import type { Contexte, Effets, Impulsion, LigneEffet } from './types';
 
@@ -25,14 +26,15 @@ export type Calibration = {
   /** Multiplicateur d'activité par instrument, à un an. */
   multiplicateurs: Record<Instrument, number>;
   /**
-   * Élasticité au PIB de chaque nature de recette. 1 signifie qu'elle suit
-   * l'activité, au-dessus qu'elle y réagit plus fort, en dessous moins.
+   * Sensibilité du poste résiduel de recettes — fiscalité locale et recettes non
+   * fiscales — à l'activité.
    *
-   * Une valeur unique pour tout le prélèvement effaçait ce qui distingue un
-   * impôt progressif d'une taxe sur la consommation, et rendait la rétroaction
-   * muette sur la question qu'on lui pose : quels impôts reculent, et de combien.
+   * Les autres prélèvements n'en ont plus : ils traversent leur assiette, ce qui
+   * sépare la réaction de l'assiette à l'activité de celle de l'impôt à son
+   * assiette. Ce poste-ci mêle des recettes trop hétérogènes pour qu'une assiette
+   * unique lui corresponde, et garde donc une sensibilité directe.
    */
-  elasticitesRecettes: Record<Instrument, number>;
+  elasticiteAutre: number;
   /**
    * Semi-élasticité des dépenses au PIB, négative : quand l'activité repart, les
    * dépenses liées au chômage refluent. L'essentiel du budget étant insensible
@@ -95,7 +97,7 @@ export function calculerAvec(
 }
 
 /**
- * Applique à chaque nature de recette sa propre sensibilité à l'activité.
+ * Fait traverser à chaque prélèvement son assiette.
  *
  * Le résultat est trié par ampleur : c'est la lecture qu'on en fait — quel impôt
  * encaisse le choc, avant de savoir combien il pèse au total.
@@ -105,14 +107,13 @@ function ventilerRecettesInduites(
   contexte: Contexte,
   variationRelative: number,
 ): Effets['recettesInduitesParInstrument'] {
-  if (variationRelative === 0) return [];
-  const lignes: Effets['recettesInduitesParInstrument'] = [];
-  for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument ?? {})) {
-    const e = calibration.elasticitesRecettes[instrument as Instrument] ?? 0;
-    const montant = e * assiette * variationRelative;
-    if (montant !== 0) lignes.push({ instrument: instrument as Instrument, montant });
-  }
-  return lignes.sort((a, b) => Math.abs(b.montant) - Math.abs(a.montant));
+  return effetSurLesRecettes(
+    contexte.recettesParInstrument,
+    contexte.assiettes,
+    variationRelative,
+    contexte.elasticiteIR,
+    calibration.elasticiteAutre,
+  );
 }
 
 /** Calibration sans aucune rétroaction : tous les multiplicateurs sont nuls. */
@@ -128,16 +129,6 @@ export const CALIBRATION_NEUTRE: Calibration = {
     charge_dette: 0,
     autre: 0,
   },
-  elasticitesRecettes: {
-    investissement: 0,
-    fonctionnement: 0,
-    transferts: 0,
-    impot_menages: 0,
-    impot_consommation: 0,
-    impot_entreprises: 0,
-    cotisations: 0,
-    charge_dette: 0,
-    autre: 0,
-  },
+  elasticiteAutre: 0,
   elasticiteDepenses: 0,
 };

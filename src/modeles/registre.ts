@@ -1,5 +1,4 @@
 import { CALIBRATION_NEUTRE, calculerAvec, type Calibration } from './moteur';
-import type { Instrument } from './instruments';
 import type { Modele } from './types';
 
 /**
@@ -31,42 +30,18 @@ import type { Modele } from './types';
  * la propension à consommer est faible.
  */
 /**
- * Sensibilité de chaque prélèvement à l'activité.
+ * Sensibilité du poste résiduel de recettes à l'activité.
  *
- * Elle ne dépend pas de la vue macroéconomique retenue mais de la nature de
- * l'impôt : un barème progressif se contracte plus vite que le revenu qu'il
- * frappe, une taxe sur la consommation suit la dépense des ménages, des
- * cotisations assises sur la masse salariale la suivent de moins près parce que
- * l'emploi réagit avec retard. Les trois calibrations partagent donc ces
- * valeurs ; seuls leurs multiplicateurs diffèrent.
+ * Fiscalité locale et recettes non fiscales mêlées : la première est cyclique
+ * (droits de mutation, cotisation sur la valeur ajoutée), la seconde presque pas
+ * (dividendes, redevances). Aucune assiette unique ne leur correspond, d'où une
+ * valeur intermédiaire, et la seule qui reste posée du côté des recettes.
  *
- * Valeurs propres à ce projet, choisies rondes. Elles sont de l'ordre de
- * grandeur des élasticités que l'OCDE emploie pour corriger les soldes du cycle,
- * mais n'en sont pas extraites — les annoncer comme telles serait le même abus
- * que d'attribuer nos multiplicateurs à un modèle institutionnel. Leur moyenne
- * pondérée reste voisine de 1, ce que la littérature admet pour la France.
+ * Tous les autres prélèvements traversent désormais leur assiette : voir
+ * `assiettes.ts`, où deux sensibilités sont choisies, une est déduite d'une
+ * identité comptable et une est calculée sur le barème publié.
  */
-const ELASTICITES_RECETTES: Record<Instrument, number> = {
-  // Barème progressif : une perte de revenu fait sortir des foyers des tranches
-  // hautes, et la recette recule plus vite que l'assiette.
-  impot_menages: 1.8,
-  // Le bénéfice est un solde entre produits et charges : il s'effondre bien plus
-  // vite que l'activité, et se redresse de même.
-  impot_entreprises: 1.5,
-  // La TVA suit la consommation, plus stable que le PIB mais pas de beaucoup.
-  impot_consommation: 1.0,
-  // Assises sur la masse salariale : l'emploi et les salaires réagissent avec
-  // retard, et les bas salaires restent sous des planchers de cotisation.
-  cotisations: 0.8,
-  // Fiscalité locale et recettes non fiscales mêlées : la première est cyclique
-  // (droits de mutation, CVAE), la seconde presque pas (dividendes, redevances).
-  autre: 0.5,
-  // Ce ne sont pas des recettes : aucune assiette ne leur est rattachée.
-  investissement: 0,
-  fonctionnement: 0,
-  transferts: 0,
-  charge_dette: 0,
-};
+const ELASTICITE_AUTRE = 0.5;
 
 const KEYNESIEN: Calibration = {
   multiplicateurs: {
@@ -80,7 +55,7 @@ const KEYNESIEN: Calibration = {
     charge_dette: 0.2, // aucune estimation publiée
     autre: 0.5,
   },
-  elasticitesRecettes: ELASTICITES_RECETTES,
+  elasticiteAutre: ELASTICITE_AUTRE,
   elasticiteDepenses: -0.05,
 };
 
@@ -104,7 +79,7 @@ const OFFRE: Calibration = {
     charge_dette: 0.1,
     autre: 0.3,
   },
-  elasticitesRecettes: ELASTICITES_RECETTES,
+  elasticiteAutre: ELASTICITE_AUTRE,
   elasticiteDepenses: -0.05,
 };
 
@@ -125,7 +100,7 @@ const RELANCE: Calibration = {
     charge_dette: 0.3,
     autre: 0.8,
   },
-  elasticitesRecettes: ELASTICITES_RECETTES,
+  elasticiteAutre: ELASTICITE_AUTRE,
   elasticiteDepenses: -0.1,
 };
 

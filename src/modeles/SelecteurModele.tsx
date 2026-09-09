@@ -6,6 +6,7 @@ import {
   SOURCE_REFERENCES,
 } from './references';
 import type { Effets, Modele } from './types';
+import { LIBELLES_ASSIETTE } from './assiettes';
 import { LIBELLES, libelleRecette } from './instruments';
 import { euros, eurosSigne, nombre } from '../format';
 
@@ -171,13 +172,15 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
       {effets.recettesInduitesParInstrument.length > 0 && (
         <table className="effets__table effets__impots">
           <caption>
-            Ce que l'activité fait aux prélèvements — chaque impôt réagit selon sa propre
-            sensibilité, un barème progressif plus vite qu'une taxe sur la consommation.
+            Ce que l'activité fait aux prélèvements. Chacun la reçoit par son assiette : le
+            facteur combine la réaction de l'assiette à l'activité et celle de l'impôt à son
+            assiette.
           </caption>
           <thead>
             <tr>
               <th scope="col">Prélèvement</th>
-              <th scope="col">Sensibilité</th>
+              <th scope="col">Assiette</th>
+              <th scope="col">Facteur</th>
               <th scope="col">Effet</th>
             </tr>
           </thead>
@@ -185,11 +188,8 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
             {effets.recettesInduitesParInstrument.map((l) => (
               <tr key={l.instrument}>
                 <th scope="row">{libelleRecette(l.instrument)}</th>
-                <td>
-                  {(CALIBRATIONS[modele.id]?.elasticitesRecettes[l.instrument] ?? 0)
-                    .toFixed(1)
-                    .replace('.', ',')}
-                </td>
+                <td>{l.assiette ? LIBELLES_ASSIETTE[l.assiette] : 'aucune'}</td>
+                <td>{l.facteur.toFixed(2).replace('.', ',')}</td>
                 <td>{eurosSigne(l.montant)}</td>
               </tr>
             ))}

@@ -2,6 +2,8 @@ import type { Store } from '../data/store';
 import { listeAjustements, type Ajustements } from '../data/simulation';
 import { instrumentDe } from './instruments';
 import { effetTaux } from './dette';
+import { ELASTICITE_IR_DEFAUT } from './assiettes';
+import { elasticiteBareme } from './progressivite';
 import { profilChantier, type Impulsions } from './trajectoire';
 import type { Contexte, Impulsion } from './types';
 
@@ -114,6 +116,10 @@ export function contexteDe(store: Store): Contexte | null {
     // — et avec eux la page de comparaison, qui les exécute tous.
     recettesParInstrument: (store.macro.recettesParInstrument ??
       {}) as Contexte['recettesParInstrument'],
+    assiettes: store.pib?.assiettes ?? null,
+    // Calculée sur le barème actif : réformer les tranches change du même coup
+    // la façon dont le rendement de l'impôt réagit à l'activité.
+    elasticiteIR: (store.bareme && elasticiteBareme(store.bareme)) || ELASTICITE_IR_DEFAUT,
     depenses: racine.dep,
     soldeBase: racine.solde ?? racine.rec - racine.dep,
   };

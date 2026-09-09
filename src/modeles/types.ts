@@ -1,4 +1,6 @@
 import type { Cote } from '../data/simulation';
+import type { Assiettes } from '../schema';
+import type { Assiette } from './assiettes';
 import type { Instrument } from './instruments';
 
 /** Un mouvement budgétaire décidé par l'utilisateur, en euros. */
@@ -18,6 +20,11 @@ export type Contexte = {
   recettes: number;
   /** Recette ventilée par nature, pour appliquer une sensibilité par impôt. */
   recettesParInstrument: Record<Instrument, number>;
+  /** Assiettes économiques. Absentes d'un cadrage antérieur : la rétroaction
+   *  se tait alors plutôt que d'inventer une chaîne. */
+  assiettes: Assiettes | null;
+  /** Élasticité du rendement de l'IR à sa base, calculée sur le barème actif. */
+  elasticiteIR: number;
   depenses: number;
   soldeBase: number;
 };
@@ -46,7 +53,14 @@ export type Effets = {
    * massive : « et les taxes perçues, elles font quoi ? ». Un total agrégé ne la
    * donne pas — il faut dire lesquelles reculent, et de combien.
    */
-  recettesInduitesParInstrument: { instrument: Instrument; montant: number }[];
+  recettesInduitesParInstrument: {
+    instrument: Instrument;
+    /** Assiette traversée, ou null pour le poste résiduel. */
+    assiette: Assiette | null;
+    montant: number;
+    /** Facteur total appliqué : élasticité à l'assiette × sensibilité de celle-ci. */
+    facteur: number;
+  }[];
   /** Dépenses induites : négatif quand l'activité repart et allège le chômage. */
   depensesInduites: number;
   /** soldeDirect + recettesInduites − depensesInduites. */

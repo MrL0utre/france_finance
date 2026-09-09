@@ -277,6 +277,14 @@ async function main() {
     pib.total,
     pib.branches.reduce((s, b) => s + b.montant, 0),
   );
+  // L'identité par les revenus : c'est elle qui permet de déduire la sensibilité
+  // du profit au lieu de la choisir. Si elle ne se referme pas, la déduction n'a
+  // plus de fondement.
+  check(
+    'PIB par les revenus = PIB publié',
+    pib.total,
+    pib.assiettes.masseSalariale + pib.assiettes.excedentBrut + pib.assiettes.impotsProduction,
+  );
   check(
     'valeur ajoutée = branches hors impôts sur les produits',
     pib.valeurAjoutee,

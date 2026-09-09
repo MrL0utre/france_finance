@@ -1,4 +1,4 @@
-import { createWriteStream, existsSync, mkdirSync, statSync } from 'node:fs';
+import { createWriteStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { resolve } from 'node:path';
@@ -17,10 +17,19 @@ export async function download(url: string, name: string): Promise<string> {
   mkdirSync(CACHE_DIR, { recursive: true });
   const dest = resolve(CACHE_DIR, name);
 
-  if (existsSync(dest) && !FORCE && statSync(dest).size > 0) {
+  // Le cache est indexé sur le nom de fichier. Sans mémoire de l'URL qui l'a
+  // rempli, changer une requête — ajouter un agrégat à une API, par exemple —
+  // réutiliserait silencieusement l'ancienne réponse, et le manque ne se
+  // verrait qu'à la première lecture du champ absent. On garde donc l'URL à
+  // côté du fichier, et un écart la fait retélécharger.
+  const empreinte = `${dest}.url`;
+  const memeUrl = existsSync(empreinte) && readFileSync(empreinte, 'utf8') === url;
+
+  if (existsSync(dest) && memeUrl && !FORCE && statSync(dest).size > 0) {
     console.log(`  cache   ${name} (${mo(statSync(dest).size)})`);
     return dest;
   }
+  if (existsSync(dest) && !memeUrl) console.log(`  requête modifiée, ${name} est retéléchargé`);
 
   console.log(`  fetch   ${name}`);
   const res = await fetch(url);
@@ -31,6 +40,7 @@ export async function download(url: string, name: string): Promise<string> {
   await pipeline(Readable.fromWeb(res.body as never), createWriteStream(tmp));
   const { renameSync } = await import('node:fs');
   renameSync(tmp, dest);
+  writeFileSync(empreinte, url);
   console.log(`  ok      ${name} (${mo(statSync(dest).size)})`);
   return dest;
 }

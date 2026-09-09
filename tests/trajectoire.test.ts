@@ -28,6 +28,16 @@ const CTX: Contexte = {
     transferts: 0,
     charge_dette: 0,
   },
+  // Assiettes réelles publiées par le pipeline. Les trois premières se
+  // partagent exactement le PIB dans l'optique des revenus, ce qui est la
+  // condition pour que la sensibilité du profit se déduise.
+  assiettes: {
+    masseSalariale: 1_505.5e9,
+    excedentBrut: 1_036.6e9,
+    impotsProduction: 393.1e9,
+    consommation: 1_595.5e9,
+  },
+  elasticiteIR: 1.4,
   depenses: 1_491e9,
   soldeBase: -166e9,
 };

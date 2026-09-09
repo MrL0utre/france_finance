@@ -6,6 +6,10 @@
  * règles serait faux quelle que soit sa calibration.
  */
 import { instrumentDe, type Instrument } from '../src/modeles/instruments.ts';
+import { readFileSync } from 'node:fs';
+import { betaExcedentBrut, effetSurLesRecettes } from '../src/modeles/assiettes.ts';
+import { elasticiteBareme } from '../src/modeles/progressivite.ts';
+import type { BaremeIR } from '../src/schema.ts';
 import { MODELES, modeleParId, KEYNESIEN, OFFRE, RELANCE } from '../src/modeles/registre.ts';
 import type { Contexte, Impulsion } from '../src/modeles/types.ts';
 
@@ -26,6 +30,16 @@ const CTX: Contexte = {
     transferts: 0,
     charge_dette: 0,
   },
+  // Assiettes réelles publiées par le pipeline. Les trois premières se
+  // partagent exactement le PIB dans l'optique des revenus, ce qui est la
+  // condition pour que la sensibilité du profit se déduise.
+  assiettes: {
+    masseSalariale: 1_505.5e9,
+    excedentBrut: 1_036.6e9,
+    impotsProduction: 393.1e9,
+    consommation: 1_595.5e9,
+  },
+  elasticiteIR: 1.4,
   depenses: 1_491e9,
   soldeBase: -166e9,
 };
@@ -122,33 +136,49 @@ for (const [nom, c] of [
   ok(`${nom} : investissement ≥ fonctionnement`, k.investissement >= k.fonctionnement);
   ok(`${nom} : fonctionnement ≥ transferts`, k.fonctionnement >= k.transferts);
   ok(`${nom} : tous positifs ou nuls`, Object.values(k).every((v) => v >= 0));
-  const e = c.elasticitesRecettes;
   ok(
-    `${nom} : toutes les recettes réagissent à l'activité`,
-    (['impot_menages', 'impot_entreprises', 'impot_consommation', 'cotisations', 'autre'] as const)
-      .every((i) => e[i] > 0),
+    `${nom} : le poste résiduel de recettes réagit à l'activité`,
+    c.elasticiteAutre > 0 && c.elasticiteAutre <= 1,
   );
-  // Un barème progressif se contracte plus vite que le revenu qu'il frappe, et
-  // un bénéfice plus vite que l'activité : l'inverse serait un contresens.
-  ok(`${nom} : l'impôt progressif réagit plus qu'une taxe proportionnelle`,
-    e.impot_menages > e.impot_consommation);
-  ok(`${nom} : le bénéfice réagit plus que la consommation`,
-    e.impot_entreprises > e.impot_consommation);
-  ok(`${nom} : la masse salariale réagit moins que la consommation`,
-    e.cotisations < e.impot_consommation);
-  // Garde-fou d'ensemble : la moyenne pondérée doit rester voisine de 1, ce que
-  // la littérature admet pour la France. Des valeurs par impôt plausibles une à
-  // une peuvent composer un total qui ne l'est pas.
+
+  // La chaîne activité → assiette → recette, mesurée bout en bout sur un choc
+  // d'un point de PIB. On vérifie les rapports, pas les valeurs : ce sont eux
+  // qui seraient des contresens s'ils s'inversaient.
   {
-    const total = Object.values(CTX.recettesParInstrument).reduce((s, v) => s + v, 0);
-    const moyenne = Object.entries(CTX.recettesParInstrument)
-      .reduce((s, [i, a]) => s + (e[i as Instrument] ?? 0) * a, 0) / total;
+    const lignes = effetSurLesRecettes(
+      CTX.recettesParInstrument,
+      CTX.assiettes,
+      0.01,
+      CTX.elasticiteIR,
+      c.elasticiteAutre,
+    );
+    const f = (i: Instrument) => lignes.find((l) => l.instrument === i)?.facteur ?? 0;
     ok(
-      `${nom} : élasticité moyenne des recettes voisine de 1`,
-      moyenne > 0.7 && moyenne < 1.3,
+      `${nom} : tous les prélèvements réagissent à l'activité`,
+      (['impot_menages', 'impot_entreprises', 'impot_consommation', 'cotisations', 'autre'] as const)
+        .every((i) => f(i) > 0),
+    );
+    // Le profit est un solde : il absorbe le choc que la masse salariale amortit.
+    ok(`${nom} : le bénéfice réagit plus que la masse salariale`,
+      f('impot_entreprises') > f('cotisations'));
+    // À assiette égale, un barème progressif rend plus qu'un prélèvement
+    // proportionnel : c'est toute la différence entre l'IR et les cotisations.
+    ok(`${nom} : l'impôt progressif réagit plus que les cotisations`,
+      f('impot_menages') > f('cotisations'));
+
+    // Garde-fou d'ensemble : des facteurs plausibles un à un peuvent composer un
+    // total qui ne l'est pas. La décomposition par assiettes donne un agrégat
+    // plus bas que l'élasticité directe qu'elle remplace — la marge des foyers
+    // qui entrent ou sortent de l'impôt n'y est pas modélisée.
+    const total = Object.values(CTX.recettesParInstrument).reduce((s, v) => s + v, 0);
+    const moyenne = lignes.reduce((s, l) => s + l.montant, 0) / (total * 0.01);
+    ok(
+      `${nom} : élasticité moyenne des recettes plausible`,
+      moyenne > 0.6 && moyenne < 1.3,
       moyenne.toFixed(2).replace('.', ','),
     );
   }
+
   ok(
     `${nom} : les dépenses refluent quand l'activité repart`,
     c.elasticiteDepenses <= 0,
@@ -203,6 +233,42 @@ ok(
 console.log('\n11. Chaque modèle documente ce qu\'il ne fait pas');
 for (const m of MODELES) {
   ok(`${m.nom}`, m.resume.length > 20 && m.limite.length > 20);
+}
+
+console.log('\n12. Les deux valeurs qui ne sont plus choisies');
+{
+  // La sensibilité du profit se déduit de l'identité par les revenus : si le PIB
+  // varie de 1 % et que salaires et impôts sur la production varient moins, le
+  // profit doit varier plus, d'un montant que l'arithmétique fixe.
+  const a = CTX.assiettes!;
+  const beta = betaExcedentBrut(a);
+  ok('le profit absorbe le choc que la masse salariale amortit', beta > 1, beta.toFixed(2));
+  const reconstitue = 0.8 * a.masseSalariale + 1.0 * a.impotsProduction + beta * a.excedentBrut;
+  const pibRevenus = a.masseSalariale + a.excedentBrut + a.impotsProduction;
+  ok(
+    "la déduction reconstitue exactement un point d'activité",
+    Math.abs(reconstitue - pibRevenus) < 1e3,
+    `${(reconstitue / 1e9).toFixed(1)} contre ${(pibRevenus / 1e9).toFixed(1)} Md €`,
+  );
+
+  // L'élasticité de l'IR se calcule sur le barème publié. Un barème progressif la
+  // met au-dessus de 1 ; un barème à taux unique la ramène à 1 tout rond, ce qui
+  // est le contrôle prouvant que c'est bien la progressivité qui est mesurée.
+  const bareme = JSON.parse(readFileSync('public/data/bareme.json', 'utf8')) as BaremeIR;
+  const e = elasticiteBareme(bareme);
+  ok('le barème publié donne une élasticité supérieure à 1', e !== null && e > 1, e?.toFixed(2));
+
+  const plat: BaremeIR = {
+    ...bareme,
+    tranches: [{ seuil: 0, taux: 0.2 }],
+    decote: { seuilCelibataire: 0, seuilCouple: 0, taux: 0 },
+  };
+  const ePlat = elasticiteBareme(plat);
+  ok(
+    "un barème à taux unique la ramène à 1 : c'est bien la progressivité qui est mesurée",
+    ePlat !== null && Math.abs(ePlat - 1) < 0.01,
+    ePlat?.toFixed(3),
+  );
 }
 
 console.log(`\n${echecs === 0 ? 'Tous les contrôles passent.' : `${echecs} ÉCHEC(S)`}`);
