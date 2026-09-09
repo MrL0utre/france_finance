@@ -13,12 +13,19 @@ import type { BaremeIR } from '../schema';
  * publié : changer le barème dans le simulateur change cette élasticité, sans
  * qu'aucun coefficient n'ait à être révisé à la main.
  *
- * Deux réserves, de sens contraire, qui interdisent d'y voir un rendement
- * agrégé. Les cas types servent à valider un calcul, pas à représenter une
- * distribution de revenus : la pondération par l'impôt payé est indicative. Et
- * la mesure déplace tous les revenus à nombre de foyers imposables constant,
- * alors qu'une récession fait sortir des foyers de l'impôt — cette marge-là
- * manque, et elle joue à la hausse.
+ * Deux réserves. Les cas types servent à valider un calcul, pas à représenter
+ * une distribution de revenus : la pondération est indicative. Et le calcul
+ * déplace tous les revenus à nombre de foyers imposables constant, alors qu'une
+ * récession fait sortir des foyers de l'impôt.
+ *
+ * Le sens de cette omission est inconnu, et il ne faut pas le prétendre. Des
+ * foyers sortent de l'impôt et leur contribution tombe à zéro, ce qui amplifie
+ * la baisse ; mais les pertes d'activité frappent d'abord des revenus modestes,
+ * qui paient peu d'impôt, là où un choc uniforme atteindrait aussi le haut de la
+ * distribution, où le rendement est concentré — ce qui l'amortit. Sur un barème
+ * progressif, le second effet peut l'emporter. Trancher demanderait la
+ * distribution des revenus imposables par tranche, que les données ouvertes ne
+ * publient qu'en fichiers tableurs.
  */
 export function elasticiteBareme(bareme: BaremeIR): number | null {
   const p = {

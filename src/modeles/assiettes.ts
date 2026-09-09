@@ -112,11 +112,19 @@ export const ELASTICITE_A_L_ASSIETTE: Record<Assiette, number> = {
  * Le calcul est reproductible : `progressivite.ts` l'exécute, et un test le
  * vérifie.
  *
- * Deux réserves, qui vont en sens contraire l'une de l'autre. Les cas types
- * servent à valider un calcul, pas à représenter une distribution de revenus :
- * la pondération est donc indicative. Et le calcul déplace tous les revenus à
- * nombre de foyers imposables constant, alors qu'une récession fait sortir des
- * foyers de l'impôt : cette marge-là manque, et elle joue à la hausse.
+ * Deux réserves. Les cas types servent à valider un calcul, pas à représenter
+ * une distribution de revenus : la pondération est indicative. Et le calcul
+ * déplace tous les revenus à nombre de foyers imposables constant, alors qu'une
+ * récession fait sortir des foyers de l'impôt.
+ *
+ * Le sens de cette omission est inconnu, et il ne faut pas le prétendre. Des
+ * foyers sortent de l'impôt et leur contribution tombe à zéro, ce qui amplifie
+ * la baisse ; mais les pertes d'activité frappent d'abord des revenus modestes,
+ * qui paient peu d'impôt, là où un choc uniforme atteindrait aussi le haut de la
+ * distribution, où le rendement est concentré — ce qui l'amortit. Sur un barème
+ * progressif, le second effet peut l'emporter. Trancher demanderait la
+ * distribution des revenus imposables par tranche, que les données ouvertes ne
+ * publient qu'en fichiers tableurs.
  */
 export const ELASTICITE_IR_DEFAUT = 1.4;
 

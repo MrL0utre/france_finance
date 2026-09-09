@@ -333,9 +333,15 @@ qui ne le sont pas).
 recettes passe de 0,95 à **0,82**. Une part de cette baisse est une correction — l'ancien
 1,8 sur l'impôt sur le revenu était trop haut, le barème donne 1,41 sur son assiette. Une
 autre part est une **omission assumée** : le calcul déplace tous les revenus à nombre de
-foyers imposables constant, alors qu'une récession fait sortir des foyers de l'impôt. Cette
-marge-là n'est pas modélisée, et elle joue à la hausse. La rétroaction est donc probablement
-sous-estimée, dans une proportion que ce projet ne sait pas chiffrer. Un test garde
+foyers imposables constant, alors qu'une récession fait sortir des foyers de l'impôt.
+
+**Le sens de cette omission est inconnu, et il ne faut pas le prétendre.** Deux effets s'y
+opposent. Des foyers sortent de l'impôt et leur contribution tombe à zéro, ce qui amplifie
+la baisse ; mais les pertes d'activité frappent d'abord des revenus modestes, qui paient peu
+d'impôt, là où un choc uniforme atteindrait aussi le haut de la distribution, où le rendement
+est concentré — ce qui l'amortit. Sur un barème progressif, le second effet peut l'emporter.
+Trancher demanderait la distribution des revenus imposables par tranche, que les données
+ouvertes ne publient qu'en fichiers tableurs (IRCOM), non exploités ici. Un test garde
 l'ensemble entre 0,6 et 1,3.
 
 Assiettes publiées par le pipeline depuis Eurostat : masse salariale 1 505,5 Md€, excédent
