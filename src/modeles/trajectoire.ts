@@ -1,4 +1,5 @@
 import type { Calibration } from './moteur';
+import type { Instrument } from './instruments';
 import type { Contexte, Impulsion } from './types';
 
 /**
@@ -90,7 +91,15 @@ export function projeter(
     }
 
     const variationRelative = contexte.pib === 0 ? 0 : pib / contexte.pib;
-    const recettesInduites = calibration.elasticiteRecettes * contexte.recettes * variationRelative;
+    // Même ventilation qu'à un an : un sentier qui ferait réagir les impôts
+    // autrement que le calcul annuel n'aurait pas de sens.
+    let recettesInduites = 0;
+    for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument)) {
+      recettesInduites +=
+        (calibration.elasticitesRecettes[instrument as Instrument] ?? 0) *
+        assiette *
+        variationRelative;
+    }
     const depensesInduites = calibration.elasticiteDepenses * contexte.depenses * variationRelative;
 
     // Les intérêts portent sur la dette accumulée les années précédentes : la

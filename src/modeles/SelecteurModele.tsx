@@ -6,7 +6,7 @@ import {
   SOURCE_REFERENCES,
 } from './references';
 import type { Effets, Modele } from './types';
-import { LIBELLES } from './instruments';
+import { LIBELLES, libelleRecette } from './instruments';
 import { euros, eurosSigne, nombre } from '../format';
 
 export function SelecteurModele({
@@ -142,6 +142,48 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
           <dd>{eurosSigne(effets.soldeVariation)}</dd>
         </div>
       </dl>
+
+      {/* Le modèle « Comptable » est celui par défaut : sans cette mention, un
+          visiteur qui coupe massivement voit les recettes ne pas bouger et
+          conclut que l'outil ignore la rétroaction, alors qu'il a simplement
+          choisi — sans le savoir — la calibration qui n'en calcule aucune. */}
+      {neutre && effets.lignes.length > 0 && (
+        <p className="effets__sans-retroaction">
+          <strong>Cette calibration ne calcule aucune rétroaction.</strong> Les recettes
+          affichées ne tiennent donc pas compte de l'effet du scénario sur l'activité : ni le
+          recul des impôts si elle se contracte, ni leur reprise si elle repart. Choisissez une
+          autre calibration ci-dessus pour le voir chiffré.
+        </p>
+      )}
+
+      {effets.recettesInduitesParInstrument.length > 0 && (
+        <table className="effets__table effets__impots">
+          <caption>
+            Ce que l'activité fait aux prélèvements — chaque impôt réagit selon sa propre
+            sensibilité, un barème progressif plus vite qu'une taxe sur la consommation.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Prélèvement</th>
+              <th scope="col">Sensibilité</th>
+              <th scope="col">Effet</th>
+            </tr>
+          </thead>
+          <tbody>
+            {effets.recettesInduitesParInstrument.map((l) => (
+              <tr key={l.instrument}>
+                <th scope="row">{libelleRecette(l.instrument)}</th>
+                <td>
+                  {(CALIBRATIONS[modele.id]?.elasticitesRecettes[l.instrument] ?? 0)
+                    .toFixed(1)
+                    .replace('.', ',')}
+                </td>
+                <td>{eurosSigne(l.montant)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
       {!neutre && (
         <p className="effets__recuperation">

@@ -34,6 +34,21 @@ export const LIBELLES: Record<Instrument, string> = {
   autre: 'Non classé',
 };
 
+/**
+ * Libellés côté recette, là où ceux ci-dessus induiraient en erreur.
+ *
+ * « Non classé » est juste pour une dépense qu'aucun motif n'a reconnue ; pour
+ * une recette, ce poste a un contenu identifiable — fiscalité locale et recettes
+ * non fiscales — et le nommer aide à lire pourquoi il réagit peu.
+ */
+export const LIBELLES_RECETTE: Partial<Record<Instrument, string>> = {
+  autre: 'Fiscalité locale et recettes non fiscales',
+};
+
+export function libelleRecette(instrument: Instrument): string {
+  return LIBELLES_RECETTE[instrument] ?? LIBELLES[instrument];
+}
+
 /** Motifs cherchés dans le libellé, du plus spécifique au plus général. */
 const MOTIFS_RECETTE: [RegExp, Instrument][] = [
   [/valeur ajout[ée]e|consommation sur les produits|taxes int[ée]rieures|tabac|alcool/i, 'impot_consommation'],

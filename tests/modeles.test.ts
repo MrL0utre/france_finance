@@ -13,6 +13,19 @@ const CTX: Contexte = {
   pib: 2_920e9,
   pibParEmploi: 97_000,
   recettes: 1_351e9,
+  // Ventilation publiée par le pipeline, arrondie : sa somme fait la recette
+  // totale, sans quoi la rétroaction porterait sur une assiette incomplète.
+  recettesParInstrument: {
+    cotisations: 623.7e9,
+    autre: 256.7e9,
+    impot_consommation: 213.0e9,
+    impot_menages: 168.0e9,
+    impot_entreprises: 89.6e9,
+    investissement: 0,
+    fonctionnement: 0,
+    transferts: 0,
+    charge_dette: 0,
+  },
   depenses: 1_491e9,
   soldeBase: -166e9,
 };
@@ -109,7 +122,33 @@ for (const [nom, c] of [
   ok(`${nom} : investissement ≥ fonctionnement`, k.investissement >= k.fonctionnement);
   ok(`${nom} : fonctionnement ≥ transferts`, k.fonctionnement >= k.transferts);
   ok(`${nom} : tous positifs ou nuls`, Object.values(k).every((v) => v >= 0));
-  ok(`${nom} : élasticité des recettes positive`, c.elasticiteRecettes > 0);
+  const e = c.elasticitesRecettes;
+  ok(
+    `${nom} : toutes les recettes réagissent à l'activité`,
+    (['impot_menages', 'impot_entreprises', 'impot_consommation', 'cotisations', 'autre'] as const)
+      .every((i) => e[i] > 0),
+  );
+  // Un barème progressif se contracte plus vite que le revenu qu'il frappe, et
+  // un bénéfice plus vite que l'activité : l'inverse serait un contresens.
+  ok(`${nom} : l'impôt progressif réagit plus qu'une taxe proportionnelle`,
+    e.impot_menages > e.impot_consommation);
+  ok(`${nom} : le bénéfice réagit plus que la consommation`,
+    e.impot_entreprises > e.impot_consommation);
+  ok(`${nom} : la masse salariale réagit moins que la consommation`,
+    e.cotisations < e.impot_consommation);
+  // Garde-fou d'ensemble : la moyenne pondérée doit rester voisine de 1, ce que
+  // la littérature admet pour la France. Des valeurs par impôt plausibles une à
+  // une peuvent composer un total qui ne l'est pas.
+  {
+    const total = Object.values(CTX.recettesParInstrument).reduce((s, v) => s + v, 0);
+    const moyenne = Object.entries(CTX.recettesParInstrument)
+      .reduce((s, [i, a]) => s + (e[i as Instrument] ?? 0) * a, 0) / total;
+    ok(
+      `${nom} : élasticité moyenne des recettes voisine de 1`,
+      moyenne > 0.7 && moyenne < 1.3,
+      moyenne.toFixed(2).replace('.', ','),
+    );
+  }
   ok(
     `${nom} : les dépenses refluent quand l'activité repart`,
     c.elasticiteDepenses <= 0,

@@ -24,8 +24,15 @@ import type { Contexte, Effets, Impulsion, LigneEffet } from './types';
 export type Calibration = {
   /** Multiplicateur d'activité par instrument, à un an. */
   multiplicateurs: Record<Instrument, number>;
-  /** Élasticité des recettes au PIB. 1 signifie qu'elles suivent l'activité. */
-  elasticiteRecettes: number;
+  /**
+   * Élasticité au PIB de chaque nature de recette. 1 signifie qu'elle suit
+   * l'activité, au-dessus qu'elle y réagit plus fort, en dessous moins.
+   *
+   * Une valeur unique pour tout le prélèvement effaçait ce qui distingue un
+   * impôt progressif d'une taxe sur la consommation, et rendait la rétroaction
+   * muette sur la question qu'on lui pose : quels impôts reculent, et de combien.
+   */
+  elasticitesRecettes: Record<Instrument, number>;
   /**
    * Semi-élasticité des dépenses au PIB, négative : quand l'activité repart, les
    * dépenses liées au chômage refluent. L'essentiel du budget étant insensible
@@ -63,7 +70,12 @@ export function calculerAvec(
   }
 
   const variationRelative = contexte.pib === 0 ? 0 : pib / contexte.pib;
-  const recettesInduites = calibration.elasticiteRecettes * contexte.recettes * variationRelative;
+  const recettesInduitesParInstrument = ventilerRecettesInduites(
+    calibration,
+    contexte,
+    variationRelative,
+  );
+  const recettesInduites = recettesInduitesParInstrument.reduce((s, l) => s + l.montant, 0);
   const depensesInduites = calibration.elasticiteDepenses * contexte.depenses * variationRelative;
 
   const soldeVariation = soldeDirect + recettesInduites - depensesInduites;
@@ -73,12 +85,34 @@ export function calculerAvec(
     pib,
     pibPct: variationRelative * 100,
     recettesInduites,
+    recettesInduitesParInstrument,
     depensesInduites,
     soldeVariation,
     solde: contexte.soldeBase + soldeVariation,
     emploi: contexte.pibParEmploi === 0 ? 0 : pib / contexte.pibParEmploi,
     lignes: lignes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)),
   };
+}
+
+/**
+ * Applique à chaque nature de recette sa propre sensibilité à l'activité.
+ *
+ * Le résultat est trié par ampleur : c'est la lecture qu'on en fait — quel impôt
+ * encaisse le choc, avant de savoir combien il pèse au total.
+ */
+function ventilerRecettesInduites(
+  calibration: Calibration,
+  contexte: Contexte,
+  variationRelative: number,
+): Effets['recettesInduitesParInstrument'] {
+  if (variationRelative === 0) return [];
+  const lignes: Effets['recettesInduitesParInstrument'] = [];
+  for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument)) {
+    const e = calibration.elasticitesRecettes[instrument as Instrument] ?? 0;
+    const montant = e * assiette * variationRelative;
+    if (montant !== 0) lignes.push({ instrument: instrument as Instrument, montant });
+  }
+  return lignes.sort((a, b) => Math.abs(b.montant) - Math.abs(a.montant));
 }
 
 /** Calibration sans aucune rétroaction : tous les multiplicateurs sont nuls. */
@@ -94,6 +128,16 @@ export const CALIBRATION_NEUTRE: Calibration = {
     charge_dette: 0,
     autre: 0,
   },
-  elasticiteRecettes: 0,
+  elasticitesRecettes: {
+    investissement: 0,
+    fonctionnement: 0,
+    transferts: 0,
+    impot_menages: 0,
+    impot_consommation: 0,
+    impot_entreprises: 0,
+    cotisations: 0,
+    charge_dette: 0,
+    autre: 0,
+  },
   elasticiteDepenses: 0,
 };

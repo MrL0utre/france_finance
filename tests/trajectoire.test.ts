@@ -15,6 +15,19 @@ const CTX: Contexte = {
   pib: 2_920e9,
   pibParEmploi: 97_000,
   recettes: 1_351e9,
+  // Ventilation publiée par le pipeline, arrondie : sa somme fait la recette
+  // totale, sans quoi la rétroaction porterait sur une assiette incomplète.
+  recettesParInstrument: {
+    cotisations: 623.7e9,
+    autre: 256.7e9,
+    impot_consommation: 213.0e9,
+    impot_menages: 168.0e9,
+    impot_entreprises: 89.6e9,
+    investissement: 0,
+    fonctionnement: 0,
+    transferts: 0,
+    charge_dette: 0,
+  },
   depenses: 1_491e9,
   soldeBase: -166e9,
 };

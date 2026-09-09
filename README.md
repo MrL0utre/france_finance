@@ -284,6 +284,40 @@ via leur élasticité au PIB ; le solde additionne effet direct et effets induit
 multiplicateur intègre déjà la boucle revenu-dépense** — réinjecter les recettes induites
 dans un second tour compterait deux fois le même mécanisme.
 
+### Chaque prélèvement réagit à sa manière
+
+Le deuxième étage ne s'applique pas à une masse indistincte. Le pipeline ventile la recette
+totale par nature — contrôle bloquant : la ventilation doit retomber exactement sur les
+1 351,1 Md€ — et chaque nature porte sa propre sensibilité à l'activité.
+
+| Prélèvement | Assiette | Élasticité retenue |
+|---|---|---|
+| Cotisations et contributions sociales | 623,7 Md€ | 0,8 |
+| Fiscalité locale et recettes non fiscales | 256,7 Md€ | 0,5 |
+| Impôts sur la consommation | 213,0 Md€ | 1,0 |
+| Impôts sur les ménages | 168,0 Md€ | 1,8 |
+| Impôts sur les entreprises | 89,6 Md€ | 1,5 |
+
+Un barème progressif se contracte plus vite que le revenu qu'il frappe ; un bénéfice, solde
+entre produits et charges, s'effondre plus vite que l'activité ; des cotisations assises sur
+la masse salariale la suivent de moins près, l'emploi réagissant avec retard. La moyenne
+pondérée vaut **0,95**, ce que la littérature admet pour la France — un test le vérifie, car
+des valeurs plausibles une à une peuvent composer un total qui ne l'est pas.
+
+Ces élasticités sont les mêmes dans les trois calibrations : la sensibilité d'un impôt au
+cycle tient à sa nature, pas à la vue macroéconomique retenue. Seuls les multiplicateurs
+distinguent les modèles. Comme eux, ce sont des **valeurs propres à ce projet**, de l'ordre
+de grandeur des élasticités que l'OCDE emploie pour corriger les soldes du cycle, mais qui
+n'en sont pas extraites.
+
+L'interface affiche le détail : pour un scénario donné, quel impôt recule, de combien, et
+avec quelle sensibilité. Un total agrégé ne répondait pas à la question qu'on lui pose.
+
+**Le modèle « Comptable » ne calcule aucune rétroaction, et c'est celui par défaut.** Un
+visiteur qui coupe massivement sans changer de calibration voit donc les recettes ne pas
+bouger. L'interface le dit désormais explicitement plutôt que d'afficher une colonne de
+tirets sans explication.
+
 `npm test` valide des **propriétés** plutôt que des valeurs, les coefficients étant
 destinés à évoluer : sens des effets, linéarité, symétrie, monotonie, hiérarchie des
 multiplicateurs, ordre entre modèles, et surtout qu'un taux de récupération reste dans

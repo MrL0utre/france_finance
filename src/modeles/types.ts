@@ -16,6 +16,8 @@ export type Contexte = {
   pib: number;
   pibParEmploi: number;
   recettes: number;
+  /** Recette ventilée par nature, pour appliquer une sensibilité par impôt. */
+  recettesParInstrument: Record<Instrument, number>;
   depenses: number;
   soldeBase: number;
 };
@@ -37,6 +39,14 @@ export type Effets = {
   pibPct: number;
   /** Recettes gagnées ou perdues du fait de la variation d'activité. */
   recettesInduites: number;
+  /**
+   * Détail de la recette induite, impôt par impôt.
+   *
+   * C'est la réponse à la question que pose n'importe qui devant une coupe
+   * massive : « et les taxes perçues, elles font quoi ? ». Un total agrégé ne la
+   * donne pas — il faut dire lesquelles reculent, et de combien.
+   */
+  recettesInduitesParInstrument: { instrument: Instrument; montant: number }[];
   /** Dépenses induites : négatif quand l'activité repart et allège le chômage. */
   depensesInduites: number;
   /** soldeDirect + recettesInduites − depensesInduites. */

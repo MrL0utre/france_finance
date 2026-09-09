@@ -214,6 +214,14 @@ export type Macro = {
   url: string;
   pibParEmploi: number;
   noteEmploi: string;
+  /**
+   * Recette totale ventilée par nature de prélèvement.
+   *
+   * C'est l'assiette sur laquelle la rétroaction s'applique : chaque nature a sa
+   * propre sensibilité à l'activité, et sans cette ventilation la rétroaction ne
+   * pourrait porter que sur une masse indistincte.
+   */
+  recettesParInstrument: Record<string, number>;
   dette: Dette;
 };
 

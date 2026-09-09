@@ -14,6 +14,45 @@ import { buildBareme } from './openfisca.ts';
 import { buildSearchIndex } from './search.ts';
 import { check, checkCount, groupe, rapport, report } from './checks.ts';
 import type { Node, SourceRef } from '../src/schema.ts';
+import { instrumentDe, type Instrument } from '../src/modeles/instruments.ts';
+
+/**
+ * Ventile la recette totale par nature de prélèvement.
+ *
+ * Les modèles en ont besoin pour faire réagir chaque impôt à sa manière : un
+ * impôt progressif se contracte plus vite que l'activité, une taxe sur la
+ * consommation la suit, des cotisations assises sur la masse salariale la
+ * suivent de moins près. Sans cette ventilation, la rétroaction ne pouvait
+ * porter que sur une masse indistincte.
+ *
+ * On descend l'arbre tant que les enfants publiés couvrent bien leur parent, et
+ * on classe au niveau atteint. Descendre plus bas que ce que la source ventile
+ * ferait disparaître une part de la recette ; s'arrêter plus haut rangerait la
+ * TVA et l'impôt sur les sociétés sous une même étiquette.
+ */
+function ventilerRecettes(tous: Node[], racine: Node): Record<Instrument, number> {
+  const enfants = new Map<string, Node[]>();
+  for (const n of tous) {
+    if (!n.parentId) continue;
+    const liste = enfants.get(n.parentId);
+    if (liste) liste.push(n);
+    else enfants.set(n.parentId, [n]);
+  }
+
+  const total = {} as Record<Instrument, number>;
+  const descendre = (n: Node): void => {
+    const fils = (enfants.get(n.id) ?? []).filter((f) => f.rec !== 0);
+    const somme = fils.reduce((s, f) => s + f.rec, 0);
+    if (fils.length > 0 && Math.abs(somme - n.rec) <= Math.abs(n.rec) * 0.005) {
+      for (const f of fils) descendre(f);
+      return;
+    }
+    const i = instrumentDe(n, 'rec');
+    total[i] = (total[i] ?? 0) + n.rec;
+  };
+  descendre(racine);
+  return total;
+}
 
 const ofgl = (nom: string, dataset: string): SourceRef => ({
   label: `Comptes ${nom} — OFGL`,
@@ -190,8 +229,16 @@ async function main() {
 
   const charge = localiserChargeDette(etat);
   check('charge de la dette localisée', 1, charge ? 1 : 0, 0, 0);
+  const tousNoeuds = [
+    ...rootNodes,
+    ...[...col.regionShards.values()].flat(),
+    ...[...col.deptShards.values()].flat(),
+    ...[...etat.shards.values()].flat(),
+  ];
+  const recettesParInstrument = ventilerRecettes(tousNoeuds, racine);
   write('macro.json', {
     ...ref.macroeconomie,
+    recettesParInstrument,
     dette: { ...ref.dette, charge: charge?.dep ?? 0, chargeId: charge?.id ?? null },
   });
 
@@ -214,6 +261,13 @@ async function main() {
 
   console.log('\nContrôles');
   groupe('Totaux par sphère');
+  // Une ventilation qui ne retomberait pas sur le total ferait fuir de la
+  // recette : la rétroaction porterait alors sur une assiette incomplète.
+  check(
+    'ventilation des recettes = recette totale',
+    racine.rec,
+    Object.values(recettesParInstrument).reduce((s, v) => s + v, 0),
+  );
   check('racine dépenses = somme des sphères', racine.dep, sommeDep);
   check('racine recettes = somme des sphères', racine.rec, sommeRec);
   check('État dépenses = somme des ministères', etat.totalDep, sommeCote(etat.enfantsSphere, 'dep'));
