@@ -3544,17 +3544,36 @@ button {
 /* Conséquence du scénario sur le total, sous le montant décidé : deux lignes,
    parce que ce sont deux choses — ce qu'on a réglé, ce que le modèle en tire. */
 .sommaire__retroaction {
-  font-size: 13px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.35;
   color: #b45309;
 }
 
 .sommaire__retroaction em {
   display: block;
-  font-size: 10.5px;
-  font-weight: 400;
   font-style: normal;
-  line-height: 1.35;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
   color: var(--texte-doux);
+}
+
+/* Montant décidé, sous le résultat du scénario. Discret mais présent : c'est le
+   réglage de l'utilisateur, pas la conclusion du modèle. */
+.bilan em {
+  font-size: 10px;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  color: var(--texte-doux);
+}
+
+.bilan__retroaction {
+  margin: 0;
+  padding: 8px 18px 10px;
+  border-bottom: 1px solid var(--bordure);
+  background: #fffbeb;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #92400e;
 }

@@ -486,19 +486,24 @@ export function App() {
               <span className="sommaire__label">
                 {mode === 'solde' ? 'Solde des périmètres explorés' : 'Somme des périmètres explorés'}
               </span>
-              <strong className={mode === 'solde' ? 'sommaire--negatif' : undefined}>
-                {formater(totalAffiche)}
+              {/* Le résultat du scénario passe devant, le montant décidé recule
+                  entre parenthèses. L'ordre inverse invitait à la conclusion
+                  fausse : lire des recettes intactes après une coupe massive, et
+                  en déduire qu'elle rapporte, alors que le modèle vient
+                  précisément de dire que l'activité s'est contractée. */}
+              <strong
+                className={
+                  (totalApresRetroaction ?? totalAffiche) < 0 && mode === 'solde'
+                    ? 'sommaire--negatif'
+                    : undefined
+                }
+              >
+                {formater(totalApresRetroaction ?? totalAffiche)}
               </strong>
               {totalApresRetroaction !== null ? (
                 <span className="sommaire__retroaction">
-                  {formater(totalApresRetroaction)}{' '}
-                  <em>
-                    {mode === 'solde'
-                      ? "une fois l'effet sur l'activité pris en compte"
-                      : mode === 'recettes'
-                        ? "de recettes une fois l'activité modifiée"
-                        : "de dépenses une fois l'activité modifiée"}
-                  </em>
+                  après effet sur l'activité
+                  <em>({formater(totalAffiche)} décidés)</em>
                 </span>
               ) : (
                 <span className="sommaire__note">montants bruts, voir méthodologie</span>
@@ -610,6 +615,7 @@ export function App() {
               node={noeudSelectionne}
               mode={mode}
               ajustements={ajustements}
+              effets={effets}
               version={version}
               onAjuster={ajuster}
               parHabitantActif={parHabitantActif}

@@ -10,6 +10,7 @@ import {
   type Node,
 } from '../schema';
 import type { Store } from '../data/store';
+import type { Effets } from '../modeles/types';
 import {
   facteurDe,
   montantHerite,
@@ -27,6 +28,14 @@ type Props = {
   node: Node;
   mode: Mode;
   ajustements: Ajustements;
+  /**
+   * Effets du modèle actif, ou null si le cadrage n'est pas encore chargé.
+   *
+   * Le panneau en a besoin pour montrer les totaux tels que le scénario les
+   * laisse, activité comprise. Les afficher sans cet effet reviendrait à
+   * encaisser des impôts sur une activité que le même scénario vient de réduire.
+   */
+  effets: Effets | null;
   /**
    * Incrémenté à chaque shard chargé. Sans cette dépendance, les mémos
    * ci-dessous garderaient la liste d'enfants calculée avant l'arrivée des
@@ -46,6 +55,7 @@ export function Panel({
   node,
   mode,
   ajustements,
+  effets,
   version,
   parHabitantActif,
   onAjuster,
@@ -77,6 +87,20 @@ export function Panel({
    * recettes 628, et pourtant un déficit. Elle mérite sa réponse à cet endroit,
    * pas six lignes plus bas au milieu d'un paragraphe.
    */
+  /**
+   * Effets du modèle, portés seulement par la racine : la rétroaction est un
+   * agrégat national, l'attribuer à un ministère supposerait une clé que le
+   * modèle ne donne pas.
+   */
+  const retro =
+    effets && effets.pib !== 0 && node.id === 'racine'
+      ? {
+          dep: depSim + effets.depensesInduites,
+          rec: recSim + effets.recettesInduites,
+          solde: effets.solde,
+        }
+      : null;
+
   const ecartSolde =
     node.solde !== undefined && Math.abs(node.solde - (node.rec - node.dep)) > 1e8
       ? node.rec - node.dep
@@ -129,17 +153,35 @@ export function Panel({
       <div className="bilan">
         <div>
           <span>Dépenses</span>
-          <strong>{node.dep ? euros(depSim) : '—'}</strong>
+          <strong>{node.dep ? euros(retro ? retro.dep : depSim) : '—'}</strong>
+          {retro && node.dep !== 0 && <em>({euros(depSim)} décidés)</em>}
         </div>
         <div>
           <span>Recettes</span>
-          <strong>{node.rec ? euros(recSim) : '—'}</strong>
+          <strong>{node.rec ? euros(retro ? retro.rec : recSim) : '—'}</strong>
+          {retro && node.rec !== 0 && <em>({euros(recSim)} décidées)</em>}
         </div>
-        <div className={avecSolde ? (solde >= 0 ? 'bilan--positif' : 'bilan--negatif') : undefined}>
+        <div
+          className={
+            avecSolde
+              ? (retro ? retro.solde : solde) >= 0
+                ? 'bilan--positif'
+                : 'bilan--negatif'
+              : undefined
+          }
+        >
           <span>Solde</span>
-          <strong>{avecSolde ? eurosSigne(solde) : '—'}</strong>
+          <strong>{avecSolde ? eurosSigne(retro ? retro.solde : solde) : '—'}</strong>
+          {retro && avecSolde && <em>({eurosSigne(solde)} décidé)</em>}
         </div>
       </div>
+      {retro && (
+        <p className="bilan__retroaction">
+          Montants <strong>après effet du scénario sur l'activité</strong>, selon le modèle
+          retenu. Les lire sans cet effet reviendrait à encaisser des impôts sur une activité
+          que le même scénario vient de réduire.
+        </p>
+      )}
 
       {ecartSolde !== null && !simule && (
         <details className="bilan__ecart">
