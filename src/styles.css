@@ -3577,3 +3577,195 @@ button {
   line-height: 1.5;
   color: #92400e;
 }
+
+/* ---------- L'économie française ---------- */
+
+/* Un seul défilement pour l'onglet entier, comme la vue de pilotage. */
+.pib {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  gap: 16px;
+  padding-bottom: 22px;
+  overflow-y: auto;
+}
+
+/* Les deux grandeurs à mettre en regard, côte à côte et rien d'autre : c'est la
+   raison d'être de l'onglet. */
+/* `overflow: hidden` annule la taille minimale automatique d'un enfant de
+   colonne flexible : sans `flex: none`, chaque bloc se laisse écraser dès que la
+   page déborde — l'encadré d'échelle tombait à deux pixels. */
+.pib > * {
+  flex: none;
+}
+
+.pib__echelle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 1px;
+  margin-top: 14px;
+  background: var(--bordure);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  overflow: hidden;
+}
+
+.pib__echelle > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 18px;
+  background: var(--carte);
+}
+
+.pib__echelle span {
+  font-size: 12px;
+  color: var(--texte-doux);
+}
+
+.pib__echelle strong {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pib__echelle em {
+  font-size: 11.5px;
+  font-style: normal;
+  color: var(--texte-doux);
+}
+
+.pib__alerte {
+  margin: 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--alerte-bordure);
+  border-radius: 0 8px 8px 0;
+  background: var(--alerte-fond);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.pib__bloc {
+  padding: 16px 18px 18px;
+  background: var(--carte);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+}
+
+.pib__bloc h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.pib__intro {
+  margin: 4px 0 14px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--texte-doux);
+}
+
+.pib__divergent,
+.pib__barres {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pib__divergent li,
+.pib__barres li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 2fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 0;
+}
+
+.pib__nom {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.pib__piste {
+  position: relative;
+  height: 16px;
+  border-radius: 3px;
+  background: #f1f5f9;
+}
+
+/* Ligne du zéro, sur les seules barres qui en ont une : sans repère visible, un
+   terme négatif ne se distingue pas d'un petit terme positif. */
+.pib__divergent .pib__piste::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 1px;
+  background: var(--bordure);
+}
+
+.pib__barre {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 3px;
+  background: #2563eb;
+}
+
+.pib__barre--negative {
+  background: #dc2626;
+}
+
+.pib__valeur {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pib__valeur em {
+  display: block;
+  font-size: 10.5px;
+  font-style: normal;
+  color: var(--texte-doux);
+}
+
+.pib__somme {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--bordure);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--texte-doux);
+}
+
+.pib__note {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--texte-doux);
+}
+
+.pib__source {
+  margin: 0;
+  font-size: 11.5px;
+}
+
+@media (max-width: 700px) {
+  /* Le libellé passe au-dessus de sa barre : trois colonnes ne tiennent pas. */
+  .pib__divergent li,
+  .pib__barres li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 3px;
+  }
+
+  .pib__nom {
+    grid-column: 1 / -1;
+  }
+
+  .pib__bloc {
+    padding: 14px;
+  }
+}

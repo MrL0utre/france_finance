@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
-export type Vue = 'explorer' | 'piloter' | 'comparer';
+export type Vue = 'explorer' | 'piloter' | 'comparer' | 'pib';
 
 const VUES: { cle: Vue; label: string }[] = [
   { cle: 'explorer', label: 'Explorer' },
   { cle: 'piloter', label: 'Piloter' },
   { cle: 'comparer', label: 'Comparer les modèles' },
+  { cle: 'pib', label: "L'économie française" },
 ];
 
 export function Sidebar({

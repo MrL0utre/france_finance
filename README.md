@@ -337,6 +337,41 @@ extraordinaire, que le test rend impossible par inadvertance.
 Hors périmètre du moteur : l'étalement des effets dans le temps, la dépendance des
 multiplicateurs à la conjoncture, et la dette avec sa charge d'intérêt.
 
+## L'économie française
+
+Un onglet d'information, qui n'entre dans aucun calcul. L'outil affichait 1 490,9 Md€ de
+dépense publique sans jamais montrer l'économie dans laquelle ce montant s'inscrit : le PIB
+n'y apparaissait que sous forme de variation. On y lit désormais **2 935,2 Md€ de PIB 2024**,
+et la dépense publique à **50,8 %** de ce total.
+
+Deux lectures du même agrégat, avec deux formes distinctes parce qu'elles ne font pas le même
+travail. **Par la demande**, les termes portent des signes opposés — les importations se
+retranchent — donc des barres divergentes de part et d'autre d'une ligne zéro. **Par les
+branches**, onze parts positives d'un même total : des barres triées d'une seule teinte, la
+longueur portant la grandeur. Onze teintes distinctes seraient illisibles et n'ajouteraient
+rien au tri.
+
+Les deux décompositions se referment au centime sur le même total — quatre contrôles
+bloquants du pipeline le vérifient.
+
+**Le piège que cet onglet doit désamorcer** : la « consommation des administrations
+publiques » (705,6 Md€) n'est pas la dépense publique affichée ailleurs (1 490,9 Md€). Le PIB
+mesure une production ; les transferts — retraites, allocations, remboursements — n'y
+figurent pas, puisqu'ils ne produisent rien par eux-mêmes : ils sont comptés plus tard, quand
+le ménage qui les reçoit consomme. Soustraire un total de l'autre n'aurait aucun sens, et la
+seule mise en regard des deux graphes y invite. L'avertissement est donc en tête de page,
+pas en note.
+
+Source : Eurostat, comptes nationaux transmis par l'Insee. L'Insee ne rediffuse pas ces
+séries sans clé d'API ; Eurostat le fait sous licence de réutilisation. Les libellés anglais
+sont traduits, les codes d'origine conservés à côté pour que le rattachement reste
+vérifiable. Ce PIB diffère de celui qui sert de dénominateur aux modèles — même producteur,
+millésime différent — d'un écart qu'un contrôle maintient sous 2 %.
+
+**Rien n'y réagit aux scénarios.** Faire bouger les branches sous l'effet d'une coupe
+budgétaire demanderait un tableau entrées-sorties, que ce projet n'utilise pas. La page le
+dit, faute de quoi un visiteur essaierait et conclurait à une panne.
+
 ## Barème de l'impôt sur le revenu (OpenFisca)
 
 Le barème, la décote et le plafond du quotient familial sont repris d'[OpenFisca

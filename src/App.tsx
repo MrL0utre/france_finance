@@ -8,6 +8,7 @@ import { Sidebar, type Vue } from './Sidebar';
 import { Methodologie } from './Methodologie';
 import { Accueil, accueilDejaVu, marquerAccueilVu } from './Accueil';
 import { Pilotage } from './pilotage/Pilotage';
+import { Pib } from './pib/Pib';
 import { PanneauDetail, shardsPourDetail } from './pilotage/PanneauDetail';
 import { BarreScenario } from './simulation/BarreScenario';
 import {
@@ -373,14 +374,18 @@ export function App() {
                 ? 'Piloter les finances publiques'
                 : vue === 'comparer'
                   ? 'Comparer les modèles'
-                  : 'Explorer les finances publiques'}
+                  : vue === 'pib'
+                    ? "L'économie française"
+                    : 'Explorer les finances publiques'}
             </h1>
             <p>
               {vue === 'piloter'
                 ? "Réglez les grands postes de recette et de dépense, et lisez l'effet sur le solde."
                 : vue === 'comparer'
                   ? 'Le même scénario vu par chaque modèle de bouclage, pour mesurer ce que les hypothèses ajoutent au résultat.'
-                  : "Suivez l'argent public, du niveau global jusqu'à la commune — ce qu'il coûte, ce qu'il rapporte, ce qu'il manque."}
+                  : vue === 'pib'
+                    ? "L'échelle dans laquelle s'inscrit le budget : ce que produit le pays, et par quoi."
+                    : "Suivez l'argent public, du niveau global jusqu'à la commune — ce qu'il coûte, ce qu'il rapporte, ce qu'il manque."}
             </p>
           </div>
           {pret && vue === 'explorer' && (
@@ -398,6 +403,10 @@ export function App() {
               Fermer
             </button>
           </p>
+        )}
+
+        {pret && vue === 'pib' && (
+          <Pib pib={store.pib} depensePublique={racine?.dep ?? 0} />
         )}
 
         {pret && vue === 'piloter' && (

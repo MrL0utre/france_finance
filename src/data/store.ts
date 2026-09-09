@@ -10,6 +10,7 @@ import {
   type Macro,
   type Mode,
   type Node,
+  type Pib,
   type Poste,
   type SearchEntry,
   type Shard,
@@ -27,24 +28,29 @@ export class Store {
   macro: Macro | null = null;
   bareme: BaremeIR | null = null;
   chantiers: Chantier[] = [];
+  pib: Pib | null = null;
   private readonly byParent = new Map<string, Node[]>();
   private readonly loaded = new Set<string>();
   private readonly inflight = new Map<string, Promise<void>>();
   private searchIndex: SearchEntry[] | null = null;
 
   async init(): Promise<void> {
-    const [root, sources, macro, bareme, chantiers] = await Promise.all([
+    const [root, sources, macro, bareme, chantiers, pib] = await Promise.all([
       fetchJson<Shard>('root.json'),
       fetchJson<Record<string, SourceRef>>('sources.json'),
       fetchJson<Macro>('macro.json'),
       fetchJson<BaremeIR>('bareme.json'),
       fetchJson<{ chantiers: Chantier[] }>('chantiers.json'),
+      // Toléré absent : un navigateur peut avoir en cache un jeu de données
+      // antérieur à cet onglet, et rien d'autre n'en dépend.
+      fetchJson<Pib>('pib.json').catch(() => null),
     ]);
     this.add(root.nodes);
     for (const [k, v] of Object.entries(sources)) this.sources.set(k, v);
     this.macro = macro;
     this.bareme = bareme;
     this.chantiers = chantiers.chantiers;
+    this.pib = pib;
   }
 
   private add(nodes: Node[]): void {
