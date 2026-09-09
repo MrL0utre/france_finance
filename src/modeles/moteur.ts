@@ -1,4 +1,5 @@
 import { effetSurLesRecettes } from './assiettes';
+import { EROSION, rendementReel, saturee } from './erosion';
 import type { Instrument } from './instruments';
 import type { Contexte, Effets, Impulsion, LigneEffet } from './types';
 
@@ -36,6 +37,15 @@ export type Calibration = {
    */
   elasticiteAutre: number;
   /**
+   * L'assiette réagit-elle au taux qu'on lui applique ?
+   *
+   * Faux pour la calibration comptable, dont le principe est qu'aucun agent ne
+   * réagit à rien. Vrai partout ailleurs : une assiette qui ne bougerait pas
+   * sous un doublement de son taux serait une hypothèse plus forte que toutes
+   * celles que ces modèles assument par ailleurs.
+   */
+  erosionAssiette: boolean;
+  /**
    * Semi-élasticité des dépenses au PIB, négative : quand l'activité repart, les
    * dépenses liées au chômage refluent. L'essentiel du budget étant insensible
    * à la conjoncture, le coefficient est faible.
@@ -70,25 +80,40 @@ export function calculerAvec(
    * proportion de la hausse décidée.
    */
   const assiettesRecettes: Record<string, number> = { ...(contexte.recettesParInstrument ?? {}) };
+  /** Part de la hausse décidée que l'érosion de l'assiette fait disparaître. */
+  let erosion = 0;
+  /** Au moins un prélèvement dépasse son point de retournement. */
+  let saturation = false;
 
   for (const imp of impulsions) {
     const k = calibration.multiplicateurs[imp.instrument];
 
+    // Ce qui est réellement encaissé, une fois l'assiette ajustée au taux. Tout
+    // ce qui suit travaille sur ce montant : le solde, l'activité et l'assiette
+    // exposée à la conjoncture. Un euro qui n'est pas prélevé ne freine rien.
+    const e = calibration.erosionAssiette ? EROSION[imp.instrument] : 0;
+    const rendement = contexte.recettesParInstrument?.[imp.instrument] ?? 0;
+    const delta =
+      imp.cote === 'rec' ? rendementReel(imp.delta, rendement, e) : imp.delta;
+    if (imp.cote === 'rec' && delta !== imp.delta) erosion += imp.delta - delta;
+
     // Une dépense en plus dégrade le solde, une recette en plus l'améliore.
-    soldeDirect += imp.cote === 'rec' ? imp.delta : -imp.delta;
+    soldeDirect += imp.cote === 'rec' ? delta : -delta;
 
     // Une dépense en plus soutient l'activité, un prélèvement en plus la freine.
-    const effetPib = imp.cote === 'rec' ? -k * imp.delta : k * imp.delta;
+    const effetPib = imp.cote === 'rec' ? -k * delta : k * delta;
     pib += effetPib;
 
     if (imp.cote === 'rec') {
-      assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + imp.delta;
+      assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + delta;
+      if (saturee(imp.delta, rendement, e)) saturation = true;
     }
 
     lignes.push({
       label: imp.label,
       instrument: imp.instrument,
       delta: imp.delta,
+      rendementReel: delta,
       multiplicateur: k,
       effetPib,
     });
@@ -120,6 +145,8 @@ export function calculerAvec(
     // constants extrapole hors de tout ce sur quoi de tels coefficients sont
     // estimés. Il rend encore un nombre ; ce nombre n'est plus un résultat.
     horsDomaine: Math.abs(variationRelative) > SEUIL_HORS_DOMAINE,
+    erosion,
+    saturation,
     emploi: contexte.pibParEmploi === 0 ? 0 : pib / contexte.pibParEmploi,
     lignes: lignes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)),
   };
@@ -139,5 +166,6 @@ export const CALIBRATION_NEUTRE: Calibration = {
     autre: 0,
   },
   elasticiteAutre: 0,
+  erosionAssiette: false,
   elasticiteDepenses: 0,
 };

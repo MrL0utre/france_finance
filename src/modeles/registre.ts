@@ -56,6 +56,7 @@ const KEYNESIEN: Calibration = {
     autre: 0.5,
   },
   elasticiteAutre: ELASTICITE_AUTRE,
+  erosionAssiette: true,
   elasticiteDepenses: -0.05,
 };
 
@@ -80,6 +81,7 @@ const OFFRE: Calibration = {
     autre: 0.3,
   },
   elasticiteAutre: ELASTICITE_AUTRE,
+  erosionAssiette: true,
   elasticiteDepenses: -0.05,
 };
 
@@ -101,6 +103,7 @@ const RELANCE: Calibration = {
     autre: 0.8,
   },
   elasticiteAutre: ELASTICITE_AUTRE,
+  erosionAssiette: true,
   elasticiteDepenses: -0.1,
 };
 

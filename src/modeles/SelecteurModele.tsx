@@ -112,7 +112,10 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
       <dl className="effets__chaine">
         <div>
           <dt>Décision budgétaire</dt>
-          <dd>{eurosSigne(effets.soldeDirect)}</dd>
+          <dd>
+            {eurosSigne(effets.soldeDirect)}
+            {effets.erosion > 0 && <em>après érosion de l'assiette</em>}
+          </dd>
         </div>
         <div className={neutre ? 'effets--inactif' : undefined}>
           <dt>Effet sur l'activité</dt>
@@ -183,6 +186,27 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
         </p>
       )}
 
+      {effets.erosion > 0 && (
+        <p className="effets__erosion">
+          <strong>{euros(effets.erosion)} de la hausse décidée ne seront pas encaissés.</strong>{' '}
+          Une assiette réagit au taux qu'on lui applique : les revenus élevés et les capitaux
+          sont mobiles, les entreprises ferment ou se déplacent, une part de l'activité cesse
+          d'être déclarée.{' '}
+          {effets.saturation && (
+            <>
+              <strong>Au moins un prélèvement est relevé au-delà du point où il rapporte
+              encore&nbsp;:</strong> en augmenter le taux réduit désormais son rendement.{' '}
+            </>
+          )}
+          <em>
+            Ce mécanisme est le plus grossier du modèle. Ses coefficients sont des ordres de
+            grandeur choisis, extraits d'aucune publication : ils disent un sens et une
+            hiérarchie, pas une ampleur. La perte d'activité que cette érosion entraîne n'est
+            pas comptée à part — seul le manque à gagner fiscal l'est.
+          </em>
+        </p>
+      )}
+
       {effets.recettesInduitesParInstrument.length > 0 && (
         <table className="effets__table effets__impots">
           <caption>
@@ -228,6 +252,7 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
             <tr>
               <th scope="col">Mesure</th>
               <th scope="col">Instrument retenu</th>
+              <th scope="col">Encaissé</th>
               <th scope="col">Multiplicateur</th>
               <th scope="col">Effet activité</th>
             </tr>
@@ -237,6 +262,9 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
               <tr key={l.label}>
                 <th scope="row">{l.label}</th>
                 <td>{LIBELLES[l.instrument]}</td>
+                <td>
+                  {l.rendementReel === l.delta ? '—' : eurosSigne(l.rendementReel)}
+                </td>
                 <td>{l.multiplicateur.toFixed(2).replace('.', ',')}</td>
                 <td>{l.effetPib === 0 ? '—' : eurosSigne(l.effetPib)}</td>
               </tr>

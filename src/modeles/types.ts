@@ -34,6 +34,8 @@ export type LigneEffet = {
   instrument: Instrument;
   delta: number;
   multiplicateur: number;
+  /** Montant réellement encaissé, une fois l'assiette ajustée au taux. */
+  rendementReel: number;
   /** Contribution de cette impulsion à la variation d'activité. */
   effetPib: number;
 };
@@ -69,6 +71,10 @@ export type Effets = {
   solde: number;
   /** L'écart d'activité dépasse ce que le modèle peut prétendre décrire. */
   horsDomaine: boolean;
+  /** Part des hausses décidées que l'érosion de l'assiette fait disparaître. */
+  erosion: number;
+  /** Au moins un prélèvement est relevé au-delà de son point de retournement. */
+  saturation: boolean;
   /** Emplois, ordre de grandeur. */
   emploi: number;
   lignes: LigneEffet[];

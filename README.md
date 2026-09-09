@@ -372,6 +372,48 @@ multiplicateurs, ordre entre modèles, et surtout qu'un taux de récupération r
 `[0, 1[` — une hausse de dépense qui améliorerait le solde serait une affirmation
 extraordinaire, que le test rend impossible par inadvertance.
 
+### L'assiette réagit au taux — le mécanisme le plus grossier du modèle
+
+Doubler un impôt ne double pas sa recette : les revenus élevés et les capitaux sont mobiles,
+les entreprises ferment ou se déplacent, une part de l'activité cesse d'être déclarée. Pour
+un prélèvement de rendement R dont le taux monte d'une proportion x, l'assiette recule de εx
+et le supplément réellement encaissé vaut
+
+```
+ΔR = R · x · (1 − ε(1 + x))       au lieu de   R · x
+```
+
+| Prélèvement | ε retenu | Le taux cesse de rapporter au-delà de |
+|---|---|---|
+| Impôts sur les entreprises | 0,6 | +33 % |
+| Cotisations | 0,4 | +75 % |
+| Impôts sur les ménages | 0,3 | +117 % |
+| Impôts sur la consommation | 0,2 | +200 % |
+| Fiscalité locale et non fiscal | 0,2 | +200 % |
+
+Trois propriétés en découlent, toutes testées : une hausse rapporte toujours moins que
+proportionnellement ; au-delà du point de retournement elle rapporte moins en valeur absolue,
+ce que le modèle produit sans qu'on l'y mette ; et supprimer entièrement un prélèvement coûte
+exactement son rendement, puisqu'il n'y a plus d'assiette à éroder.
+
+**Ces coefficients sont des ordres de grandeur choisis, extraits d'aucune publication.** Ils
+ne sont ni déduits comme la sensibilité du profit, ni calculés comme l'élasticité du barème :
+seule leur hiérarchie a du contenu — le bénéfice des sociétés est la base la plus mobile, la
+consommation taxée la moins. L'interface le dit à chaque fois qu'elle affiche le résultat.
+
+**Ce que ce mécanisme ne fait pas.** L'assiette qui s'érode part quelque part : une entreprise
+qui ferme détruit de l'activité, un capital qui s'expatrie la déplace, un revenu non déclaré
+reste dépensé sur place. Ces trois cas n'ont pas le même effet macroéconomique et le moteur ne
+les distingue pas — il ne retient que le manque à gagner fiscal. La perte d'activité
+correspondante n'est portée que par le multiplicateur, qui en couvre une partie sans qu'on
+sache laquelle.
+
+**Ce qui était déjà modélisé et n'a donc pas été ajouté deux fois.** Une perte d'emploi qui
+réduit l'impôt sur le revenu et la consommation, une baisse d'investissement public qui réduit
+l'activité et les recettes : ce sont le multiplicateur et la chaîne `activité → assiette →
+recette` décrits plus haut. Les traiter comme des effets supplémentaires les compterait deux
+fois.
+
 ### Domaine de validité
 
 Un modèle linéaire à multiplicateurs constants rend un nombre pour n'importe quel choc, y

@@ -8,6 +8,7 @@
 import { instrumentDe, type Instrument } from '../src/modeles/instruments.ts';
 import { readFileSync } from 'node:fs';
 import { betaExcedentBrut, effetSurLesRecettes } from '../src/modeles/assiettes.ts';
+import { EROSION, retournement } from '../src/modeles/erosion.ts';
 import { elasticiteBareme } from '../src/modeles/progressivite.ts';
 import type { BaremeIR } from '../src/schema.ts';
 import { MODELES, modeleParId, KEYNESIEN, OFFRE, RELANCE } from '../src/modeles/registre.ts';
@@ -309,6 +310,58 @@ console.log('\n13. Le modèle signale quand il sort de son domaine');
     'le modèle comptable ne sort jamais du domaine, faute de rétroaction',
     !modeleParId('comptable').calculer([imp(-700e9, 'dep')], CTX).horsDomaine,
   );
+}
+
+console.log("\n14. L’assiette réagit au taux qu’on lui applique");
+{
+  const m = modeleParId('keynesien');
+  const base = CTX.recettesParInstrument.impot_entreprises;
+
+  // Une hausse rapporte toujours moins que ce qu'elle affiche.
+  const hausse = m.calculer([imp(base * 0.2, 'rec', 'impot_entreprises')], CTX);
+  ok(
+    'une hausse rapporte moins que proportionnellement',
+    hausse.erosion > 0 && hausse.lignes[0].rendementReel < hausse.lignes[0].delta,
+    `${(hausse.erosion / 1e9).toFixed(1)} Md € perdus sur ${(base * 0.2 / 1e9).toFixed(1)}`,
+  );
+
+  // Au-delà du retournement, en relever davantage rapporte moins.
+  const seuil = retournement(EROSION.impot_entreprises)!;
+  const avant = m.calculer([imp(base * seuil * 0.8, 'rec', 'impot_entreprises')], CTX);
+  const apres = m.calculer([imp(base * seuil * 1.6, 'rec', 'impot_entreprises')], CTX);
+  ok(
+    'passé le retournement, relever le taux rapporte moins',
+    apres.soldeDirect < avant.soldeDirect,
+    `${(apres.soldeDirect / 1e9).toFixed(1)} contre ${(avant.soldeDirect / 1e9).toFixed(1)} Md €`,
+  );
+  ok('le retournement est signalé', apres.saturation);
+  ok('une hausse modérée ne l’est pas', !avant.saturation);
+
+  // Supprimer un prélèvement coûte exactement son rendement : il n'y a plus
+  // d'assiette à éroder, et l'inverse serait un contresens.
+  const suppression = m.calculer([imp(-base, 'rec', 'impot_entreprises')], CTX);
+  ok(
+    'supprimer un prélèvement coûte exactement son rendement',
+    proche(suppression.lignes[0].rendementReel, -base, 1e3),
+    `${(suppression.lignes[0].rendementReel / 1e9).toFixed(1)} contre ${(-base / 1e9).toFixed(1)} Md €`,
+  );
+
+  // Hiérarchie : à hausse égale, la base la plus mobile s'érode le plus.
+  const part = 0.2;
+  const perte = (i: Instrument) =>
+    m.calculer([imp(CTX.recettesParInstrument[i] * part, 'rec', i)], CTX).erosion /
+    (CTX.recettesParInstrument[i] * part);
+  ok(
+    'le bénéfice des sociétés s’érode plus que la consommation',
+    perte('impot_entreprises') > perte('impot_consommation'),
+  );
+
+  // Le modèle comptable ne fait réagir personne, par construction.
+  const comptable = modeleParId('comptable').calculer(
+    [imp(base * 0.5, 'rec', 'impot_entreprises')],
+    CTX,
+  );
+  ok('la calibration comptable n’érode rien', comptable.erosion === 0);
 }
 
 console.log(`\n${echecs === 0 ? 'Tous les contrôles passent.' : `${echecs} ÉCHEC(S)`}`);

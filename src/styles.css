@@ -3790,3 +3790,30 @@ button {
   line-height: 1.55;
   color: #991b1b;
 }
+
+/* Érosion de l'assiette : le mécanisme le plus grossier du modèle, et celui dont
+   l'effet est le plus spectaculaire. La réserve voyage avec le chiffre. */
+.effets__erosion {
+  margin: 10px 0 0;
+  padding: 9px 11px;
+  border-left: 3px solid #a16207;
+  border-radius: 0 7px 7px 0;
+  background: #fefce8;
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.effets__erosion em {
+  display: block;
+  margin-top: 6px;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--texte-doux);
+}
+
+.effets__chaine em {
+  display: block;
+  font-size: 10.5px;
+  font-style: normal;
+  color: var(--texte-doux);
+}
