@@ -108,7 +108,12 @@ export function contexteDe(store: Store): Contexte | null {
     pib: store.macro.pib,
     pibParEmploi: store.macro.pibParEmploi,
     recettes: racine.rec,
-    recettesParInstrument: store.macro.recettesParInstrument as Contexte['recettesParInstrument'],
+    // Un navigateur peut avoir gardé en cache un macro.json antérieur à la
+    // ventilation, pendant que le code, lui, est à jour. Sans cette tolérance,
+    // parcourir un objet absent faisait planter tous les modèles à rétroaction
+    // — et avec eux la page de comparaison, qui les exécute tous.
+    recettesParInstrument: (store.macro.recettesParInstrument ??
+      {}) as Contexte['recettesParInstrument'],
     depenses: racine.dep,
     soldeBase: racine.solde ?? racine.rec - racine.dep,
   };

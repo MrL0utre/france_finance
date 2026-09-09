@@ -305,6 +305,26 @@ export function App() {
   );
 
   const totalAffiche = racine ? valeurAffichee(racine) : 0;
+
+  /**
+   * Le total une fois la rétroaction prise en compte.
+   *
+   * Sans lui, l'application affichait un total de recettes qui ignorait
+   * l'activité pendant que le panneau des effets, lui, en tenait compte : couper
+   * toute la dépense publique laissait les recettes intactes à l'écran, alors
+   * que le modèle disait l'activité effondrée. Deux chiffres pour un même
+   * scénario, dont un faux.
+   *
+   * Le montant décidé reste en tête — c'est ce que l'utilisateur a réglé — et
+   * celui-ci vient dessous, comme conséquence. Confondre les deux effacerait la
+   * distinction entre une décision et une hypothèse de modèle.
+   */
+  const totalApresRetroaction = useMemo(() => {
+    if (!effets || effets.pib === 0) return null;
+    if (mode === 'recettes') return totalAffiche + effets.recettesInduites;
+    if (mode === 'depenses') return totalAffiche + effets.depensesInduites;
+    return effets.solde;
+  }, [effets, mode, totalAffiche]);
   const formater = (n: number) => (mode === 'solde' ? eurosSigne(n) : euros(n));
   // Même garde que dans le panneau : une part n'a de sens que si les sphères
   // décomposent réellement le total.
@@ -469,7 +489,20 @@ export function App() {
               <strong className={mode === 'solde' ? 'sommaire--negatif' : undefined}>
                 {formater(totalAffiche)}
               </strong>
-              <span className="sommaire__note">montants bruts, voir méthodologie</span>
+              {totalApresRetroaction !== null ? (
+                <span className="sommaire__retroaction">
+                  {formater(totalApresRetroaction)}{' '}
+                  <em>
+                    {mode === 'solde'
+                      ? "une fois l'effet sur l'activité pris en compte"
+                      : mode === 'recettes'
+                        ? "de recettes une fois l'activité modifiée"
+                        : "de dépenses une fois l'activité modifiée"}
+                  </em>
+                </span>
+              ) : (
+                <span className="sommaire__note">montants bruts, voir méthodologie</span>
+              )}
             </div>
             {spheres.map((s) => {
               const v = valeurAffichee(s);

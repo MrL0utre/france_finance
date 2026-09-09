@@ -313,6 +313,11 @@ n'en sont pas extraites.
 L'interface affiche le détail : pour un scénario donné, quel impôt recule, de combien, et
 avec quelle sensibilité. Un total agrégé ne répondait pas à la question qu'on lui pose.
 
+Le bandeau de synthèse porte les deux chiffres : le total **décidé**, puis le total **une
+fois l'activité modifiée**. Les confondre effacerait la distinction entre une décision et
+une hypothèse de modèle ; n'afficher que le premier, comme c'était le cas, laissait croire
+qu'une coupe massive n'a aucun effet sur les recettes alors que le modèle en calculait un.
+
 **Le modèle « Comptable » ne calcule aucune rétroaction, et c'est celui par défaut.** Un
 visiteur qui coupe massivement sans changer de calibration voit donc les recettes ne pas
 bouger. L'interface le dit désormais explicitement plutôt que d'afficher une colonne de

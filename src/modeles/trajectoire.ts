@@ -94,7 +94,7 @@ export function projeter(
     // Même ventilation qu'à un an : un sentier qui ferait réagir les impôts
     // autrement que le calcul annuel n'aurait pas de sens.
     let recettesInduites = 0;
-    for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument)) {
+    for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument ?? {})) {
       recettesInduites +=
         (calibration.elasticitesRecettes[instrument as Instrument] ?? 0) *
         assiette *

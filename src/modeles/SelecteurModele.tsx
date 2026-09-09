@@ -156,6 +156,18 @@ export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effe
         </p>
       )}
 
+      {/* Cadrage incomplet : l'activité bouge mais aucune assiette n'est
+          disponible pour y répondre. Le cas se produit quand un navigateur a
+          gardé en cache un fichier de cadrage antérieur. Le dire vaut mieux
+          qu'afficher une rétroaction nulle qui passerait pour un résultat. */}
+      {effets.pib !== 0 && effets.recettesInduitesParInstrument.length === 0 && (
+        <p className="effets__sans-retroaction">
+          <strong>Cadrage des recettes indisponible.</strong> L'effet sur l'activité est
+          calculé, mais la ventilation des recettes par nature manque : l'effet sur les
+          prélèvements ne peut pas l'être. Rechargez la page pour récupérer le cadrage à jour.
+        </p>
+      )}
+
       {effets.recettesInduitesParInstrument.length > 0 && (
         <table className="effets__table effets__impots">
           <caption>

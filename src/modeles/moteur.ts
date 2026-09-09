@@ -107,7 +107,7 @@ function ventilerRecettesInduites(
 ): Effets['recettesInduitesParInstrument'] {
   if (variationRelative === 0) return [];
   const lignes: Effets['recettesInduitesParInstrument'] = [];
-  for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument)) {
+  for (const [instrument, assiette] of Object.entries(contexte.recettesParInstrument ?? {})) {
     const e = calibration.elasticitesRecettes[instrument as Instrument] ?? 0;
     const montant = e * assiette * variationRelative;
     if (montant !== 0) lignes.push({ instrument: instrument as Instrument, montant });

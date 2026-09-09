@@ -3540,3 +3540,21 @@ button {
   font-size: 11.5px;
   line-height: 1.55;
 }
+
+/* Conséquence du scénario sur le total, sous le montant décidé : deux lignes,
+   parce que ce sont deux choses — ce qu'on a réglé, ce que le modèle en tire. */
+.sommaire__retroaction {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #b45309;
+}
+
+.sommaire__retroaction em {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.35;
+  color: var(--texte-doux);
+}
