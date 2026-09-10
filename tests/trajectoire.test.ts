@@ -6,9 +6,9 @@
  * s'arrêter, et la boucle dette-intérêts, qui doit s'auto-alimenter sans
  * diverger ni s'appliquer avec un an d'avance.
  */
-import { profilChantier, projeter, type Impulsions } from '../src/modeles/trajectoire.ts';
+import { PERSISTANCE, profilChantier, projeter, type Impulsions } from '../src/modeles/trajectoire.ts';
 import { KEYNESIEN } from '../src/modeles/registre.ts';
-import { CALIBRATION_NEUTRE } from '../src/modeles/moteur.ts';
+import { CALIBRATION_NEUTRE, calculerAvec } from '../src/modeles/moteur.ts';
 import type { Contexte, Impulsion } from '../src/modeles/types.ts';
 
 const CTX: Contexte = {
@@ -163,6 +163,66 @@ console.log('\n7. Linéarité de la projection');
   const b = projeter(KEYNESIEN, { permanentes: [], parAnnee: deux }, CTX, P);
   ok('doubler la dépense double l\'écart de dette', proche(2 * a.detteFinale, b.detteFinale, 1e6));
   ok('doubler la dépense double l\'activité', proche(2 * a.annees[0].pib, b.annees[0].pib, 1e6));
+}
+
+console.log("\n8. Hystérèse : le sentier n’est plus plat, et ne diverge pas");
+{
+  const coupe: Impulsions = {
+    permanentes: [dep(-120e9)],
+    parAnnee: new Map(),
+  };
+  const t = projeter(KEYNESIEN, coupe, CTX, { ...P, horizonAnnees: 40 });
+  const ecarts = t.annees.map((a) => a.pib);
+
+  // Année 1 : rien ne s'est encore reporté, donc le sentier doit dire
+  // exactement ce que dit le calcul annuel. C'est le contrôle qui garantit que
+  // les deux vues ne se contredisent pas.
+  const annuel = calculerAvec(KEYNESIEN, coupe.permanentes, CTX);
+  ok(
+    'année 1 : le sentier rejoint le calcul annuel',
+    proche(t.annees[0].soldeVariation, annuel.soldeVariation, 1e3),
+    `${(t.annees[0].soldeVariation / 1e9).toFixed(2)} contre ${(annuel.soldeVariation / 1e9).toFixed(2)} Md €`,
+  );
+
+  ok(
+    "l'écart d'activité se creuse après la première année",
+    Math.abs(ecarts[2]) > Math.abs(ecarts[0]),
+    `${(ecarts[0] / 1e9).toFixed(1)} puis ${(ecarts[2] / 1e9).toFixed(1)} Md €`,
+  );
+
+  // La série est géométrique de raison PERSISTANCE : elle converge vers
+  // 1/(1−ρ) fois l'effet immédiat. Une raison ≥ 1 ferait exploser le sentier.
+  ok('le report reste strictement inférieur à 1', PERSISTANCE > 0 && PERSISTANCE < 1);
+  const limite = Math.abs(ecarts[0]) / (1 - PERSISTANCE);
+  ok(
+    "l'écart ne dépasse jamais sa limite théorique",
+    ecarts.every((e) => Math.abs(e) <= limite * 1.001),
+    `${(Math.max(...ecarts.map(Math.abs)) / 1e9).toFixed(1)} pour une limite de ${(limite / 1e9).toFixed(1)} Md €`,
+  );
+  ok(
+    "il se stabilise plutôt que de croître sans fin",
+    Math.abs(ecarts[39] - ecarts[38]) < Math.abs(ecarts[0]) * 1e-3,
+    `écart entre les deux dernières années : ${(Math.abs(ecarts[39] - ecarts[38]) / 1e6).toFixed(3)} M €`,
+  );
+
+  // L'hystérèse joue dans les deux sens : un soutien durable laisse aussi une
+  // trace, sans quoi le mécanisme serait une punition et non une mécanique.
+  const soutien = projeter(
+    KEYNESIEN,
+    { permanentes: [dep(120e9)], parAnnee: new Map() },
+    CTX,
+    P,
+  );
+  ok(
+    'un soutien durable persiste symétriquement',
+    proche(soutien.annees[5].pib, -t.annees[5].pib, 1e6),
+    `${(soutien.annees[5].pib / 1e9).toFixed(1)} contre ${(-t.annees[5].pib / 1e9).toFixed(1)} Md €`,
+  );
+
+  // Sans rétroaction, rien ne se reporte : la calibration comptable doit rester
+  // plate, sans quoi le modèle « aucun effet » en aurait un.
+  const neutre = projeter(CALIBRATION_NEUTRE, coupe, CTX, P);
+  ok('la calibration comptable reste plate', neutre.annees.every((a) => a.pib === 0));
 }
 
 console.log(`\n${echecs === 0 ? 'Tous les contrôles passent.' : `${echecs} ÉCHEC(S)`}`);

@@ -112,11 +112,19 @@ export function Projection({ trajectoire }: { trajectoire: Trajectoire }) {
         au terme de sa durée.
       </p>
       <p className="projection__note">
-        <strong>Une mesure permanente donne ici la même ligne chaque année</strong>, et c'est une
-        limite du moteur plutôt qu'un résultat. Il est statique : l'assiette de l'année suivante
-        reste celle des comptes publiés, alors qu'une activité durablement plus faible la
-        réduirait, et que les mêmes taux y rapporteraient donc moins. Ce qui s'accumule d'une
-        année sur l'autre, c'est la dette et sa charge — pas l'érosion de la matière imposable.
+        <strong>L'économie de chaque année est celle que la précédente a laissée.</strong> Une
+        part de l'écart d'activité se reporte — une économie durablement plus faible investit
+        moins et perd des capacités —, et les assiettes de l'année suivante sont réduites
+        d'autant&nbsp;: les mêmes taux y rapportent moins, et le plafond du prélevable y bute
+        plus tôt. Une stratégie peut donc se défaire ou s'installer au fil des ans au lieu de
+        rendre la même ligne dix fois.
+      </p>
+      <p className="projection__note">
+        Ce report est une fraction de l'écart, jamais sa totalité&nbsp;: la série converge vers
+        une limite au lieu de s'emballer, et un test le vérifie. Son ampleur reste une valeur
+        choisie, comme les multiplicateurs — sa forme est solide, sa taille discutable. La
+        première année n'en porte encore rien, et c'est pourquoi elle dit exactement ce que dit
+        le calcul annuel.
       </p>
     </div>
   );

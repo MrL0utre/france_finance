@@ -488,10 +488,31 @@ plafonnée, plus ce que l'activité modifiée y ajoute ou en retire — et appli
 mêmes règles que le calcul annuel. Sans cela, le sentier aurait encaissé ce que le calcul
 annuel juge impossible.
 
-**Une mesure permanente y donne la même ligne chaque année**, et c'est une limite du moteur.
-Il est statique : l'assiette de l'année suivante reste celle des comptes publiés, alors
-qu'une activité durablement plus faible la réduirait. Ce qui s'accumule d'une année sur
-l'autre, c'est la dette et sa charge — pas l'érosion de la matière imposable.
+**L'économie de chaque année est celle que la précédente a laissée.** Une part de l'écart
+d'activité se reporte — une économie durablement plus faible investit moins et perd des
+capacités —, et les assiettes de l'année suivante sont réduites d'autant : les mêmes taux y
+rapportent moins, et le plafond du prélevable y bute plus tôt.
+
+Sur la stratégie « dépenses de l'État et de la Sécurité sociale à zéro, leurs recettes
+doublées », l'écart d'activité passe ainsi de **−37,8 %** la première année à **−41,5 %**,
+puis se stabilise :
+
+| Année | Solde | Recettes | Activité | Emplois |
+|---|---|---|---|---|
+| 2026 | +1 027,8 Md€ | −154,9 Md€ | −37,82 % | −11 384 477 |
+| 2027 | +1 040,2 Md€ | −140,1 Md€ | −41,16 % | −12 390 858 |
+| 2029 | +1 042,9 Md€ | −137,1 Md€ | −41,48 % | −12 487 685 |
+
+**Le report est une fraction de l'écart, jamais sa totalité.** La série est donc géométrique
+et converge vers `1 / (1 − ρ)` fois l'effet immédiat au lieu de s'emballer — un test vérifie
+qu'elle ne dépasse jamais cette limite et qu'elle se stabilise sur quarante ans. Son ampleur
+(ρ = 0,15) est une **valeur choisie**, comme les multiplicateurs et l'érosion : sa forme est
+solide, sa taille discutable, et l'ampleur de l'hystérèse est très débattue.
+
+**La première année n'en porte encore rien**, et c'est ce qui garantit la cohérence des deux
+vues : un test vérifie qu'elle dit exactement ce que dit le calcul annuel. Le mécanisme est
+symétrique — un soutien durable laisse la même trace en sens inverse — et la calibration
+comptable, qui ne fait réagir personne, reste plate.
 
 ### Domaine de validité
 

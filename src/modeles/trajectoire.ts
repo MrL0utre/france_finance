@@ -1,5 +1,7 @@
 import type { Calibration } from './moteur';
-import { effetSurLesRecettes } from './assiettes';
+import { ASSIETTE_DE, betaDe, effetSurLesRecettes } from './assiettes';
+import type { Assiettes } from '../schema';
+import type { Instrument } from './instruments';
 import { EROSION, rendementReel } from './erosion';
 import { appliquerPlafond } from './plafond';
 import type { Contexte, Impulsion } from './types';
@@ -66,6 +68,27 @@ export type ParametresTrajectoire = {
   premiereAnnee: number;
 };
 
+/**
+ * Part de l'écart d'activité de l'année précédente qui se reporte sur la
+ * suivante.
+ *
+ * Sans elle, le sentier était plat : une mesure permanente donnait la même ligne
+ * dix ans de suite, parce qu'un modèle statique traite chaque année comme si
+ * l'économie repartait du compte publié. Or une économie durablement plus faible
+ * investit moins, perd des compétences et des capacités de production ; elle ne
+ * retrouve pas le point de départ l'année suivante. C'est l'hystérèse, et elle
+ * joue dans les deux sens — un soutien durable laisse aussi une trace.
+ *
+ * VALEUR CHOISIE, comme les multiplicateurs et l'érosion : aucune publication
+ * n'en est la source, et l'ampleur de ce mécanisme est très discutée. Ce qui est
+ * sûr, c'est sa forme. Le report étant une fraction de l'écart, la série est
+ * géométrique : l'écart converge vers 1 / (1 − ρ) fois l'effet immédiat, soit
+ * environ 18 % de plus ici, et ne diverge jamais. Un test le vérifie, parce
+ * qu'une valeur supérieure ou égale à 1 ferait exploser le sentier sans que
+ * rien ne l'arrête.
+ */
+export const PERSISTANCE = 0.15;
+
 export function projeter(
   calibration: Calibration,
   impulsions: Impulsions,
@@ -75,6 +98,8 @@ export function projeter(
   const annees: AnneeProjection[] = [];
   let detteEcart = 0;
   let interetsCumules = 0;
+  /** Écart d'activité de l'année précédente, dont une part se reporte. */
+  let ecartPrecedent = 0;
 
   for (let i = 0; i < p.horizonAnnees; i++) {
     const cetteAnnee = [...impulsions.permanentes, ...(impulsions.parAnnee.get(i) ?? [])];
@@ -82,32 +107,75 @@ export function projeter(
     let impulsionDep = 0;
     let impulsionRec = 0;
     let pib = 0;
-    // Mêmes assiettes que dans le calcul annuel : la rétroaction porte sur les
-    // recettes que le scénario laisse, pas sur celles qui étaient publiées.
-    const assiettesRecettes: Record<string, number> = {
-      ...(contexte.recettesParInstrument ?? {}),
+
+    /**
+     * L'économie telle qu'elle se présente au début de l'année, et non telle
+     * qu'elle était dans les comptes publiés.
+     *
+     * C'est ce qui rend le sentier dynamique : après un effondrement d'activité,
+     * la masse salariale, la consommation et le profit sont plus faibles, donc
+     * les mêmes taux y rapportent moins et les assiettes butent plus tôt.
+     * L'écart de l'année précédente sert de référence — utiliser celui de
+     * l'année en cours créerait une circularité.
+     */
+    const ratio = contexte.pib === 0 ? 0 : ecartPrecedent / contexte.pib;
+    const facteur = (instrument: Instrument): number => {
+      const a = ASSIETTE_DE[instrument];
+      const beta = a && contexte.assiettes ? betaDe(a, contexte.assiettes) : 1;
+      return Math.max(0, 1 + beta * ratio);
     };
+
+    const rendementDe = (instrument: Instrument) =>
+      (contexte.recettesParInstrument?.[instrument] ?? 0) * facteur(instrument);
+
+    const assiettesRecettes: Record<string, number> = {};
+    for (const [cle, montant] of Object.entries(contexte.recettesParInstrument ?? {}))
+      assiettesRecettes[cle] = montant * facteur(cle as Instrument);
+
+    const assiettesAnnee: Assiettes | null = contexte.assiettes
+      ? {
+          masseSalariale:
+            contexte.assiettes.masseSalariale *
+            Math.max(0, 1 + betaDe('masseSalariale', contexte.assiettes) * ratio),
+          excedentBrut:
+            contexte.assiettes.excedentBrut *
+            Math.max(0, 1 + betaDe('excedentBrut', contexte.assiettes) * ratio),
+          impotsProduction:
+            contexte.assiettes.impotsProduction *
+            Math.max(0, 1 + betaDe('impotsProduction', contexte.assiettes) * ratio),
+          consommation:
+            contexte.assiettes.consommation *
+            Math.max(0, 1 + betaDe('consommation', contexte.assiettes) * ratio),
+        }
+      : null;
 
     // Mêmes règles qu'à un an : l'assiette réagit au taux, puis nul prélèvement
     // ne dépasse ce qu'elle contient. Un sentier qui encaisserait ce que le
     // calcul annuel juge impossible se contredirait lui-même.
     const retenus = cetteAnnee.map((imp) => {
       const e = calibration.erosionAssiette ? EROSION[imp.instrument] : 0;
-      const rendement = contexte.recettesParInstrument?.[imp.instrument] ?? 0;
-      const delta = imp.cote === 'rec' ? rendementReel(imp.delta, rendement, e) : imp.delta;
+      const rendement = rendementDe(imp.instrument);
+      // La décision est exprimée en euros sur l'économie de référence : sur une
+      // économie rétrécie, le même geste de taux rapporte moins.
+      const vise = imp.cote === 'rec' ? imp.delta * facteur(imp.instrument) : imp.delta;
+      const delta = imp.cote === 'rec' ? rendementReel(vise, rendement, e) : vise;
       if (imp.cote === 'rec')
         assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + delta;
       return { imp, delta };
     });
 
-    const { corrigees } = appliquerPlafond(assiettesRecettes, contexte.assiettes, contexte.pib);
+    const { corrigees } = appliquerPlafond(
+      assiettesRecettes,
+      assiettesAnnee,
+      contexte.pib + ecartPrecedent,
+    );
     for (const cle of Object.keys(assiettesRecettes)) assiettesRecettes[cle] = corrigees[cle] ?? 0;
 
     for (const { imp, delta: brut } of retenus) {
       const k = calibration.multiplicateurs[imp.instrument];
       let delta = brut;
       if (imp.cote === 'rec') {
-        const avant = (contexte.recettesParInstrument?.[imp.instrument] ?? 0) + brut;
+        const avant = rendementDe(imp.instrument) + brut;
         const apres = corrigees[imp.instrument] ?? 0;
         if (avant !== apres) delta = brut - (avant - apres);
         impulsionRec += delta;
@@ -118,12 +186,18 @@ export function projeter(
       }
     }
 
+    // Une part de l'écart de l'année précédente se reporte : c'est l'hystérèse,
+    // et c'est elle qui fait qu'une stratégie se défait ou s'installe au fil des
+    // ans au lieu de rendre la même ligne chaque année.
+    pib += PERSISTANCE * ecartPrecedent;
+    ecartPrecedent = pib;
+
     const variationRelative = contexte.pib === 0 ? 0 : pib / contexte.pib;
     // Même chaîne qu'à un an : un sentier qui ferait réagir les impôts autrement
     // que le calcul annuel n'aurait pas de sens.
     const recettesInduites = effetSurLesRecettes(
       assiettesRecettes,
-      contexte.assiettes,
+      assiettesAnnee,
       variationRelative,
       contexte.elasticiteIR,
       calibration.elasticiteAutre,
