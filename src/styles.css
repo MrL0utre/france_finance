@@ -3817,3 +3817,89 @@ button {
   font-style: normal;
   color: var(--texte-doux);
 }
+
+/* ---------- Humeur de la population ---------- */
+
+/* Un indicateur composé, jamais mesuré : le visage attire, la décomposition et
+   la réserve sont juste dessous pour qu'on ne s'arrête pas au visage. */
+.humeur {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--bordure);
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+
+.humeur__visage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--bordure);
+}
+
+.humeur__visage > span {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.humeur__visage strong {
+  display: block;
+  font-size: 14px;
+}
+
+.humeur__visage em {
+  font-size: 11px;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  color: var(--texte-doux);
+}
+
+.humeur__canaux {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.humeur__canaux li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  font-size: 11.5px;
+}
+
+.humeur__canaux strong {
+  font-variant-numeric: tabular-nums;
+  color: #16a34a;
+}
+
+.humeur--negatif {
+  color: #dc2626;
+}
+
+.humeur__reserve {
+  margin: 10px 0 0;
+  padding-top: 9px;
+  border-top: 1px solid var(--bordure);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--texte-doux);
+}
+
+/* Valeur d'avant, sous celle du scénario : même règle que le bandeau de
+   synthèse, le résultat devant et le point de départ derrière. */
+.pib__avant {
+  font-size: 11px !important;
+  color: var(--texte-doux);
+}
+
+.pib__scenario {
+  margin: 0;
+  padding: 11px 14px;
+  border-left: 3px solid var(--bleu);
+  border-radius: 0 8px 8px 0;
+  background: #eff6ff;
+  font-size: 12px;
+  line-height: 1.6;
+}

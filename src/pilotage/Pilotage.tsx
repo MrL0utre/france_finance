@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SPHERE_COLORS } from '../schema';
 import type { Store } from '../data/store';
+import { contexteDe } from '../modeles/impulsions';
 import {
   montantSimule,
   nbAjustements,
@@ -65,6 +66,9 @@ export function Pilotage({
 
   const groupes = useMemo(() => (pret ? construireLeviers(store) : null), [store, pret]);
   const racine = store.nodes.get('racine');
+  // Le cadrage sert à rapporter les effets à leur base : sans lui, l'indicateur
+  // d'humeur n'aurait rien à quoi comparer les montants.
+  const contexte = pret ? contexteDe(store) : null;
 
   if (erreur) return <p className="pilotage__vide">Chargement impossible : {erreur}</p>;
   if (!groupes || !racine) return <p className="pilotage__vide">Chargement des postes…</p>;
@@ -114,7 +118,9 @@ export function Pilotage({
 
       <div className="pilotage__modele">
         <SelecteurModele actif={modeleId} onChoisir={onModele} />
-        {effets && <PanneauEffets modele={modele} effets={effets} />}
+        {effets && contexte && (
+          <PanneauEffets modele={modele} effets={effets} contexte={contexte} />
+        )}
       </div>
 
       <div className="pilotage__colonnes">

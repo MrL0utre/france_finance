@@ -5,7 +5,8 @@ import {
   SANS_REFERENCE,
   SOURCE_REFERENCES,
 } from './references';
-import type { Effets, Modele } from './types';
+import { LIBELLES_CANAL, satisfaction, VISAGES } from './satisfaction';
+import type { Contexte, Effets, Modele } from './types';
 import { LIBELLES_ASSIETTE } from './assiettes';
 import { LIBELLES, libelleRecette } from './instruments';
 import { euros, eurosSigne, nombre } from '../format';
@@ -102,12 +103,54 @@ export function SelecteurModele({
 }
 
 /** Décomposition de l'effet : ce qui vient de la décision, ce qui en découle. */
-export function PanneauEffets({ modele, effets }: { modele: Modele; effets: Effets }) {
+export function PanneauEffets({
+  modele,
+  effets,
+  contexte,
+}: {
+  modele: Modele;
+  effets: Effets;
+  contexte: Contexte;
+}) {
   const neutre = effets.pib === 0;
 
   return (
     <section className="effets">
       <h3>Effets estimés — {modele.nom}</h3>
+
+      {(() => {
+        const h = satisfaction(effets, contexte);
+        const v = VISAGES[h.humeur];
+        return (
+          <section className="humeur">
+            <div className="humeur__visage" style={{ borderColor: v.couleur }}>
+              <span aria-hidden>{v.emoji}</span>
+              <div>
+                <strong style={{ color: v.couleur }}>{v.label}</strong>
+                <em>{h.score >= 0 ? '+' : '−'}{Math.abs(h.score).toFixed(1).replace('.', ',')} points</em>
+              </div>
+            </div>
+            <ul className="humeur__canaux">
+              {h.canaux.map((c) => (
+                <li key={c.canal}>
+                  <span>{LIBELLES_CANAL[c.canal]}</span>
+                  <strong className={c.contribution < 0 ? 'humeur--negatif' : undefined}>
+                    {c.contribution >= 0 ? '+' : '−'}
+                    {Math.abs(c.contribution).toFixed(1).replace('.', ',')}
+                  </strong>
+                </li>
+              ))}
+            </ul>
+            <p className="humeur__reserve">
+              <strong>Ce visage n'est pas une mesure.</strong> Aucune enquête d'opinion n'entre
+              ici : c'est une composition des trois quantités ci-dessus, pondérées par des
+              coefficients que nous avons choisis. Il dit dans quel sens penche un scénario,
+              pas ce que les gens en penseraient. L'activité et l'emploi n'y font qu'un canal,
+              parce que le moteur déduit le second du premier par une division.
+            </p>
+          </section>
+        );
+      })()}
 
       <dl className="effets__chaine">
         <div>

@@ -9,6 +9,7 @@ import { instrumentDe, type Instrument } from '../src/modeles/instruments.ts';
 import { readFileSync } from 'node:fs';
 import { betaExcedentBrut, effetSurLesRecettes } from '../src/modeles/assiettes.ts';
 import { EROSION, retournement } from '../src/modeles/erosion.ts';
+import { satisfaction } from '../src/modeles/satisfaction.ts';
 import { elasticiteBareme } from '../src/modeles/progressivite.ts';
 import type { BaremeIR } from '../src/schema.ts';
 import { MODELES, modeleParId, KEYNESIEN, OFFRE, RELANCE } from '../src/modeles/registre.ts';
@@ -362,6 +363,48 @@ console.log("\n14. L’assiette réagit au taux qu’on lui applique");
     CTX,
   );
   ok('la calibration comptable n’érode rien', comptable.erosion === 0);
+}
+
+console.log("\n15. Indicateur d’humeur : composition, pas mesure");
+{
+  const m = modeleParId('keynesien');
+  const h = (impulsions: Impulsion[]) => satisfaction(m.calculer(impulsions, CTX), CTX);
+
+  ok('un scénario vide laisse la population indifférente', h([]).humeur === 'neutre');
+
+  // Les trois canaux vont dans le sens attendu, pris un à un.
+  const impot = h([imp(60e9, 'rec', 'impot_menages')]);
+  ok('relever un impôt fait baisser l’indicateur', impot.score < 0, impot.score.toFixed(2));
+  const coupe = h([imp(-80e9, 'dep', 'transferts')]);
+  ok('couper des prestations le fait baisser', coupe.score < 0, coupe.score.toFixed(2));
+  const depense = h([imp(80e9, 'dep', 'investissement')]);
+  ok('dépenser davantage le fait monter', depense.score > 0, depense.score.toFixed(2));
+
+  // La charge de la dette ne rend aucun service : la couper ne doit pas apparaître
+  // comme une dégradation de service, seulement comme un effet d'activité.
+  const dette = h([imp(-20e9, 'dep', 'charge_dette')]);
+  const service = dette.canaux.find((c) => c.canal === 'services')!;
+  ok('couper la charge de la dette ne dégrade aucun service', service.variation === 0);
+
+  // Monotonie : un effort plus grand pèse plus lourd.
+  const petit = h([imp(-20e9, 'dep', 'transferts')]);
+  const grand = h([imp(-200e9, 'dep', 'transferts')]);
+  ok('une coupe plus forte pèse davantage', grand.score < petit.score);
+
+  // Le score est bien la somme de ses canaux : c'est ce qui rend la décomposition
+  // affichée honnête plutôt que décorative.
+  const somme = coupe.canaux.reduce((s, c) => s + c.contribution, 0);
+  ok('le score est exactement la somme de ses canaux', proche(coupe.score, somme, 1e-9));
+
+  // Les quatre visages sont atteignables : un indicateur qui n'en montrerait
+  // que deux ne servirait à rien.
+  const humeurs = new Set([
+    h([]).humeur,
+    h([imp(120e9, 'dep', 'investissement')]).humeur,
+    h([imp(-80e9, 'dep', 'transferts')]).humeur,
+    h([imp(-400e9, 'dep', 'transferts')]).humeur,
+  ]);
+  ok('les quatre visages sont atteignables', humeurs.size === 4, [...humeurs].join(', '));
 }
 
 console.log(`\n${echecs === 0 ? 'Tous les contrôles passent.' : `${echecs} ÉCHEC(S)`}`);

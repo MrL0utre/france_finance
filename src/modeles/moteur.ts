@@ -82,6 +82,16 @@ export function calculerAvec(
   const assiettesRecettes: Record<string, number> = { ...(contexte.recettesParInstrument ?? {}) };
   /** Part de la hausse décidée que l'érosion de l'assiette fait disparaître. */
   let erosion = 0;
+  /** Recettes effectivement encaissées en plus ou en moins, érosion comprise. */
+  let recettesEncaissees = 0;
+  /**
+   * Dépense décidée, charge de la dette exclue.
+   *
+   * Les intérêts remboursent des créanciers et n'achètent aucune prestation :
+   * les compter parmi les services rendus ferait passer un allègement de charge
+   * pour une dégradation de service.
+   */
+  let depensesHorsDette = 0;
   /** Au moins un prélèvement dépasse son point de retournement. */
   let saturation = false;
 
@@ -99,6 +109,9 @@ export function calculerAvec(
 
     // Une dépense en plus dégrade le solde, une recette en plus l'améliore.
     soldeDirect += imp.cote === 'rec' ? delta : -delta;
+
+    if (imp.cote === 'rec') recettesEncaissees += delta;
+    else if (imp.instrument !== 'charge_dette') depensesHorsDette += delta;
 
     // Une dépense en plus soutient l'activité, un prélèvement en plus la freine.
     const effetPib = imp.cote === 'rec' ? -k * delta : k * delta;
@@ -147,6 +160,8 @@ export function calculerAvec(
     horsDomaine: Math.abs(variationRelative) > SEUIL_HORS_DOMAINE,
     erosion,
     saturation,
+    recettesEncaissees,
+    depensesHorsDette,
     emploi: contexte.pibParEmploi === 0 ? 0 : pib / contexte.pibParEmploi,
     lignes: lignes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)),
   };

@@ -1,5 +1,6 @@
 import { libellesNature, type Pib as DonneesPib } from '../schema';
 import { euros, eurosSigne } from '../format';
+import type { Effets } from '../modeles/types';
 
 /**
  * Décomposition du produit intérieur brut.
@@ -20,9 +21,22 @@ import { euros, eurosSigne } from '../format';
  */
 
 const PART = (montant: number, total: number) => (montant / total) * 100;
-const pct = (v: number) => `${v.toFixed(1).replace('.', ',')} %`;
+// Le signe moins typographique, comme partout ailleurs dans l'application : le
+// trait d'union se distingue mal d'un tiret de coupure devant un chiffre.
+const pct = (v: number) => `${v.toFixed(1).replace('.', ',').replace('-', '−')} %`;
 
-export function Pib({ pib, depensePublique }: { pib: DonneesPib | null; depensePublique: number }) {
+export function Pib({
+  pib,
+  depensePublique,
+  depenseSimulee,
+  effets,
+}: {
+  pib: DonneesPib | null;
+  depensePublique: number;
+  /** Dépense publique telle que le scénario la laisse. */
+  depenseSimulee: number;
+  effets: Effets | null;
+}) {
   if (!pib) {
     return (
       <p className="pilotage__vide">
@@ -32,6 +46,24 @@ export function Pib({ pib, depensePublique }: { pib: DonneesPib | null; depenseP
   }
 
   const nature = libellesNature(pib.source.nature);
+
+  /**
+   * Effet du scénario sur le total, et sur lui seul.
+   *
+   * L'écart d'activité que le moteur calcule est un agrégat. Le répartir entre
+   * composantes ou entre branches demanderait des hypothèses supplémentaires —
+   * un tableau entrées-sorties pour les secondes — que ce projet ne pose pas.
+   * Les deux décompositions restent donc celles du compte publié, et la page le
+   * dit plutôt que de laisser croire qu'elles ont bougé.
+   */
+  const scenario =
+    effets && effets.pib !== 0
+      ? {
+          pib: pib.total + effets.pib,
+          ecart: effets.pib,
+          ecartPct: (effets.pib / pib.total) * 100,
+        }
+      : null;
   // L'échelle des barres divergentes est donnée par le plus gros terme, quel
   // que soit son signe : sans quoi les importations sortiraient du cadre.
   const ampleur = Math.max(...pib.composantes.map((c) => Math.abs(c.montant)));
@@ -42,14 +74,35 @@ export function Pib({ pib, depensePublique }: { pib: DonneesPib | null; depenseP
       <section className="pib__echelle">
         <div>
           <span>Produit intérieur brut {pib.exercice}</span>
-          <strong>{euros(pib.total)}</strong>
+          <strong>{euros(scenario ? scenario.pib : pib.total)}</strong>
+          {scenario && <em className="pib__avant">({euros(pib.total)} sans scénario)</em>}
         </div>
         <div>
           <span>Dépense publique affichée par cet outil</span>
-          <strong>{euros(depensePublique)}</strong>
-          <em>{pct(PART(depensePublique, pib.total))} du PIB</em>
+          <strong>{euros(scenario ? depenseSimulee : depensePublique)}</strong>
+          <em>
+            {pct(
+              scenario ? PART(depenseSimulee, scenario.pib) : PART(depensePublique, pib.total),
+            )}{' '}
+            du PIB
+          </em>
+          {scenario && (
+            <em className="pib__avant">
+              ({euros(depensePublique)} et {pct(PART(depensePublique, pib.total))} sans scénario)
+            </em>
+          )}
         </div>
       </section>
+
+      {scenario && (
+        <p className="pib__scenario">
+          <strong>Votre scénario déplace l'activité de {eurosSigne(scenario.ecart)}</strong>, soit{' '}
+          {pct(scenario.ecartPct)} du produit intérieur brut. Le ratio de dépense publique
+          bouge des deux côtés à la fois : ce qui est dépensé, et l'économie sur laquelle on
+          le rapporte. Couper une dépense peut ainsi relever ce ratio, si l'activité recule
+          davantage que la dépense.
+        </p>
+      )}
 
       <p className="pib__alerte">
         <strong>Ces deux montants ne se soustraient pas.</strong> {pib.noteDepensePublique}
@@ -121,9 +174,11 @@ export function Pib({ pib, depensePublique }: { pib: DonneesPib | null; depenseP
         <p className="pib__note">{pib.note}</p>
         <p className="pib__note">{pib.noteDenominateur}</p>
         <p className="pib__note">
-          <strong>Rien ici ne bouge avec vos scénarios.</strong> Cette décomposition est un
-          repère, pas un résultat&nbsp;: faire réagir les branches à une coupe budgétaire
-          demanderait un tableau entrées-sorties, que cet outil n'utilise pas.
+          <strong>Les deux décompositions ci-dessus ne bougent pas avec vos scénarios</strong>,
+          seul le total le fait. Répartir un écart d'activité entre composantes de la demande
+          demanderait de savoir où il se loge&nbsp;; le répartir entre branches demanderait un
+          tableau entrées-sorties, que cet outil n'utilise pas. Les afficher modifiées sans ces
+          hypothèses reviendrait à inventer une précision.
         </p>
         <p className="pib__source">
           <a href={pib.source.url} target="_blank" rel="noreferrer">

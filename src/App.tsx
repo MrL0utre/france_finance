@@ -406,7 +406,12 @@ export function App() {
         )}
 
         {pret && vue === 'pib' && (
-          <Pib pib={store.pib} depensePublique={racine?.dep ?? 0} />
+          <Pib
+            pib={store.pib}
+            depensePublique={racine?.dep ?? 0}
+            depenseSimulee={racine ? montantSimule(store, ajustements, racine, 'dep') : 0}
+            effets={effets}
+          />
         )}
 
         {pret && vue === 'piloter' && (

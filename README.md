@@ -414,6 +414,35 @@ l'activité et les recettes : ce sont le multiplicateur et la chaîne `activité
 recette` décrits plus haut. Les traiter comme des effets supplémentaires les compterait deux
 fois.
 
+### Humeur de la population
+
+Un budget se lit mal en euros seuls : couper 40 Md€ et lever 40 Md€ produisent le même solde
+et n'ont pas le même effet sur qui les subit. Un visage — 🙂 😐 🙁 😠 — compose trois
+quantités que le moteur calcule déjà.
+
+| Canal | Ce qu'il mesure | Poids |
+|---|---|---|
+| Ce qui est prélevé | recettes effectivement encaissées, érosion comprise | 1 |
+| Activité et emploi | écart de PIB | 1,5 |
+| Services publics rendus | dépense publique hors charge de la dette | 1 |
+
+**Ce visage n'est pas une mesure**, et l'interface le dit sous lui. Aucune enquête d'opinion
+n'entre ici, aucun travail de science politique non plus : c'est une composition arithmétique
+à coefficients choisis. Elle dit dans quel sens penche un scénario, pas ce que les gens en
+penseraient.
+
+**Trois canaux et non quatre, et c'est une limite du moteur.** L'emploi et l'activité n'en
+font qu'un : le moteur déduit le premier du second par une division, si bien que les compter
+séparément pèserait deux fois le même nombre sous deux noms.
+
+La charge de la dette est exclue des services rendus — elle rembourse des créanciers et
+n'achète aucune prestation. Un test vérifie que la couper n'apparaît pas comme une
+dégradation de service. À l'inverse, un euro de dépense coupé pèse **deux fois** : par
+l'activité qu'il ne soutient plus et par le service qu'il ne rend plus. C'est délibéré — un
+hôpital fermé se remarque autrement qu'un point de PIB — mais cela reste une pondération
+choisie. Sept propriétés sont testées, dont le fait que le score est exactement la somme des
+canaux affichés, et que les quatre visages sont atteignables.
+
 ### Domaine de validité
 
 Un modèle linéaire à multiplicateurs constants rend un nombre pour n'importe quel choc, y
@@ -462,9 +491,17 @@ sont traduits, les codes d'origine conservés à côté pour que le rattachement
 vérifiable. Ce PIB diffère de celui qui sert de dénominateur aux modèles — même producteur,
 millésime différent — d'un écart qu'un contrôle maintient sous 2 %.
 
-**Rien n'y réagit aux scénarios.** Faire bouger les branches sous l'effet d'une coupe
-budgétaire demanderait un tableau entrées-sorties, que ce projet n'utilise pas. La page le
-dit, faute de quoi un visiteur essaierait et conclurait à une panne.
+**Le total réagit aux scénarios, les décompositions non.** Le PIB affiché et le ratio de
+dépense publique se recalculent avec l'écart d'activité que le moteur estime, la valeur
+d'origine restant entre parenthèses. Le ratio bouge alors des deux côtés à la fois — ce qui
+est dépensé, et l'économie sur laquelle on le rapporte : couper une dépense peut ainsi le
+relever, si l'activité recule davantage que la dépense.
+
+Les deux décompositions, elles, restent celles du compte publié. Répartir un écart d'activité
+entre composantes de la demande demanderait de savoir où il se loge ; le répartir entre
+branches demanderait un tableau entrées-sorties, que ce projet n'utilise pas. Les afficher
+modifiées sans ces hypothèses reviendrait à inventer une précision. La page le dit, faute de
+quoi un visiteur conclurait à une panne.
 
 ## Barème de l'impôt sur le revenu (OpenFisca)
 

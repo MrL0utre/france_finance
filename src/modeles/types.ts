@@ -75,6 +75,10 @@ export type Effets = {
   erosion: number;
   /** Au moins un prélèvement est relevé au-delà de son point de retournement. */
   saturation: boolean;
+  /** Recettes effectivement encaissées en plus ou en moins, érosion comprise. */
+  recettesEncaissees: number;
+  /** Dépense décidée hors charge de la dette, qui n'achète aucun service. */
+  depensesHorsDette: number;
   /** Emplois, ordre de grandeur. */
   emploi: number;
   lignes: LigneEffet[];
