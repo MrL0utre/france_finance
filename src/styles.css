@@ -3903,3 +3903,95 @@ button {
   font-size: 12px;
   line-height: 1.6;
 }
+
+/* Ce que les assiettes contiennent : la seule borne du modèle qui ne repose sur
+   aucun coefficient choisi, et le taux qui dit à quelle distance on en est. */
+.effets__pressions {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--bordure);
+  border-radius: 7px;
+  background: #fbfcfe;
+}
+
+.effets__pressions > summary {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+
+.effets__pressions p {
+  margin: 8px 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--texte-doux);
+}
+
+.effets__pressions table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.effets__pressions th[scope='col'] {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--bordure);
+  font-size: 10px;
+  font-weight: 500;
+  text-align: right;
+  color: var(--texte-doux);
+}
+
+.effets__pressions th[scope='col']:first-child {
+  text-align: left;
+}
+
+.effets__pressions th[scope='row'] {
+  padding: 4px 6px 4px 0;
+  font-weight: 400;
+  text-align: left;
+}
+
+.effets__pressions td {
+  padding: 4px 6px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.effets--plafonne th,
+.effets--plafonne td {
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.effets__avertissement-plafond {
+  margin: 8px 0 0 !important;
+  padding: 8px 10px;
+  border-left: 3px solid #dc2626;
+  border-radius: 0 7px 7px 0;
+  background: #fef2f2;
+  color: #991b1b !important;
+}
+
+/* Projection dans la vue de pilotage : repliée, parce qu'elle répond à une
+   question qu'on ne se pose qu'après avoir réglé quelque chose. */
+.pilotage__projection {
+  flex: none;
+  margin-top: 14px;
+  padding: 10px 14px;
+  background: var(--carte);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+}
+
+.pilotage__projection > summary {
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pilotage__projection[open] > summary {
+  margin-bottom: 10px;
+}

@@ -8,7 +8,7 @@
 import { instrumentDe, type Instrument } from '../src/modeles/instruments.ts';
 import { readFileSync } from 'node:fs';
 import { betaExcedentBrut, effetSurLesRecettes } from '../src/modeles/assiettes.ts';
-import { EROSION, retournement } from '../src/modeles/erosion.ts';
+import { EROSION, rendementMaximal, retournement } from '../src/modeles/erosion.ts';
 import { satisfaction } from '../src/modeles/satisfaction.ts';
 import { elasticiteBareme } from '../src/modeles/progressivite.ts';
 import type { BaremeIR } from '../src/schema.ts';
@@ -326,14 +326,22 @@ console.log("\n14. L’assiette réagit au taux qu’on lui applique");
     `${(hausse.erosion / 1e9).toFixed(1)} Md € perdus sur ${(base * 0.2 / 1e9).toFixed(1)}`,
   );
 
-  // Au-delà du retournement, en relever davantage rapporte moins.
+  // Au-delà du retournement, relever le taux n'apporte plus rien : le rendement
+  // reste sur son plateau. Le laisser décroître ferait dire au modèle qu'une
+  // taxe démesurée ne rapporte rien, ce que ce mécanisme ne permet pas d'établir.
   const seuil = retournement(EROSION.impot_entreprises)!;
   const avant = m.calculer([imp(base * seuil * 0.8, 'rec', 'impot_entreprises')], CTX);
   const apres = m.calculer([imp(base * seuil * 1.6, 'rec', 'impot_entreprises')], CTX);
+  const loin = m.calculer([imp(base * seuil * 6, 'rec', 'impot_entreprises')], CTX);
   ok(
-    'passé le retournement, relever le taux rapporte moins',
-    apres.soldeDirect < avant.soldeDirect,
-    `${(apres.soldeDirect / 1e9).toFixed(1)} contre ${(avant.soldeDirect / 1e9).toFixed(1)} Md €`,
+    'avant le retournement, relever le taux rapporte encore',
+    avant.soldeDirect < apres.soldeDirect,
+    `${(avant.soldeDirect / 1e9).toFixed(1)} puis ${(apres.soldeDirect / 1e9).toFixed(1)} Md €`,
+  );
+  ok(
+    'après lui, en relever davantage n’apporte plus rien',
+    proche(loin.soldeDirect, apres.soldeDirect, 1e6),
+    `${(loin.soldeDirect / 1e9).toFixed(1)} contre ${(apres.soldeDirect / 1e9).toFixed(1)} Md €`,
   );
   ok('le retournement est signalé', apres.saturation);
   ok('une hausse modérée ne l’est pas', !avant.saturation);
@@ -405,6 +413,52 @@ console.log("\n15. Indicateur d’humeur : composition, pas mesure");
     h([imp(-400e9, 'dep', 'transferts')]).humeur,
   ]);
   ok('les quatre visages sont atteignables', humeurs.size === 4, [...humeurs].join(', '));
+}
+
+console.log("\n16. On ne prélève pas plus qu’il n’y a");
+{
+  const m = modeleParId('keynesien');
+  const a = CTX.assiettes!;
+
+  // Une taxe inventée démesurée ne rapporte pas l'infini : passé le point de
+  // retournement, relever le taux n'apporte plus rien de plus.
+  const base = CTX.recettesParInstrument.impot_entreprises;
+  const enorme = m.calculer([imp(50 * base, 'rec', 'impot_entreprises')], CTX);
+  const max = rendementMaximal(base, EROSION.impot_entreprises);
+  ok(
+    'une taxe démesurée plafonne à son rendement maximal',
+    proche(enorme.lignes[0].rendementReel, max, 1e6),
+    `${(enorme.lignes[0].rendementReel / 1e9).toFixed(1)} Md € au plus`,
+  );
+  ok('et ce maximum reste positif', max > 0, `${(max / 1e9).toFixed(1)} Md €`);
+
+  // Le plafond par assiette : ce qui est prélevé sur la masse salariale ne peut
+  // pas dépasser la masse salariale, cotisations et impôt sur le revenu réunis.
+  const p = enorme.pressions.find((x) => x.assiette === 'masseSalariale')!;
+  ok('la pression sur une assiette est un taux lisible', p.taux > 0 && p.taux < 100,
+    `${p.taux.toFixed(1)} % de la masse salariale`);
+  ok(
+    'aucune assiette ne dépasse jamais 100 %',
+    enorme.pressions.every((x) => x.taux <= 100.001),
+  );
+
+  // Le plafond mord quand on le force sans passer par l'érosion : la calibration
+  // comptable n'érode rien, donc c'est lui qui doit arrêter le scénario.
+  const brut = modeleParId('comptable').calculer(
+    [imp(a.masseSalariale * 2, 'rec', 'cotisations')],
+    CTX,
+  );
+  ok('sans érosion, le plafond arrête seul le scénario', brut.plafonne);
+  ok('et le montant impossible est chiffré', brut.retranche > 0,
+    `${(brut.retranche / 1e9).toFixed(0)} Md € réclamés en trop`);
+  ok(
+    'la masse salariale est alors prélevée en entier, pas davantage',
+    proche(brut.pressions.find((x) => x.assiette === 'masseSalariale')!.taux, 100, 0.01),
+  );
+
+  // Un scénario ordinaire ne déclenche rien de tout cela.
+  const ordinaire = m.calculer([imp(10e9, 'rec', 'impot_consommation')], CTX);
+  ok('un scénario ordinaire ne bute sur aucun plafond', !ordinaire.plafonne);
 }
 
 console.log(`\n${echecs === 0 ? 'Tous les contrôles passent.' : `${echecs} ÉCHEC(S)`}`);

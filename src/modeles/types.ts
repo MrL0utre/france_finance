@@ -1,6 +1,7 @@
 import type { Cote } from '../data/simulation';
 import type { Assiettes } from '../schema';
 import type { Assiette } from './assiettes';
+import type { Pression } from './plafond';
 import type { Instrument } from './instruments';
 
 /** Un mouvement budgétaire décidé par l'utilisateur, en euros. */
@@ -75,6 +76,12 @@ export type Effets = {
   erosion: number;
   /** Au moins un prélèvement est relevé au-delà de son point de retournement. */
   saturation: boolean;
+  /** Une assiette a été prélevée jusqu'à épuisement : il n'y avait plus rien. */
+  plafonne: boolean;
+  /** Montant que le scénario réclamait au-delà de ce que les assiettes contiennent. */
+  retranche: number;
+  /** Taux de prélèvement atteint sur chaque assiette, du plus tendu au moins. */
+  pressions: Pression[];
   /** Recettes effectivement encaissées en plus ou en moins, érosion comprise. */
   recettesEncaissees: number;
   /** Dépense décidée hors charge de la dette, qui n'achète aucun service. */

@@ -229,6 +229,50 @@ export function PanneauEffets({
         </p>
       )}
 
+      {/* Ce que les assiettes contiennent, et ce qu'on leur prend déjà. Le taux
+          sur la masse salariale dépasse 50 % sans aucun scénario : le voir
+          monter apprend plus que n'importe quel plafond. */}
+      {effets.pressions.length > 0 && (
+        <details className="effets__pressions">
+          <summary>
+            Ce qu'il reste à prendre
+            {effets.plafonne && <strong> — une assiette est épuisée</strong>}
+          </summary>
+          <p>
+            Un prélèvement ne peut pas dépasser ce sur quoi il est assis. Ces taux disent
+            jusqu'où va déjà le scénario ; à 100 %, il ne resterait rien à prendre.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Assiette</th>
+                <th scope="col">Prélevé</th>
+                <th scope="col">Assiette</th>
+                <th scope="col">Taux</th>
+              </tr>
+            </thead>
+            <tbody>
+              {effets.pressions.map((p) => (
+                <tr key={p.label} className={p.plafonnee ? 'effets--plafonne' : undefined}>
+                  <th scope="row">{p.label}</th>
+                  <td>{euros(p.preleve)}</td>
+                  <td>{euros(p.base)}</td>
+                  <td>{p.taux.toFixed(1).replace('.', ',')} %</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {effets.retranche > 0 && (
+            <p className="effets__avertissement-plafond">
+              <strong>
+                {euros(effets.retranche)} réclamés au-delà de ce que les assiettes contiennent
+              </strong>{' '}
+              n'ont pas été comptés : ils n'existent nulle part.
+            </p>
+          )}
+        </details>
+      )}
+
       {effets.erosion > 0 && (
         <p className="effets__erosion">
           <strong>{euros(effets.erosion)} de la hausse décidée ne seront pas encaissés.</strong>{' '}

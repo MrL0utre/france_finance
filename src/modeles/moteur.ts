@@ -1,5 +1,6 @@
 import { effetSurLesRecettes } from './assiettes';
 import { EROSION, rendementReel, saturee } from './erosion';
+import { appliquerPlafond, pressions } from './plafond';
 import type { Instrument } from './instruments';
 import type { Contexte, Effets, Impulsion, LigneEffet } from './types';
 
@@ -95,17 +96,53 @@ export function calculerAvec(
   /** Au moins un prélèvement dépasse son point de retournement. */
   let saturation = false;
 
-  for (const imp of impulsions) {
-    const k = calibration.multiplicateurs[imp.instrument];
-
-    // Ce qui est réellement encaissé, une fois l'assiette ajustée au taux. Tout
-    // ce qui suit travaille sur ce montant : le solde, l'activité et l'assiette
-    // exposée à la conjoncture. Un euro qui n'est pas prélevé ne freine rien.
+  /**
+   * Première passe : ce que chaque impulsion rapporte réellement.
+   *
+   * L'érosion s'applique ici, prélèvement par prélèvement. Le plafond, lui, ne
+   * peut pas : il porte sur une assiette que plusieurs prélèvements se
+   * partagent, et il faut donc les connaître tous avant de savoir si leur somme
+   * la dépasse.
+   */
+  const retenus = impulsions.map((imp) => {
     const e = calibration.erosionAssiette ? EROSION[imp.instrument] : 0;
     const rendement = contexte.recettesParInstrument?.[imp.instrument] ?? 0;
-    const delta =
-      imp.cote === 'rec' ? rendementReel(imp.delta, rendement, e) : imp.delta;
-    if (imp.cote === 'rec' && delta !== imp.delta) erosion += imp.delta - delta;
+    const delta = imp.cote === 'rec' ? rendementReel(imp.delta, rendement, e) : imp.delta;
+    if (imp.cote === 'rec') {
+      if (delta !== imp.delta) erosion += imp.delta - delta;
+      if (saturee(imp.delta, rendement, e)) saturation = true;
+      assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + delta;
+    }
+    return { imp, delta };
+  });
+
+  /**
+   * Seconde passe : ramener chaque assiette sous ce qu'elle contient.
+   *
+   * On ne prélève pas 110 % de la masse salariale. Quand la somme dépasse, tous
+   * les prélèvements assis dessus sont réduits dans la même proportion, et la
+   * part abandonnée est rendue visible plutôt que silencieusement encaissée.
+   */
+  const { corrigees, retranche } = appliquerPlafond(
+    assiettesRecettes,
+    contexte.assiettes,
+    contexte.pib,
+  );
+  const plafonne = retranche > 0;
+  for (const cle of Object.keys(assiettesRecettes)) assiettesRecettes[cle] = corrigees[cle] ?? 0;
+
+  for (const { imp, delta: brut } of retenus) {
+    const k = calibration.multiplicateurs[imp.instrument];
+
+    // La réduction imposée par le plafond se répercute sur l'impulsion elle-même :
+    // un euro qu'on ne peut pas prélever n'améliore aucun solde et ne freine
+    // aucune activité.
+    let delta = brut;
+    if (imp.cote === 'rec' && plafonne) {
+      const avant = (contexte.recettesParInstrument?.[imp.instrument] ?? 0) + brut;
+      const apres = corrigees[imp.instrument] ?? 0;
+      if (avant !== 0) delta = brut - (avant - apres);
+    }
 
     // Une dépense en plus dégrade le solde, une recette en plus l'améliore.
     soldeDirect += imp.cote === 'rec' ? delta : -delta;
@@ -116,11 +153,6 @@ export function calculerAvec(
     // Une dépense en plus soutient l'activité, un prélèvement en plus la freine.
     const effetPib = imp.cote === 'rec' ? -k * delta : k * delta;
     pib += effetPib;
-
-    if (imp.cote === 'rec') {
-      assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + delta;
-      if (saturee(imp.delta, rendement, e)) saturation = true;
-    }
 
     lignes.push({
       label: imp.label,
@@ -160,6 +192,9 @@ export function calculerAvec(
     horsDomaine: Math.abs(variationRelative) > SEUIL_HORS_DOMAINE,
     erosion,
     saturation,
+    plafonne,
+    retranche,
+    pressions: pressions(assiettesRecettes, contexte.assiettes, contexte.pib),
     recettesEncaissees,
     depensesHorsDette,
     emploi: contexte.pibParEmploi === 0 ? 0 : pib / contexte.pibParEmploi,

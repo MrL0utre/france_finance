@@ -79,12 +79,25 @@ export function retournement(e: number): number | null {
 export function rendementReel(delta: number, rendement: number, e: number): number {
   if (delta === 0 || rendement <= 0 || e <= 0) return delta;
   const x = delta / rendement;
-  // Le facteur ne descend pas sous zéro : au-delà du point où la hausse ne
-  // rapporte plus rien, le modèle cesse d'être informatif, et lui laisser
-  // produire un rendement négatif ferait passer une extrapolation pour un
-  // résultat. La borne est signalée par `satureee` ci-dessous.
-  const facteur = Math.max(0, 1 - e * (1 + x));
-  return delta * facteur;
+
+  // Passé le retournement, le rendement reste à son maximum au lieu de suivre la
+  // formule. Celle-ci décroît ensuite jusqu'à devenir négative, ce qui ferait
+  // dire à l'outil qu'une taxe démesurée ne rapporte rien, voire coûte — une
+  // affirmation bien plus forte que ce que le mécanisme autorise. Ce qu'il
+  // permet de dire s'arrête à : au-delà de ce point, relever le taux n'apporte
+  // plus rien. Le plateau dit exactement cela, et pas davantage.
+  const seuil = retournement(e);
+  const borne = seuil === null ? x : Math.min(x, Math.max(seuil, -1));
+  const utile = delta >= 0 ? borne : x;
+
+  return rendement * utile * (1 - e * (1 + utile));
+}
+
+/** Supplément maximal qu'un prélèvement peut rapporter, quel que soit son taux. */
+export function rendementMaximal(rendement: number, e: number): number {
+  const seuil = retournement(e);
+  if (seuil === null || seuil <= 0) return Infinity;
+  return rendement * seuil * (1 - e * (1 + seuil));
 }
 
 /** Vrai quand la hausse dépasse le point de retournement du prélèvement. */

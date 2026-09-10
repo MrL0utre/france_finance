@@ -1,5 +1,7 @@
 import type { Calibration } from './moteur';
 import { effetSurLesRecettes } from './assiettes';
+import { EROSION, rendementReel } from './erosion';
+import { appliquerPlafond } from './plafond';
 import type { Contexte, Impulsion } from './types';
 
 /**
@@ -34,6 +36,8 @@ export type AnneeProjection = {
   pib: number;
   pibPct: number;
   recettesInduites: number;
+  /** Écart de recettes, décision encaissée et rétroaction comprises. */
+  recettesEcart: number;
   depensesInduites: number;
   /** Surcroît de charge d'intérêt dû à la dette accumulée par le scénario. */
   chargeInterets: number;
@@ -84,15 +88,33 @@ export function projeter(
       ...(contexte.recettesParInstrument ?? {}),
     };
 
-    for (const imp of cetteAnnee) {
+    // Mêmes règles qu'à un an : l'assiette réagit au taux, puis nul prélèvement
+    // ne dépasse ce qu'elle contient. Un sentier qui encaisserait ce que le
+    // calcul annuel juge impossible se contredirait lui-même.
+    const retenus = cetteAnnee.map((imp) => {
+      const e = calibration.erosionAssiette ? EROSION[imp.instrument] : 0;
+      const rendement = contexte.recettesParInstrument?.[imp.instrument] ?? 0;
+      const delta = imp.cote === 'rec' ? rendementReel(imp.delta, rendement, e) : imp.delta;
+      if (imp.cote === 'rec')
+        assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + delta;
+      return { imp, delta };
+    });
+
+    const { corrigees } = appliquerPlafond(assiettesRecettes, contexte.assiettes, contexte.pib);
+    for (const cle of Object.keys(assiettesRecettes)) assiettesRecettes[cle] = corrigees[cle] ?? 0;
+
+    for (const { imp, delta: brut } of retenus) {
       const k = calibration.multiplicateurs[imp.instrument];
+      let delta = brut;
       if (imp.cote === 'rec') {
-        impulsionRec += imp.delta;
-        pib -= k * imp.delta;
-        assiettesRecettes[imp.instrument] = (assiettesRecettes[imp.instrument] ?? 0) + imp.delta;
+        const avant = (contexte.recettesParInstrument?.[imp.instrument] ?? 0) + brut;
+        const apres = corrigees[imp.instrument] ?? 0;
+        if (avant !== apres) delta = brut - (avant - apres);
+        impulsionRec += delta;
+        pib -= k * delta;
       } else {
-        impulsionDep += imp.delta;
-        pib += k * imp.delta;
+        impulsionDep += delta;
+        pib += k * delta;
       }
     }
 
@@ -127,6 +149,9 @@ export function projeter(
       pib,
       pibPct: variationRelative * 100,
       recettesInduites,
+      // Écart de recettes total : ce que le scénario décide et encaisse
+      // vraiment, plus ce que l'activité modifiée y ajoute ou en retire.
+      recettesEcart: impulsionRec + recettesInduites,
       depensesInduites,
       chargeInterets,
       soldeVariation,

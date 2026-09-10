@@ -47,6 +47,7 @@ export function Projection({ trajectoire }: { trajectoire: Trajectoire }) {
             <th scope="col">Solde</th>
             <th scope="col">Dette cumulée</th>
             <th scope="col">Intérêts</th>
+            <th scope="col">Recettes</th>
             <th scope="col">Activité</th>
             <th scope="col">Emplois</th>
           </tr>
@@ -80,6 +81,13 @@ export function Projection({ trajectoire }: { trajectoire: Trajectoire }) {
                 {a.chargeInterets < 1e6 ? '—' : `− ${euros(a.chargeInterets)}`}
               </td>
 
+              {/* Ce que le scénario rapporte réellement, année après année :
+                  la décision une fois l'assiette érodée et plafonnée, plus ce
+                  que l'activité modifiée y ajoute ou en retire. */}
+              <td className={a.recettesEcart < 0 ? 'pilotage--negatif' : undefined}>
+                {Math.abs(a.recettesEcart) < 1e6 ? '—' : eurosSigne(a.recettesEcart)}
+              </td>
+
               <td>
                 {Math.abs(a.pib) < 1e6
                   ? '—'
@@ -102,6 +110,13 @@ export function Projection({ trajectoire }: { trajectoire: Trajectoire }) {
         intérêt au taux apparent de la dette existante, ce qui alimente la boucle d'une année sur
         l'autre. Un ajustement de poste est supposé reconduit chaque année ; un chantier s'arrête
         au terme de sa durée.
+      </p>
+      <p className="projection__note">
+        <strong>Une mesure permanente donne ici la même ligne chaque année</strong>, et c'est une
+        limite du moteur plutôt qu'un résultat. Il est statique : l'assiette de l'année suivante
+        reste celle des comptes publiés, alors qu'une activité durablement plus faible la
+        réduirait, et que les mêmes taux y rapporteraient donc moins. Ce qui s'accumule d'une
+        année sur l'autre, c'est la dette et sa charge — pas l'érosion de la matière imposable.
       </p>
     </div>
   );

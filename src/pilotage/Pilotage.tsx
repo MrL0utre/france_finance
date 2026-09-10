@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SPHERE_COLORS } from '../schema';
 import type { Store } from '../data/store';
-import { contexteDe } from '../modeles/impulsions';
+import { contexteDe, impulsionsPluriannuelles } from '../modeles/impulsions';
+import { projeter } from '../modeles/trajectoire';
+import { Projection } from '../modeles/Projection';
+import { CALIBRATIONS } from '../modeles/registre';
+
+/**
+ * Même horizon et même première année que dans la comparaison : deux vues qui
+ * projetteraient le même scénario sur des périodes différentes feraient douter
+ * de l'une comme de l'autre.
+ */
+const HORIZON = 10;
+const PREMIERE_ANNEE = 2026;
 import {
   montantSimule,
   nbAjustements,
@@ -70,6 +81,29 @@ export function Pilotage({
   // d'humeur n'aurait rien à quoi comparer les montants.
   const contexte = pret ? contexteDe(store) : null;
 
+  /**
+   * Sentier sur dix ans du scénario en cours.
+   *
+   * Recalculé avec le modèle actif : la projection et le calcul annuel doivent
+   * dire la même chose de la première année, sans quoi l'un des deux ment.
+   */
+  const trajectoire = useMemo(
+    () =>
+      contexte
+        ? projeter(
+            CALIBRATIONS[modeleId] ?? CALIBRATIONS.comptable,
+            impulsionsPluriannuelles(store, ajustements, HORIZON),
+            contexte,
+            {
+              horizonAnnees: HORIZON,
+              tauxApparent: store.macro ? store.macro.dette.charge / store.macro.dette.encours : 0,
+              premiereAnnee: PREMIERE_ANNEE,
+            },
+          )
+        : null,
+    [store, ajustements, contexte, modeleId],
+  );
+
   if (erreur) return <p className="pilotage__vide">Chargement impossible : {erreur}</p>;
   if (!groupes || !racine) return <p className="pilotage__vide">Chargement des postes…</p>;
 
@@ -122,6 +156,16 @@ export function Pilotage({
           <PanneauEffets modele={modele} effets={effets} contexte={contexte} />
         )}
       </div>
+
+      {/* La projection vivait dans l'onglet de comparaison, donc loin de l'endroit
+          où le scénario se règle. Une stratégie qui tient la première année et se
+          défait sur dix ans ne se voyait qu'en changeant de vue. */}
+      {trajectoire && (
+        <details className="pilotage__projection">
+          <summary>Ce que ce scénario donne sur {HORIZON} ans</summary>
+          <Projection trajectoire={trajectoire} />
+        </details>
+      )}
 
       <div className="pilotage__colonnes">
         <Colonne

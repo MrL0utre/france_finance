@@ -443,6 +443,56 @@ hôpital fermé se remarque autrement qu'un point de PIB — mais cela reste une
 choisie. Sept propriétés sont testées, dont le fait que le score est exactement la somme des
 canaux affichés, et que les quatre visages sont atteignables.
 
+### On ne prélève pas plus qu'il n'y a
+
+Le simulateur laissait relever un impôt sans borne et créer une taxe d'un montant libre :
+rien n'empêchait de lever plus que le pays ne produit. Deux garde-fous, de natures
+différentes.
+
+**Le rendement plafonne.** Passé le point de retournement, relever le taux n'apporte plus
+rien : le rendement reste sur son maximum. Une taxe inventée de 3 000 Md€ sur les sociétés
+rapporte au plus **6,0 Md€**. Le laisser décroître au-delà — ce que la formule ferait
+mécaniquement — reviendrait à affirmer qu'une taxe démesurée ne rapporte rien, ce que ce
+mécanisme grossier ne permet pas d'établir. Le plateau dit exactement ce qu'il autorise à
+dire : au-delà de ce point, plus de taux n'apporte plus de recette.
+
+**L'assiette est une borne dure.** On ne prend pas 110 % de la masse salariale. C'est la
+seule limite du modèle qui ne demande aucun arbitrage : ni coefficient, ni seuil à justifier
+— de l'arithmétique sur des assiettes venues des comptes nationaux. Elle porte sur
+l'assiette et non sur l'impôt, puisque plusieurs prélèvements se partagent la même :
+cotisations et impôt sur le revenu pèsent tous deux sur la masse salariale, et c'est leur
+somme qui bute. Quand elle bute, ils sont réduits dans la même proportion — rien ne désigne
+lequel devrait céder — et le montant impossible est affiché plutôt que silencieusement
+encaissé.
+
+Le panneau montre surtout le **taux de prélèvement atteint sur chaque assiette**, ce qui
+apprend davantage que la borne elle-même :
+
+| Assiette | Prélevé | Assiette | Taux |
+|---|---|---|---|
+| Masse salariale | 791,7 Md€ | 1 505,5 Md€ | 52,6 % |
+| Consommation des ménages | 213,0 Md€ | 1 595,5 Md€ | 13,4 % |
+| Excédent brut d'exploitation | 89,6 Md€ | 1 036,6 Md€ | 8,6 % |
+
+**Atteindre 100 % ne serait pas atteindre une limite réaliste** : bien avant, personne ne
+travaillerait ni n'investirait. L'érosion traduit déjà cette réaction et mord bien plus tôt.
+Le plafond n'est que le dernier garde-fou, celui qui empêche d'annoncer des recettes qui
+n'existent nulle part.
+
+### Prévision sur dix ans
+
+La projection quitte l'onglet de comparaison pour rejoindre **Piloter**, là où le scénario se
+règle : une stratégie qui tient la première année et se défait sur dix ne se voyait qu'en
+changeant de vue. Elle gagne une colonne **Recettes** — la décision une fois érodée et
+plafonnée, plus ce que l'activité modifiée y ajoute ou en retire — et applique désormais les
+mêmes règles que le calcul annuel. Sans cela, le sentier aurait encaissé ce que le calcul
+annuel juge impossible.
+
+**Une mesure permanente y donne la même ligne chaque année**, et c'est une limite du moteur.
+Il est statique : l'assiette de l'année suivante reste celle des comptes publiés, alors
+qu'une activité durablement plus faible la réduirait. Ce qui s'accumule d'une année sur
+l'autre, c'est la dette et sa charge — pas l'érosion de la matière imposable.
+
 ### Domaine de validité
 
 Un modèle linéaire à multiplicateurs constants rend un nombre pour n'importe quel choc, y
