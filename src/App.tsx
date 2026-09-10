@@ -9,6 +9,7 @@ import { Methodologie } from './Methodologie';
 import { Accueil, accueilDejaVu, marquerAccueilVu } from './Accueil';
 import { Pilotage } from './pilotage/Pilotage';
 import { Pib } from './pib/Pib';
+import { Optimisation } from './optim/Optimisation';
 import { PanneauDetail, shardsPourDetail } from './pilotage/PanneauDetail';
 import { BarreScenario } from './simulation/BarreScenario';
 import {
@@ -376,7 +377,9 @@ export function App() {
                   ? 'Comparer les modèles'
                   : vue === 'pib'
                     ? "L'économie française (PIB)"
-                    : 'Explorer les finances publiques'}
+                    : vue === 'optimiser'
+                      ? 'Chercher un compromis'
+                      : 'Explorer les finances publiques'}
             </h1>
             <p>
               {vue === 'piloter'
@@ -385,7 +388,9 @@ export function App() {
                   ? 'Le même scénario vu par chaque modèle de bouclage, pour mesurer ce que les hypothèses ajoutent au résultat.'
                   : vue === 'pib'
                     ? "L'échelle dans laquelle s'inscrit le budget : ce que produit le pays, et par quoi."
-                    : "Suivez l'argent public, du niveau global jusqu'à la commune — ce qu'il coûte, ce qu'il rapporte, ce qu'il manque."}
+                    : vue === 'optimiser'
+                      ? "Ce que ce modèle tient pour le meilleur compromis, sous les contraintes et les préférences que vous fixez."
+                      : "Suivez l'argent public, du niveau global jusqu'à la commune — ce qu'il coûte, ce qu'il rapporte, ce qu'il manque."}
             </p>
           </div>
           {pret && vue === 'explorer' && (
@@ -403,6 +408,20 @@ export function App() {
               Fermer
             </button>
           </p>
+        )}
+
+        {pret && vue === 'optimiser' && (
+          <Optimisation
+            store={store}
+            modeleId={modeleId}
+            contexte={contexteMacro}
+            onAppliquer={(choix) => {
+              toutRetirer();
+              for (const c of choix)
+                ajuster(c.id, c.cote, c.facteur, c.label);
+              setVue('piloter');
+            }}
+          />
         )}
 
         {pret && vue === 'pib' && (

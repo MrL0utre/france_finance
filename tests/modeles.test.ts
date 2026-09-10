@@ -10,6 +10,8 @@ import { readFileSync } from 'node:fs';
 import { betaExcedentBrut, effetSurLesRecettes } from '../src/modeles/assiettes.ts';
 import { EROSION, rendementMaximal, retournement } from '../src/modeles/erosion.ts';
 import { satisfaction } from '../src/modeles/satisfaction.ts';
+import { optimiser, type Levier as LevierOptim } from '../src/optim/recherche.ts';
+import { CALIBRATIONS } from '../src/modeles/registre.ts';
 import { elasticiteBareme } from '../src/modeles/progressivite.ts';
 import type { BaremeIR } from '../src/schema.ts';
 import { MODELES, modeleParId, KEYNESIEN, OFFRE, RELANCE } from '../src/modeles/registre.ts';
@@ -459,6 +461,73 @@ console.log("\n16. On ne prélève pas plus qu’il n’y a");
   // Un scénario ordinaire ne déclenche rien de tout cela.
   const ordinaire = m.calculer([imp(10e9, 'rec', 'impot_consommation')], CTX);
   ok('un scénario ordinaire ne bute sur aucun plafond', !ordinaire.plafonne);
+}
+
+console.log("\n17. Recherche de compromis");
+{
+  const leviers: LevierOptim[] = [
+    { id: 'tva', label: 'TVA', cote: 'rec', instrument: 'impot_consommation', base: 213e9, min: 0.5, max: 2 },
+    { id: 'ir', label: 'IR', cote: 'rec', instrument: 'impot_menages', base: 168e9, min: 0.5, max: 2 },
+    { id: 'fonc', label: 'Fonctionnement', cote: 'dep', instrument: 'fonctionnement', base: 594e9, min: 0.5, max: 1.5 },
+    { id: 'transf', label: 'Prestations', cote: 'dep', instrument: 'transferts', base: 616.9e9, min: 0.5, max: 1.5 },
+  ];
+  const base = { plancherEmploi: 2e6, poidsActivite: 1, poidsHumeur: 1 };
+  const chercher = (cible: number, o = {}) =>
+    optimiser(leviers, CALIBRATIONS.keynesien, CTX, { ...base, cibleSolde: cible, ...o });
+
+  const rien = chercher(0);
+  ok('sans cible, la recherche ne dégrade rien', rien.effets.soldeVariation >= -1e6);
+
+  const modeste = chercher(40e9);
+  ok('une cible modeste est atteinte', modeste.cibleAtteinte,
+    `${(modeste.effets.soldeVariation / 1e9).toFixed(1)} Md € pour 40 visés`);
+  ok('et le plancher d’emploi est respecté', modeste.emploiRespecte);
+
+  // Une cible hors de portée doit être annoncée comme telle, pas approchée en
+  // silence : c'est le résultat le plus utile que cette page puisse donner.
+  const impossible = chercher(400e9);
+  ok('une cible hors de portée est signalée', !impossible.cibleAtteinte,
+    `${(impossible.effets.soldeVariation / 1e9).toFixed(1)} Md € atteints au mieux`);
+
+  // Monotonie : viser plus haut ne doit jamais rapporter moins.
+  ok('viser plus haut rapporte au moins autant',
+    chercher(100e9).effets.soldeVariation >= modeste.effets.soldeVariation - 1e6);
+
+  // Les poids de préférence ne départagent pas les leviers, et il faut que ce
+  // soit écrit : le canal « prélèvements » de l'humeur pèse les euros levés à
+  // l'identique quel que soit l'impôt, le canal « services » ne réagit qu'à la
+  // dépense. Ce test existe pour que le jour où le modèle gagnera une dimension
+  // distributive, il échoue et rappelle de remettre les curseurs.
+  const sansHumeur = chercher(60e9, { poidsHumeur: 0, poidsActivite: 3 });
+  const sansActivite = chercher(60e9, { poidsHumeur: 3, poidsActivite: 0 });
+  ok(
+    'les préférences ne départagent pas les leviers, faute de dimension distributive',
+    [...sansHumeur.facteurs.entries()].every(([k, v]) => sansActivite.facteurs.get(k) === v),
+  );
+
+  // Le modèle, lui, change la réponse : c'est ce que la page démontre.
+  const parModele = ['keynesien', 'offre', 'relance'].map((id) =>
+    optimiser(leviers, CALIBRATIONS[id], CTX, { ...base, cibleSolde: 60e9 }),
+  );
+  const signatures = new Set(
+    parModele.map((r) => [...r.facteurs.entries()].map(([k, v]) => `${k}:${v}`).join('|')),
+  );
+  ok('changer de calibration change le scénario retenu', signatures.size > 1,
+    `${signatures.size} scénarios distincts sur 3 calibrations`);
+
+  // Déterminisme : deux recherches identiques doivent donner le même scénario,
+  // sans quoi le résultat ne serait pas partageable.
+  const a = chercher(60e9);
+  const b = chercher(60e9);
+  ok('la recherche est déterministe',
+    [...a.facteurs.entries()].every(([k, v]) => b.facteurs.get(k) === v));
+
+  // Les bornes des leviers sont des contraintes dures, pas des suggestions.
+  ok('aucun levier ne sort de ses bornes',
+    [...impossible.facteurs.entries()].every(([k, v]) => {
+      const l = leviers.find((x) => x.id === k)!;
+      return v >= l.min - 1e-9 && v <= l.max + 1e-9;
+    }));
 }
 
 console.log(`\n${echecs === 0 ? 'Tous les contrôles passent.' : `${echecs} ÉCHEC(S)`}`);

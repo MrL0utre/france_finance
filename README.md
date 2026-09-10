@@ -531,6 +531,49 @@ alors que celles de dépense le restent.
 Hors périmètre du moteur : l'étalement des effets dans le temps, la dépendance des
 multiplicateurs à la conjoncture, et la dette avec sa charge d'intérêt.
 
+## Chercher un compromis
+
+Un onglet cherche le scénario qui atteint une cible de solde en préservant au mieux
+l'activité et l'humeur, sous contrainte d'emploi. **C'est le seul endroit où l'outil
+propose au lieu de calculer**, et le projet s'est construit sur le refus d'émettre des
+recommandations. La sortie retenue est de le prendre au sérieux plutôt que de le déguiser :
+la page affiche à côté du résultat ce que chacune des trois calibrations propose pour la
+même cible. L'optimum n'est pas une propriété du budget, c'est une conséquence des
+hypothèses retenues.
+
+**Pourquoi pas PuLP, ni aucun solveur linéaire.** PuLP est une bibliothèque Python quand
+cette application est un fichier statique servi à un navigateur ; y ajouter un interpréteur
+reviendrait à donner un serveur à un outil bâti pour s'en passer. Surtout, **le modèle n'est
+pas linéaire** : l'érosion rend le rendement quadratique en la hausse décidée, le plafond par
+assiette introduit des ruptures de pente, et le report d'activité couple les années. Un
+solveur linéaire optimiserait une approximation et proposerait des scénarios que le reste de
+l'outil contredirait en les évaluant. Un optimum faux est pire qu'une recherche approximative
+honnête.
+
+À la place, une **descente par coordonnées** de quelques dizaines de lignes, dont la fonction
+objectif appelle le moteur réel — celui qui alimente tout le reste. Le scénario proposé donne
+donc exactement les mêmes chiffres partout ailleurs. Elle ne garantit pas l'optimum global
+(le problème n'est pas convexe) mais elle est déterministe, sans dépendance, et lisible.
+
+**Le résultat le plus utile est parfois un échec.** Viser l'équilibre budgétaire en une année
+n'est pas atteignable avec ces leviers sous contrainte d'emploi : la recherche s'arrête en
+chemin et le dit. Ce n'est pas une panne, c'est un résultat.
+
+**Deux découvertes faites en la construisant, écrites dans la page :**
+
+Les curseurs de préférence — activité contre humeur — ont été **retirés après vérification**,
+parce qu'ils ne changeaient rien au scénario retenu. La raison est structurelle : le canal
+« prélèvements » de l'humeur pèse les euros levés à l'identique quel que soit l'impôt, et le
+canal « services » ne réagit qu'à la dépense. Aucun des deux ne départage deux impôts. Plus
+profondément, **le modèle ignore qui paie** : sans dimension distributive, une préférence
+pour l'humeur n'a rien à quoi mordre. Un test le fige, pour qu'il échoue le jour où cette
+dimension apparaîtra.
+
+Une **pénalité de remuement** a dû être ajoutée. Sans elle, la recherche proposait de couper
+140 Md€ de dépenses locales et 135 Md€ de recettes locales — 275 Md€ déplacés pour un gain
+net de cinq, les deux gestes s'annulant. Un plan qui bouleverse un quart du budget sans rien
+changer n'est pas un plan.
+
 ## L'économie française (PIB)
 
 Un onglet d'information, qui n'entre dans aucun calcul. L'outil affichait 1 490,9 Md€ de
