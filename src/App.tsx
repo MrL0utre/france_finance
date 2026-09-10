@@ -375,7 +375,7 @@ export function App() {
                 : vue === 'comparer'
                   ? 'Comparer les modèles'
                   : vue === 'pib'
-                    ? "L'économie française"
+                    ? "L'économie française (PIB)"
                     : 'Explorer les finances publiques'}
             </h1>
             <p>

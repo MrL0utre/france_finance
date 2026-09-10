@@ -6,7 +6,7 @@ const VUES: { cle: Vue; label: string }[] = [
   { cle: 'explorer', label: 'Explorer' },
   { cle: 'piloter', label: 'Piloter' },
   { cle: 'comparer', label: 'Comparer les modèles' },
-  { cle: 'pib', label: "L'économie française" },
+  { cle: 'pib', label: "L'économie française (PIB)" },
 ];
 
 export function Sidebar({

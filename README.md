@@ -185,7 +185,7 @@ Les données relèvent de leurs licences propres, indépendantes de celle du cod
 | Source | Licence |
 |---|---|
 | OFGL, Direction du Budget, Insee, AFT | Licence Ouverte / Etalab 2.0 — mention de paternité requise, assurée par `sources.json` et le panneau Méthodologie |
-| Eurostat (comptes nationaux) | © Union européenne — décision 2011/833/UE : réutilisation autorisée, y compris commerciale, moyennant mention de la source, assurée par `pib.json` et l'onglet « L'économie française » |
+| Eurostat (comptes nationaux) | © Union européenne — décision 2011/833/UE : réutilisation autorisée, y compris commerciale, moyennant mention de la source, assurée par `pib.json` et l'onglet « L'économie française (PIB) » |
 | OpenFisca France | AGPL-3.0 |
 | Chiffres clés de la Sécurité sociale | publication institutionnelle, saisie manuelle sourcée dans `data/manual/reference.json` |
 
@@ -460,7 +460,7 @@ alors que celles de dépense le restent.
 Hors périmètre du moteur : l'étalement des effets dans le temps, la dépendance des
 multiplicateurs à la conjoncture, et la dette avec sa charge d'intérêt.
 
-## L'économie française
+## L'économie française (PIB)
 
 Un onglet d'information, qui n'entre dans aucun calcul. L'outil affichait 1 490,9 Md€ de
 dépense publique sans jamais montrer l'économie dans laquelle ce montant s'inscrit : le PIB
