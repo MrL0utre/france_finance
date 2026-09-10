@@ -142,8 +142,23 @@ console.log('\n6. Avec rétroaction, une dépense soutient l\'activité pendant 
   ]);
   const t = projeter(KEYNESIEN, { permanentes: [], parAnnee }, CTX, P);
   ok('activité soutenue les trois premières années', t.annees.slice(0, 3).every((a) => a.pib > 0));
-  ok('effet nul dès la quatrième', t.annees[3].pib === 0,
-    "l'impulsion cesse, l'écart d'activité aussi");
+  // L'impulsion cesse, mais l'écart d'activité ne s'évanouit pas d'un coup : une
+  // part se reporte, puis s'éteint géométriquement. C'est ce que l'hystérèse
+  // veut dire, et un retour instantané à zéro la contredirait.
+  ok(
+    'la quatrième année garde une trace du chantier',
+    t.annees[3].pib > 0 && t.annees[3].pib < t.annees[2].pib,
+    `${md(t.annees[3].pib)} contre ${md(t.annees[2].pib)} la dernière année financée`,
+  );
+  ok(
+    "et cette trace s'éteint année après année",
+    t.annees.slice(3).every((a, i, tab) => i === 0 || a.pib < tab[i - 1].pib),
+  );
+  ok(
+    "il n'en reste presque rien au terme",
+    t.annees[9].pib < t.annees[2].pib * 0.01,
+    `${md(t.annees[9].pib)} au bout de dix ans`,
+  );
   ok('emploi positif pendant le chantier', t.annees[0].emploi > 0,
     `${Math.round(t.annees[0].emploi)} emplois`);
   ok('le pic est situé pendant le chantier', (t.picActivite?.annee ?? 0) <= 2028);
@@ -155,14 +170,39 @@ console.log('\n6. Avec rétroaction, une dépense soutient l\'activité pendant 
     `${md(Math.abs(t.detteFinale))} contre ${md(Math.abs(sans.detteFinale))} sans rétroaction`);
 }
 
-console.log('\n7. Linéarité de la projection');
+console.log('\n7. Ce qui reste proportionnel, et ce qui ne l\'est plus');
 {
   const un = new Map([[0, [dep(10e9)]]]);
   const deux = new Map([[0, [dep(20e9)]]]);
   const a = projeter(KEYNESIEN, { permanentes: [], parAnnee: un }, CTX, P);
   const b = projeter(KEYNESIEN, { permanentes: [], parAnnee: deux }, CTX, P);
-  ok('doubler la dépense double l\'écart de dette', proche(2 * a.detteFinale, b.detteFinale, 1e6));
-  ok('doubler la dépense double l\'activité', proche(2 * a.annees[0].pib, b.annees[0].pib, 1e6));
+
+  // La chaîne de l'activité reste linéaire : multiplicateur fois impulsion, plus
+  // une fraction de l'écart précédent. Rien là-dedans ne dépend du niveau.
+  ok("doubler la dépense double l'activité", proche(2 * a.annees[0].pib, b.annees[0].pib, 1e6));
+
+  // La dette, elle, ne l'est plus. Les assiettes de l'année suivante dépendent
+  // de l'écart déjà creusé : un choc deux fois plus fort ne fait pas exactement
+  // deux fois le même trou. L'écart est petit mais réel, et c'est le prix d'un
+  // sentier qui tient compte de l'économie qu'il laisse derrière lui.
+  ok(
+    "la dette ne double plus tout à fait, et c'est voulu",
+    !proche(2 * a.detteFinale, b.detteFinale, 1e6),
+    `${md(2 * a.detteFinale)} si proportionnel, ${md(b.detteFinale)} obtenus`,
+  );
+  ok(
+    'mais elle en reste très proche',
+    Math.abs(2 * a.detteFinale - b.detteFinale) < Math.abs(b.detteFinale) * 0.02,
+  );
+
+  // Sans rétroaction, aucune assiette ne bouge : la proportionnalité doit alors
+  // être exacte, sans quoi la non-linéarité viendrait d'ailleurs que du report.
+  const sansA = projeter(CALIBRATION_NEUTRE, { permanentes: [], parAnnee: un }, CTX, P);
+  const sansB = projeter(CALIBRATION_NEUTRE, { permanentes: [], parAnnee: deux }, CTX, P);
+  ok(
+    'sans rétroaction, la proportionnalité reste exacte',
+    proche(2 * sansA.detteFinale, sansB.detteFinale, 1e3),
+  );
 }
 
 console.log("\n8. Hystérèse : le sentier n’est plus plat, et ne diverge pas");
