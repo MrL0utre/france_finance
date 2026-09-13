@@ -1,0 +1,84 @@
+# Configuration Apache de l'hébergement mutualisé OVH.
+#
+# Ce fichier part avec le déploiement (Vite copie public/ dans dist/, l'action
+# FTP dépose dist/ à la racine web). Rien ici ne suppose un module que ce type
+# d'hébergement ne fournit pas : mod_rewrite et mod_headers y sont disponibles,
+# et chaque bloc est gardé par un IfModule pour qu'une absence dégrade le
+# service sans le couper.
+
+# ─── Une seule adresse ───
+#
+# Sans cette règle, le site répondait en 200 sous quatre adresses (http/https,
+# avec et sans www) : un moteur de recherche y voit quatre sites en doublon et
+# choisit lui-même lequel compte. La redirection permanente les ramène à une
+# seule, et conserve la chaîne de requête : un scénario partagé survit.
+#
+# Le test sur le port est celui que la documentation OVH prescrit pour son
+# hébergement mutualisé, où la variable HTTPS n'est pas fiable.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{SERVER_PORT} 80 [OR]
+  RewriteCond %{HTTP_HOST} ^www\.monplf\.fr$ [NC]
+  RewriteRule ^(.*)$ https://monplf.fr/$1 [R=301,L]
+</IfModule>
+
+# ─── Ce que le serveur ne doit pas montrer ───
+#
+# Le listage des répertoires exposait le contenu de /data/ et /assets/, et le
+# fichier d'état que l'action de déploiement laisse à la racine (la liste de
+# tous les fichiers publiés, avec leurs empreintes) était lisible par tous. Ni
+# l'un ni l'autre ne compromettent rien — tout est public par construction —
+# mais un serveur n'a pas à publier son inventaire.
+Options -Indexes
+
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  # ─── En-têtes de sécurité ───
+
+  # Un an de HTTPS obligatoire pour ce domaine. Pas de sous-domaines ni de
+  # préchargement : www redirige ici et rien d'autre n'est servi.
+  Header always set Strict-Transport-Security "max-age=31536000"
+
+  # L'application ne charge rien d'ailleurs et n'appelle aucun service à
+  # l'usage : tout ce qui n'est pas d'origine est refusé. Les styles en ligne
+  # restent permis parce que React et d3 posent des attributs style ; c'est la
+  # seule ouverture, et elle ne permet pas d'exécuter du code.
+  Header always set Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
+
+  # Personne n'a de raison d'encadrer ce site dans une page tierce, et un
+  # cadre invisible est le support classique du détournement de clic.
+  Header always set X-Frame-Options "DENY"
+
+  # Un fichier est ce que son type annonce, jamais ce que son contenu suggère.
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Doublon de la balise meta : l'URL porte le scénario de l'utilisateur et ne
+  # doit partir vers aucun tiers.
+  Header always set Referrer-Policy "no-referrer"
+
+  # Aucune de ces capacités n'est utilisée ; les déclarer fermées empêche
+  # qu'un script tiers — qu'il n'y a pas — les réclame un jour.
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+
+  # ─── Cache ───
+  #
+  # Les scripts et feuilles de style portent une empreinte dans leur nom : une
+  # nouvelle version a un nouveau nom, l'ancienne peut être gardée sans limite.
+  # La page d'entrée et les données, elles, changent sous le même nom : le
+  # navigateur les revalide à chaque visite.
+  <FilesMatch "\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(html|json|xml|txt)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(png|svg)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>

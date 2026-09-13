@@ -17,9 +17,63 @@
       name="description"
       content="Explorateur indépendant des finances publiques françaises à partir de données ouvertes, du niveau global jusqu'à la commune. Sans lien avec une administration."
     />
+    <!-- Une seule adresse pour les moteurs de recherche. Les scénarios partagés
+         ajoutent des paramètres à l'URL sans en faire une autre page : tous se
+         ramènent ici, sinon chacun serait indexé comme un doublon. -->
+    <link rel="canonical" href="https://monplf.fr/" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <!-- Aperçu du lien quand il est collé dans un message ou un réseau social.
+         L'image est absolue : les lecteurs d'aperçu ne résolvent pas les chemins
+         relatifs. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="monplf.fr" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:url" content="https://monplf.fr/" />
+    <meta property="og:title" content="Finances publiques — explorateur et simulateur indépendant" />
+    <meta
+      property="og:description"
+      content="Explorer les dépenses et recettes publiques françaises jusqu'à la commune, bâtir un scénario budgétaire et en voir les effets. Données ouvertes, projet indépendant."
+    />
+    <meta property="og:image" content="https://monplf.fr/partage.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Finances publiques — explorateur et simulateur indépendant" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Ce que lit un visiteur — ou un robot — avant que l'application ne
+         démarre. React remplace ce contenu au chargement ; sans lui, la page
+         n'aurait rien à dire à qui n'exécute pas le script, et rien à montrer
+         pendant qu'il se charge. Le texte reprend celui de l'accueil. -->
+    <div id="root">
+      <main class="amorce">
+        <h1>Finances publiques — explorateur et simulateur indépendant</h1>
+        <p>
+          Un outil pour explorer les dépenses et les recettes publiques françaises, de
+          l'ensemble des administrations jusqu'à chaque commune, puis pour bâtir un scénario
+          budgétaire et en observer les effets : solde, activité, emploi, projection sur dix
+          ans.
+        </p>
+        <p>
+          Les chiffres proviennent de données ouvertes — projet de loi de finances 2025,
+          comptes des collectivités 2024 de l'Observatoire des finances et de la gestion
+          publique locales, comptes nationaux d'Eurostat — et chaque montant affiché
+          renvoie à sa source. Ce site est un projet indépendant, sans lien avec une
+          administration ; il peut comporter des erreurs ou des approximations, et son code
+          est publié pour qu'on puisse les vérifier.
+        </p>
+        <p>
+          Contact : <a href="mailto:administrateur@monplf.fr">administrateur@monplf.fr</a>
+          · Code source :
+          <a href="https://github.com/MrL0utre/france_finance" rel="noreferrer"
+            >github.com/MrL0utre/france_finance</a
+          >
+        </p>
+        <noscript>
+          <p>L'explorateur et le simulateur nécessitent JavaScript.</p>
+        </noscript>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

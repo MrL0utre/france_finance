@@ -4232,3 +4232,22 @@ button {
   background: var(--alerte-fond);
   color: var(--texte) !important;
 }
+
+/* Texte servi dans la page avant que l'application ne démarre (voir index.html).
+   Il n'est visible qu'un instant, ou durablement sans JavaScript : sobre, lisible,
+   centré, et rien de plus. */
+.amorce {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  line-height: 1.6;
+}
+
+.amorce h1 {
+  font-size: 1.5rem;
+  color: var(--marine);
+}
+
+.amorce a {
+  color: var(--bleu);
+}

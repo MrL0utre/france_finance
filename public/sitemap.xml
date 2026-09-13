@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Une seule page : les onglets sont des vues de la même application, et les
+     scénarios partagés (?s=…) ne sont pas des pages mais des états, ramenés à
+     cette adresse par la balise canonique. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://monplf.fr/</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+</urlset>

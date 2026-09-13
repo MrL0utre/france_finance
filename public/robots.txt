@@ -1,0 +1,6 @@
+# Tout est public et rien ne mérite d'être caché : les données servies ici
+# sont des données ouvertes, et l'application ne comporte aucune page privée.
+User-agent: *
+Allow: /
+
+Sitemap: https://monplf.fr/sitemap.xml

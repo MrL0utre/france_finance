@@ -138,6 +138,30 @@ recevrait un `index.html` appelant `/src/main.tsx`, que le navigateur ne sait pa
 Le `base: './'` de Vite fait le reste, que le site soit servi à la racine du domaine ou dans
 un sous-chemin.
 
+**Ce que `public/` ajoute au site.** Vite copie ce dossier tel quel dans `dist/` :
+
+- `.htaccess` — configuration Apache de l'hébergement mutualisé. Il ramène les quatre
+  adresses possibles (http/https, avec et sans www) à la seule `https://monplf.fr/` par
+  redirection permanente, en conservant la chaîne de requête pour que les scénarios
+  partagés survivent ; coupe le listage des répertoires et l'accès aux fichiers cachés
+  (dont l'état de synchronisation FTP) ; et pose les en-têtes de sécurité — HSTS,
+  politique de sécurité du contenu n'autorisant que l'origine (`default-src 'none'`,
+  scripts et connexions `'self'`, styles en ligne tolérés parce que React et d3 posent des
+  attributs `style`), refus d'encadrement, `nosniff`, `Referrer-Policy: no-referrer`,
+  capacités du navigateur fermées. Chaque bloc est gardé par un `IfModule` : un module
+  absent dégrade sans couper. Si vous hébergez ailleurs, ces en-têtes se transposent, et
+  la redirection est à remplacer par celle de votre serveur.
+- `robots.txt` et `sitemap.xml` — une seule URL déclarée : les onglets sont des vues,
+  les scénarios sont des états, et `index.html` porte une balise canonique vers la racine
+  pour qu'aucun `?s=…` ne soit indexé comme un doublon.
+- `partage.png` et `favicon.svg` — l'aperçu du lien quand il est collé dans un message
+  (balises Open Graph dans `index.html`) et l'icône d'onglet.
+
+`index.html` contient en outre, dans `#root`, un court texte que React remplace au
+démarrage : ce qu'est l'outil, ses sources, son indépendance, le contact. Un robot qui
+n'exécute pas le script lit quelque chose, et un visiteur voit un texte plutôt qu'une page
+blanche pendant le chargement.
+
 ### Reconstruire les données
 
 ```bash
@@ -784,9 +808,12 @@ plus que les données elles-mêmes.
 
 Le codec de `src/data/partage.ts` est **pur** — il reçoit l'URL en paramètre au lieu de
 lire `window` — donc vérifiable hors du navigateur. `npm test` couvre l'aller-retour, la
-préservation des paramètres d'URL existants, et le rejet de onze formes d'entrées
+préservation des paramètres d'URL existants, et le rejet de quatorze formes d'entrées
 malformées : une URL est une entrée non fiable, un lien trafiqué ne doit pas produire un
-scénario à moitié appliqué.
+scénario à moitié appliqué. Les noms de shards qu'elle transporte sont vérifiés contre une
+forme stricte (`etat/r0`, `dept/84`) avant d'atteindre le chargeur, qui les concatène à
+un chemin : une URL forgée ne peut pas lui faire demander autre chose qu'un fichier de
+données.
 
 ## Structure
 
