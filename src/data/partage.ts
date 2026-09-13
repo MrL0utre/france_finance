@@ -43,6 +43,16 @@ const MAX_DEBUT = 50;
 /** Suffixe constant des shards, retiré de l'URL et remis à la lecture. */
 const EXT = '.json';
 
+/**
+ * Forme d'un nom de shard : des segments de lettres, chiffres, tirets et
+ * soulignés, séparés par des barres. Le nom est passé tel quel au chargeur,
+ * qui le concatène au chemin des données ; une URL forgée ne doit pas pouvoir
+ * lui faire demander autre chose qu'un fichier de données. Le chargeur ne sort
+ * de toute façon pas de l'origine, mais un nom vérifié à l'entrée vaut mieux
+ * qu'une garantie qu'on ne trouve qu'en lisant le chargeur.
+ */
+const FORME_SHARD = /^[a-z0-9_-]+(\/[a-z0-9_-]+)*$/;
+
 type Tuple = [cote: string, id: string, facteur: number, label: string, shards: string[]];
 
 /** Garde-fous à la lecture : une URL est une entrée non fiable. */
@@ -89,7 +99,9 @@ export function decoderScenario(encode: string): Ajustements | null {
     aj[cle][id] = facteur;
     if (typeof label === 'string' && label) aj.labels[id] = label;
     if (Array.isArray(shards) && shards.every((s) => typeof s === 'string')) {
-      aj.shards[id] = shards.map((s) => (s.endsWith(EXT) ? s : s + EXT));
+      const noms = shards.map((s) => (s.endsWith(EXT) ? s.slice(0, -EXT.length) : s));
+      if (!noms.every((s) => FORME_SHARD.test(s))) return null;
+      aj.shards[id] = noms.map((s) => s + EXT);
     }
   }
   return nbAjustements(aj) === 0 ? null : aj;

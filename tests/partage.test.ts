@@ -56,6 +56,11 @@ const mauvais: [string, string][] = [
   ['facteur neutre (bruit inutile)', btoa(JSON.stringify([['d', 'x', 1, 'X', []]]))],
   ['identifiant vide', btoa(JSON.stringify([['d', '', 0.5, 'X', []]]))],
   ['identifiant démesuré', btoa(JSON.stringify([['d', 'x'.repeat(500), 0.5, 'X', []]]))],
+  // Le nom d'un shard est concaténé à un chemin par le chargeur : il ne doit
+  // contenir que ce qu'un nom de fichier de données contient.
+  ["shard remontant l'arborescence", btoa(JSON.stringify([['d', 'x', 0.5, 'X', ['../index.html']]]))],
+  ['shard avec une adresse', btoa(JSON.stringify([['d', 'x', 0.5, 'X', ['//exemple.fr/x']]]))],
+  ['shard avec une requête', btoa(JSON.stringify([['d', 'x', 0.5, 'X', ['etat/r0?x=1']]]))],
 ];
 for (const [label, charge] of mauvais) {
   ok(label, decoderScenario(charge) === null);
