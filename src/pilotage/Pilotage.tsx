@@ -153,7 +153,12 @@ export function Pilotage({
       <div className="pilotage__modele">
         <SelecteurModele actif={modeleId} onChoisir={onModele} />
         {effets && contexte && (
-          <PanneauEffets modele={modele} effets={effets} contexte={contexte} />
+          <PanneauEffets
+            modele={modele}
+            effets={effets}
+            contexte={contexte}
+            pointsDeTaux={ajustements.pointsDeTaux ?? 0}
+          />
         )}
       </div>
 

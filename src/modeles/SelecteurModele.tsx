@@ -6,6 +6,7 @@ import {
   SOURCE_REFERENCES,
 } from './references';
 import { LIBELLES_CANAL, satisfaction, VISAGES } from './satisfaction';
+import { effetCac40, SOURCE_PART_FRANCE } from '../marches/cac40';
 import type { Contexte, Effets, Modele } from './types';
 import { LIBELLES_ASSIETTE } from './assiettes';
 import { LIBELLES, libelleRecette } from './instruments';
@@ -107,10 +108,13 @@ export function PanneauEffets({
   modele,
   effets,
   contexte,
+  pointsDeTaux,
 }: {
   modele: Modele;
   effets: Effets;
   contexte: Contexte;
+  /** Variation de taux d'emprunt décidée, en points. */
+  pointsDeTaux: number;
 }) {
   const neutre = effets.pib === 0;
 
@@ -232,6 +236,65 @@ export function PanneauEffets({
       {/* Ce que les assiettes contiennent, et ce qu'on leur prend déjà. Le taux
           sur la masse salariale dépasse 50 % sans aucun scénario : le voir
           monter apprend plus que n'importe quel plafond. */}
+      {(() => {
+        const indice = effetCac40(effets, contexte, pointsDeTaux);
+        if (indice.canaux.length === 0) return null;
+        return (
+          <details className="effets__indice">
+            <summary>
+              Effet sur le CAC 40&nbsp;:{' '}
+              <strong className={indice.total < 0 ? 'humeur--negatif' : undefined}>
+                {/* « −0,0 % » se lirait comme un zéro signé : sous le dixième de
+                    point, on dit l'ordre de grandeur plutôt qu'un faux chiffre. */}
+                {Math.abs(indice.total) < 0.05
+                  ? 'moins de 0,1 %'
+                  : `${indice.total >= 0 ? '+' : '−'}${Math.abs(indice.total).toFixed(1).replace('.', ',')} %`}
+              </strong>
+            </summary>
+            <p>
+              <strong>Le CAC 40 n'est pas l'économie française.</strong> 77,3 % du chiffre
+              d'affaires de ses sociétés est réalisé hors de France : un choc budgétaire
+              national ne touche qu'environ un quart de leur activité. C'est ce que cette
+              estimation apprend, davantage que le chiffre lui-même.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Canal</th>
+                  <th scope="col">Effet</th>
+                </tr>
+              </thead>
+              <tbody>
+                {indice.canaux.map((c) => (
+                  <tr key={c.nom}>
+                    <th scope="row">
+                      {c.nom}
+                      <span>{c.detail}</span>
+                    </th>
+                    <td className={c.variation < 0 ? 'humeur--negatif' : undefined}>
+                      {c.variation >= 0 ? '+' : '−'}
+                      {Math.abs(c.variation).toFixed(2).replace('.', ',')} %
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="effets__pas-un-conseil">
+              <strong>Ni une prévision, ni un conseil en investissement.</strong> Le lien entre
+              croissance et rendement boursier est empiriquement faible — la valorisation et les
+              bénéfices par action y pèsent davantage que le produit intérieur brut. Aucun
+              niveau d'indice n'est affiché, seulement un écart : donner un niveau supposerait
+              un cours du jour que cette application n'a pas.
+            </p>
+            <p className="modeles__source">
+              <a href={SOURCE_PART_FRANCE.url} target="_blank" rel="noreferrer">
+                {SOURCE_PART_FRANCE.label}
+              </a>
+            </p>
+          </details>
+        );
+      })()}
+
       {effets.pressions.length > 0 && (
         <details className="effets__pressions">
           <summary>

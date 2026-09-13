@@ -11,6 +11,7 @@ import { betaExcedentBrut, effetSurLesRecettes } from '../src/modeles/assiettes.
 import { EROSION, rendementMaximal, retournement } from '../src/modeles/erosion.ts';
 import { satisfaction } from '../src/modeles/satisfaction.ts';
 import { optimiser, type Levier as LevierOptim } from '../src/optim/recherche.ts';
+import { effetCac40, MULTIPLE, PART_FRANCE } from '../src/marches/cac40.ts';
 import { CALIBRATIONS } from '../src/modeles/registre.ts';
 import { elasticiteBareme } from '../src/modeles/progressivite.ts';
 import type { BaremeIR } from '../src/schema.ts';
@@ -528,6 +529,59 @@ console.log("\n17. Recherche de compromis");
       const l = leviers.find((x) => x.id === k)!;
       return v >= l.min - 1e-9 && v <= l.max + 1e-9;
     }));
+}
+
+console.log("\n18. Effet sur le CAC 40");
+{
+  const m = modeleParId('keynesien');
+
+  const recession = effetCac40(m.calculer([imp(-200e9, 'dep', 'fonctionnement')], CTX), CTX, 0);
+  ok("une récession fait reculer l'indice", recession.total < 0, `${recession.total.toFixed(2)} %`);
+
+  const relance = effetCac40(m.calculer([imp(200e9, 'dep', 'fonctionnement')], CTX), CTX, 0);
+  ok('une relance le fait monter', relance.total > 0, `${relance.total.toFixed(2)} %`);
+  ok('les deux sont symétriques', proche(relance.total, -recession.total, 1e-9));
+
+  // Le point central : l'indice bouge bien moins que l'activité, parce que les
+  // trois quarts de son activité sont hors de France. Sans cette atténuation,
+  // l'estimation ferait croire à une Bourse adossée à l'économie nationale.
+  const effets = m.calculer([imp(-200e9, 'dep', 'fonctionnement')], CTX);
+  ok(
+    "l'indice bouge moins que l'activité française",
+    Math.abs(recession.total) < Math.abs(effets.pibPct),
+    `${recession.total.toFixed(2)} % contre ${effets.pibPct.toFixed(2)} % de PIB`,
+  );
+  ok('la part française reste minoritaire', PART_FRANCE > 0 && PART_FRANCE < 0.5);
+
+  // Un scénario vide ne doit produire aucun canal : afficher « 0,0 % » sans
+  // décision laisserait croire à un calcul de marché permanent.
+  ok('sans scénario, aucun canal', effetCac40(m.calculer([], CTX), CTX, 0).canaux.length === 0);
+
+  // Une hausse de taux pèse par le multiple, indépendamment de l'activité.
+  // Les points de taux s'expriment en points, comme partout ailleurs dans le
+  // modèle : un point vaut 1, non 0,01.
+  const taux = effetCac40(m.calculer([], CTX), CTX, 1);
+  ok('un point de taux en plus retire de la valeur', taux.total < 0, `${taux.total.toFixed(1)} %`);
+  ok("et l'effet vaut le multiple retenu", proche(taux.total, -MULTIPLE, 1e-9));
+  ok('une baisse de taux fait l’inverse',
+    proche(effetCac40(m.calculer([], CTX), CTX, -1).total, MULTIPLE, 1e-9));
+
+  // Alourdir l'impôt sur les sociétés pèse, mais peu : l'essentiel du bénéfice
+  // est réalisé ailleurs, et c'est le résultat le plus contre-intuitif.
+  const is = effetCac40(
+    m.calculer([imp(CTX.recettesParInstrument.impot_entreprises, 'rec', 'impot_entreprises')], CTX),
+    CTX,
+    0,
+  );
+  const canalIs = is.canaux.find((c) => c.nom === 'Impôt sur les sociétés')!;
+  ok("doubler l'impôt sur les sociétés pèse sur l'indice", canalIs.variation < 0,
+    `${canalIs.variation.toFixed(2)} %`);
+  ok('mais de quelques pourcents seulement', Math.abs(canalIs.variation) < 5);
+
+  // La somme affichée doit être celle des canaux, sinon la décomposition serait
+  // décorative.
+  ok('le total est la somme de ses canaux',
+    proche(is.total, is.canaux.reduce((t, c) => t + c.variation, 0), 1e-9));
 }
 
 console.log(`\n${echecs === 0 ? 'Tous les contrôles passent.' : `${echecs} ÉCHEC(S)`}`);

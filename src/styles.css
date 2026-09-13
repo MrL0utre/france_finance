@@ -4156,3 +4156,79 @@ button {
   white-space: normal !important;
   color: var(--texte-doux);
 }
+
+/* Effet sur l'indice : replié, et la réserve voyage avec le chiffre. Un écart
+   boursier attire l'œil plus que tout le reste du panneau. */
+.effets__indice {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--bordure);
+  border-radius: 7px;
+  background: #fbfcfe;
+}
+
+.effets__indice > summary {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--texte-doux);
+  cursor: pointer;
+}
+
+.effets__indice > summary strong {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: #0d9488;
+}
+
+.effets__indice p {
+  margin: 8px 0;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--texte-doux);
+}
+
+.effets__indice table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.effets__indice th[scope='col'] {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--bordure);
+  font-size: 10px;
+  font-weight: 500;
+  text-align: right;
+  color: var(--texte-doux);
+}
+
+.effets__indice th[scope='col']:first-child {
+  text-align: left;
+}
+
+.effets__indice th[scope='row'] {
+  padding: 5px 6px 5px 0;
+  font-weight: 400;
+  text-align: left;
+}
+
+.effets__indice th[scope='row'] span {
+  display: block;
+  font-size: 10px;
+  color: var(--texte-doux);
+}
+
+.effets__indice td {
+  padding: 5px 6px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.effets__pas-un-conseil {
+  margin: 8px 0 0 !important;
+  padding: 8px 10px;
+  border-left: 3px solid var(--alerte-bordure);
+  border-radius: 0 7px 7px 0;
+  background: var(--alerte-fond);
+  color: var(--texte) !important;
+}

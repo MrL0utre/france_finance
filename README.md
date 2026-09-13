@@ -531,6 +531,39 @@ alors que celles de dépense le restent.
 Hors périmètre du moteur : l'étalement des effets dans le temps, la dépendance des
 multiplicateurs à la conjoncture, et la dette avec sa charge d'intérêt.
 
+## Effet sur le CAC 40
+
+Le panneau de pilotage estime l'écart qu'un scénario ferait à l'indice. **Ce n'est ni une
+prévision, ni un conseil en investissement** : le lien entre croissance et rendement boursier
+est empiriquement faible, et plusieurs travaux montrent que la valorisation et les bénéfices
+par action y pèsent davantage que le produit intérieur brut.
+
+Le cadre est celui que la littérature financière emploie, `Prix = Activité × (Bénéfices /
+Activité) × (Prix / Bénéfices)`, décomposé en trois canaux :
+
+| Canal | Comment il agit | Ce sur quoi il s'appuie |
+|---|---|---|
+| Activité française | les bénéfices suivent l'activité | sensibilité du profit **1,29**, déduite de l'identité par les revenus |
+| Impôt sur les sociétés | il ampute le bénéfice net | taux effectif de l'économie, sur la seule part française |
+| Taux d'emprunt | il fixe le multiple auquel le bénéfice se paie | PER de **15**, soit −15 % par point de taux |
+
+**Le fait qui commande tout le reste : le CAC 40 n'est pas l'économie française.** 77,3 % du
+chiffre d'affaires de ses sociétés est réalisé hors de France ([EY, baromètre publié en juin
+2024, exercice 2023, 27 sociétés](https://www.ey.com/fr_fr/insights/strategy-transactions/profil-financier-du-cac-40)).
+Un choc budgétaire national ne touche donc qu'environ un quart de leur activité. C'est ce que
+l'estimation apprend, davantage que le chiffre : couper 200 Md€ de dépenses déplace l'activité
+de −6,2 % et l'indice de **−1,8 %** seulement ; doubler l'impôt sur les sociétés ne lui retire
+que **0,14 %**.
+
+**Aucun niveau d'indice n'est affiché, seulement un écart.** Donner un niveau supposerait le
+cours du jour, que cette application statique n'a pas, et un cours périmé vaudrait moins que
+rien.
+
+Deux approximations sont assumées et écrites dans le code. Le chiffre d'affaires sert de
+substitut à la localisation du bénéfice, faute de ventilation géographique des résultats. Et
+le taux effectif d'impôt sur les sociétés est celui de l'économie entière, non celui des
+sociétés de l'indice, que rien de public ne permet d'établir.
+
 ## Chercher un compromis
 
 Un onglet cherche le scénario qui atteint une cible de solde en préservant au mieux
